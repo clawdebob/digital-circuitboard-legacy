@@ -33,6 +33,7 @@
     background-color: lightgrey;
     border: 1px solid;
     padding: 0;
+    top: 1px;
 }
 
 .suboptions li{
