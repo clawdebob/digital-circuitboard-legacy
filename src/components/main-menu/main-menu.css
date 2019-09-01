@@ -1,0 +1,59 @@
+.main-menu-wrapper {
+    background-color: lightgrey;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.main-menu {
+    padding: 0 10px;
+    margin: 5px 0;
+    font-size: 15px;
+}
+
+.main-menu .main-menu__option {
+    text-decoration-style: unset;
+    display: inline-block;
+    margin: 0 5px;
+    padding: 5px 4px;
+    /*position: relative;*/
+}
+
+.main-menu .main-menu__option:hover {
+    background-color: grey;
+}
+
+.main-menu .main-menu__option:hover .suboptions {
+    display: block;
+}
+.suboptions {
+    display: none;
+    position: absolute;
+    background-color: lightgrey;
+    border: 1px solid;
+    padding: 0;
+}
+
+.suboptions li{
+    margin: 0;
+    display: block;
+    border-bottom: 1px solid black;
+}
+
+.suboptions li:last-child {
+    border-bottom: none;
+}
+
+.suboptions div {
+    padding: 3px 30px;
+    display: inline-block;
+}
+
+.suboptions .suboption-name {
+    text-align: left;
+}
+
+.suboptions .suboption-hotkey {
+    text-align: left;
+}
