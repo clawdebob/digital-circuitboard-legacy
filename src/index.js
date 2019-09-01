@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import './index.less';
 import MainMenu from './components/main-menu/main-menu.js';
 
 class App extends React.Component {

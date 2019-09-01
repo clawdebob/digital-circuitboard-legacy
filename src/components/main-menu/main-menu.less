@@ -1,0 +1,61 @@
+.main-menu-wrapper {
+    background-color: lightgrey;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.main-menu {
+    padding: 0 10px;
+    margin: 5px 0;
+    font-size: 15px;
+
+    &__option {
+        text-decoration-style: unset;
+        display: inline-block;
+        margin: 0 5px;
+        padding: 5px 4px;
+        /*position: relative;*/
+    }
+
+    &__option:hover {
+        background-color: grey;
+    }
+
+    &__option:hover .suboptions {
+        display: block;
+    }
+}
+
+.suboptions {
+    display: none;
+    position: absolute;
+    background-color: lightgrey;
+    border: 1px solid;
+    padding: 0;
+
+    &__option {
+        margin: 0;
+        display: block;
+        border-bottom: 1px solid black;
+    }
+
+    &__option:last-child {
+        border-bottom: none;
+    }
+
+    &__entry {
+        padding: 3px 30px;
+        display: inline-block;
+    }
+
+    &__name {
+        text-align: left;
+    }
+
+    &__hotkey {
+        text-align: left;
+        color: aliceblue;
+    }
+}

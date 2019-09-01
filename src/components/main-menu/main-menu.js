@@ -1,13 +1,12 @@
 import React from 'react';
-import './main-menu.css';
+import './main-menu.less';
 
 function SubList(props) {
     const list = props.list.map((entry, idx) => {
-        const hotkey = entry.hotkey;
         return (
-            <li>
-                <div className='suboption-name'>{entry.name}</div>
-                <div className='suboption-hotkey'>{entry.hotkey ? entry.hotkey : null}</div>
+            <li className="suboptions__option">
+                <div className='suboptions__name suboptions__entry'>{entry.name}</div>
+                <div className='suboptions__hotkey suboptions__entry'>{entry.hotkey ? entry.hotkey : null}</div>
             </li>
         );
     });
