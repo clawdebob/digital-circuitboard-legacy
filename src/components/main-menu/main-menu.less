@@ -1,5 +1,5 @@
 .main-menu-wrapper {
-    background-color: lightgrey;
+    background-color: @menu-color;
     width: 100%;
     position: fixed;
     top: 0;
@@ -11,19 +11,21 @@
     margin: 5px 0;
     font-size: 15px;
 
-    &__option {
+    &__option-list {
         text-decoration-style: unset;
         display: inline-block;
+    }
+
+    &__option {
         margin: 0 5px;
         padding: 5px 4px;
-        /*position: relative;*/
     }
 
-    &__option:hover {
-        background-color: grey;
+    &__option-list:hover {
+        background-color: @menu-hover;
     }
 
-    &__option:hover .suboptions {
+    &__option-list:hover .suboptions {
         display: block;
     }
 }
@@ -31,9 +33,10 @@
 .suboptions {
     display: none;
     position: absolute;
-    background-color: lightgrey;
+    background-color: @menu-color;
     border: 1px solid;
     padding: 0;
+    min-width: 200px;
 
     &__option {
         margin: 0;
@@ -57,5 +60,6 @@
     &__hotkey {
         text-align: left;
         color: aliceblue;
+        float: right;
     }
 }

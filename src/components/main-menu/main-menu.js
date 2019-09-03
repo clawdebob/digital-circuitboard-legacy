@@ -1,5 +1,4 @@
 import React from 'react';
-import './main-menu.less';
 
 function SubList(props) {
     const list = props.list.map((entry, idx) => {
@@ -22,8 +21,8 @@ class Options extends React.Component {
     render() {
         const component = this.props.options.map((option, idx) => {
             return (
-                <li className="main-menu__option">
-                    <span>{option.name}</span>
+                <li className="main-menu__option-list">
+                    <div className="main-menu__option">{option.name}</div>
                     <SubList list={option.suboptions}></SubList>
                 </li>
             );
@@ -38,7 +37,7 @@ class mainMenu extends React.Component {
         {
             name: 'File',
             suboptions: [
-                {name: "Save", hotkey: "Ctrl+S"},
+                {name: "SaveSaveSaveSaveSaveSaveSave", hotkey: "Ctrl+S"},
                 {name: "Open"},
                 {name: "Delete", hotkey: "Delete"}
             ]
