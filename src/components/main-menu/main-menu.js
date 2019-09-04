@@ -37,7 +37,7 @@ class mainMenu extends React.Component {
         {
             name: 'File',
             suboptions: [
-                {name: "SaveSaveSaveSaveSaveSaveSave", hotkey: "Ctrl+S"},
+                {name: "Save", hotkey: "Ctrl+S"},
                 {name: "Open"},
                 {name: "Delete", hotkey: "Delete"}
             ]
@@ -59,12 +59,11 @@ class mainMenu extends React.Component {
             ]
         },
         ];
-    // options = ['File', 'Edit', 'View', 'Arrange', 'Extras', 'Help'];
 
     render() {
         return (
             <div className="main-menu-wrapper">
-                <h3>SchemeName.dc</h3>
+                <h3 className="scheme-title">SchemeName.dcb</h3>
                 <Options className="main-menu" options={this.options} />
             </div>
         );
