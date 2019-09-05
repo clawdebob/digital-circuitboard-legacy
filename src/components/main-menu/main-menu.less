@@ -1,19 +1,28 @@
 .main-menu-wrapper {
     background-color: @menu-color;
     width: 100%;
-    position: fixed;
+    display: inline-block;
+    border: 1px solid;
+    border-color: transparent transparent midnightblue transparent;
     top: 0;
     left: 0;
+    position: fixed;
 }
 
 .scheme-title {
     margin-left: 10px;
+    max-width: fit-content;
+}
+
+.scheme-title:hover {
+    background-color: @menu-hover;
 }
 
 .main-menu {
     padding: 0 10px;
     margin: 5px 0;
     font-size: 15px;
+    min-width: max-content;
 
     &__option-list {
         text-decoration-style: unset;
@@ -46,6 +55,10 @@
         margin: 0;
         display: block;
         border-bottom: 1px solid black;
+    }
+
+    &__option:hover {
+        background-color: @menu-hover;
     }
 
     &__option:last-child {

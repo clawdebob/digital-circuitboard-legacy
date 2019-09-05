@@ -1,4 +1,5 @@
 import React from 'react';
+import SideMenu from '../side-menu/side-menu.js';
 
 function SubList(props) {
     const list = props.list.map((entry, idx) => {
@@ -58,6 +59,30 @@ class mainMenu extends React.Component {
                 {name: "Delete", hotkey: "Delete"}
             ]
         },
+        {
+            name: 'Arrange',
+            suboptions: [
+                {name: "Save", hotkey: "Ctrl+S"},
+                {name: "Open"},
+                {name: "Delete", hotkey: "Delete"}
+            ]
+        },
+        {
+            name: 'Extras',
+            suboptions: [
+                {name: "Save", hotkey: "Ctrl+S"},
+                {name: "Open"},
+                {name: "Delete", hotkey: "Delete"}
+            ]
+        },
+        {
+            name: 'Help',
+            suboptions: [
+                {name: "Save", hotkey: "Ctrl+S"},
+                {name: "Open"},
+                {name: "Delete", hotkey: "Delete"}
+            ]
+        },
         ];
 
     render() {
@@ -65,6 +90,7 @@ class mainMenu extends React.Component {
             <div className="main-menu-wrapper">
                 <h3 className="scheme-title">SchemeName.dcb</h3>
                 <Options className="main-menu" options={this.options} />
+                <SideMenu/>
             </div>
         );
     }
