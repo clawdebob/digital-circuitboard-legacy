@@ -9,23 +9,17 @@
     position: fixed;
     left: 0;
     z-index: -1;
-
-    //&__content {
-    //    resize: horizontal;
-    //    height: 100px;
-    //    position: static;
-    //    display: flex;
-    //    width: 100px;
-    //    overflow: auto;
-    //    border: 1px solid black;
-    //}
 }
 
 #split-bar {
     background-color: deepskyblue;
-    border: 1px solid;
+    border-left: 1px solid;
     float: right;
-    width: 6px;
+    width: 12px;
     cursor: col-resize;
     height: 100%;
+}
+
+#split-bar:hover {
+    background-color: midnightblue;
 }
