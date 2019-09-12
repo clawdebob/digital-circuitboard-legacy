@@ -12,10 +12,10 @@
 .scheme-title {
     margin-left: 10px;
     max-width: fit-content;
-}
 
-.scheme-title:hover {
-    background-color: @menu-hover;
+    &:hover {
+        background-color: @menu-hover;
+    }
 }
 
 .main-menu {
@@ -27,19 +27,19 @@
     &__option-list {
         text-decoration-style: unset;
         display: inline-block;
+
+        &:hover {
+            background-color: @menu-hover;
+
+            .suboptions {
+                display: block;
+            }
+        }
     }
 
     &__option {
         margin: 0 5px;
         padding: 5px 4px;
-    }
-
-    &__option-list:hover {
-        background-color: @menu-hover;
-    }
-
-    &__option-list:hover .suboptions {
-        display: block;
     }
 }
 
@@ -55,14 +55,14 @@
         margin: 0;
         display: block;
         border-bottom: 1px solid black;
-    }
 
-    &__option:hover {
-        background-color: @menu-hover;
-    }
+        &:hover {
+            background-color: @menu-hover;
+        }
 
-    &__option:last-child {
-        border-bottom: none;
+        &:last-child {
+            border-bottom: none;
+        }
     }
 
     &__entry {
