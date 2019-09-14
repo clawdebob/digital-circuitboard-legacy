@@ -12,6 +12,8 @@
     position: fixed;
     left: 0;
     z-index: -1;
+    overflow-x: hidden;
+    overflow-y: auto;
 
     &__split-bar {
         background-color: deepskyblue;
@@ -27,8 +29,62 @@
     }
 
     &__list {
+        height: auto;
+        background-color: @menu-color;
+        list-style-type: none;
+        padding: 20px 0;
+        margin: 0;
         width: ~"calc(100% - @{slider-width} - @{slider-border-width})";
-        height: 15px;
-        background-color: orange;
+
+        &__group {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+
+            &-closed {
+                .elements-list {
+                    display: none;
+                }
+            }
+
+            &-opened {
+                .details {
+                    border-bottom: 1px solid grey;
+                }
+
+                .elements-list {
+                    display: block;
+                }
+            }
+
+            &:last-child {
+                .details {
+                    border-bottom: 1px solid grey;
+                }
+                .elements-list {
+                    border-bottom: 1px solid grey;
+                }
+            }
+
+            .details {
+                border-top: 1px solid grey;
+                padding: 10px;
+                min-width: 100px;
+
+                &:hover {
+                    background-color: @menu-hover;
+                }
+            }
+
+            .element {
+                background-color: white;
+                width: 40px;
+                height: 40px;
+                border: 1px solid;
+                margin: 5px;
+                display: inline-block;
+            }
+        }
     }
+
 }

@@ -1,5 +1,94 @@
 import React from 'react';
 
+class GroupElements extends React.Component {
+    render() {
+        const elements = this.props.elements.map((el, idx) => {
+            return (
+                <div className="element" title={el}/>
+            );
+        });
+
+        return (
+            <div
+                className={this.props.className}
+            >
+                {elements}
+            </div>);
+    }
+}
+
+class Group extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            opened: false,
+        };
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    handleClick(e) {
+        this.setState({opened: !this.state.opened});
+    }
+
+    render() {
+        const group = this.props.group;
+        const idx = this.props.index;
+
+
+        return (
+            <div className={`${this.props.className}-${this.state.opened ? 'opened' : 'closed'} ${this.props.className}`}>
+                <div
+                    className={
+                        `details detail--${idx}`
+                    }
+                    onClick={this.handleClick}
+                >
+                    <span>{group.name}</span>
+                </div>
+                <GroupElements
+                    elements={group.elements}
+                    className={`elements-list`}
+                />
+            </div>
+        );
+    }
+}
+
+class GroupDetails extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            opened: false,
+        };
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+
+    handleClick(e) {
+        this.setState({opened: !this.state.opened});
+    }
+
+    render() {
+        const component = this.props.groups.map((group, idx) => {
+            return (
+                <Group
+                    group={group}
+                    className={`${this.props.className}__group`}
+                    index={idx}
+                />
+            );
+        });
+
+        return (
+            <div
+                className={this.props.className}
+            >
+                {component}
+            </div>
+        );
+    }
+}
+
 class sideMenu extends React.Component {
     constructor(props) {
         super(props);
@@ -10,6 +99,7 @@ class sideMenu extends React.Component {
             pageX: null,
             width: null,
             mouseMove(e) {
+                e.preventDefault();
                 if (this.column) {
                     let diffX = e.pageX - this.pageX;
                     if (this.column.getBoundingClientRect().width > this.width
@@ -57,7 +147,7 @@ class sideMenu extends React.Component {
                     className="side-menu__split-bar"
                     onMouseDown={this.handleMouseDown}
                 />
-                <div className="side-menu__list"></div>
+                <GroupDetails groups={this.props.groups} className="side-menu__list"/>
             </div>
         );
     }

@@ -85,12 +85,33 @@ class mainMenu extends React.Component {
         },
         ];
 
+    groups = [
+        {
+            name: 'Base',
+            elements: ['Or', 'And', 'Xor', 'Nand', 'Nor'],
+        },
+        {
+            name: 'Gates',
+            elements: ['Invertor', 'Bus'],
+        },
+        {
+            name: 'Plexers',
+            elements: ['Multiplexor', 'Demultiplexor', 'Decoder', 'Coder'],
+        },
+        {
+            name: 'Arithmetic',
+            elements: ['Summator']
+        },
+        {name: 'Memory', elements: ['ROM', 'RAM']},
+        {name: 'Input/Output', elements: ['Bulb', 'Button', 'Contact']},
+    ];
+
     render() {
         return (
             <div className="main-menu-wrapper">
                 <h3 className="scheme-title">SchemeName.dcb</h3>
                 <Options className="main-menu" options={this.options} />
-                <SideMenu/>
+                <SideMenu className="side-menu" groups={this.groups}/>
             </div>
         );
     }
