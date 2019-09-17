@@ -2,25 +2,21 @@
 @slider-border-width: 1px;
 
 .side-menu {
+    vertical-align: top;
     background-color: @menu-color;
-    width: 200px;
+    width: 20%;
     resize: both;
     height: 100%;
-    display: block;
+    display: inline-block;
     border-right: 1px solid;
-    border-top: 1px solid;
-    position: fixed;
-    left: 0;
-    z-index: -1;
-    overflow-x: hidden;
-    overflow-y: auto;
+    z-index: 1;
 
     &__split-bar {
         background-color: deepskyblue;
         border-left: @slider-border-width solid;
-        float: right;
         width: @slider-width;
         cursor: col-resize;
+        display: inline-block;
         height: 100%;
 
         &:hover {
@@ -28,63 +24,75 @@
         }
     }
 
-    &__list {
-        height: auto;
-        background-color: @menu-color;
-        list-style-type: none;
-        padding: 20px 0;
-        margin: 0;
-        width: ~"calc(100% - @{slider-width} - @{slider-border-width})";
+    &__section {
+        display: flex;
+        flex-direction: column;
 
-        &__group {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+        &__wrapper {
+            display: inline-block;
+            width: ~"calc(100% - @{slider-width} - @{slider-border-width})";
+            vertical-align: top;
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 100%;
+        }
 
-            &-closed {
-                .elements-list {
-                    display: none;
+        .element-details {
+
+        }
+
+        &__list {
+            height: auto;
+            background-color: @menu-color;
+            list-style-type: none;
+            padding: 20px 0;
+            margin: 0;
+
+            &__group {
+                &-closed {
+                    .elements-list {
+                        display: none;
+                    }
                 }
-            }
 
-            &-opened {
+                &-opened {
+                    .details {
+                        border-bottom: 1px solid grey;
+                    }
+
+                    .elements-list {
+                        display: block;
+                    }
+                }
+
+                &:last-child {
+                    .details {
+                        border-bottom: 1px solid grey;
+                    }
+                    .elements-list {
+                        border-bottom: 1px solid grey;
+                    }
+                }
+
                 .details {
-                    border-bottom: 1px solid grey;
+                    border-top: 1px solid grey;
+                    padding: 10px;
+                    min-width: 100px;
+
+                    &:hover {
+                        background-color: @menu-hover;
+                    }
                 }
 
-                .elements-list {
-                    display: block;
+                .element {
+                    background-color: white;
+                    width: 40px;
+                    height: 40px;
+                    border: 1px solid;
+                    margin: 5px;
+                    display: inline-block;
                 }
-            }
-
-            &:last-child {
-                .details {
-                    border-bottom: 1px solid grey;
-                }
-                .elements-list {
-                    border-bottom: 1px solid grey;
-                }
-            }
-
-            .details {
-                border-top: 1px solid grey;
-                padding: 10px;
-                min-width: 100px;
-
-                &:hover {
-                    background-color: @menu-hover;
-                }
-            }
-
-            .element {
-                background-color: white;
-                width: 40px;
-                height: 40px;
-                border: 1px solid;
-                margin: 5px;
-                display: inline-block;
             }
         }
     }
-
 }

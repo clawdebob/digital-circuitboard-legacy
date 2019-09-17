@@ -133,5 +133,8 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "fabric": "^3.4.0"
   }
 }

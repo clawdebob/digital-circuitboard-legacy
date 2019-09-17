@@ -1,17 +1,16 @@
 import React from 'react';
+import Renderer from '../../render';
 
-function Board(props) {
-    let squares = [];
-    for (let c = 0; c < 10000; c++) {
-        squares.push(
-            <div className="board__square" />
+class Board extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <canvas id="board" />
         );
     }
-    return (
-        <div className="board">
-            {squares}
-        </div>
-    );
 }
 
 export default Board;

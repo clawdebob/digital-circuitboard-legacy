@@ -89,6 +89,38 @@ class GroupDetails extends React.Component {
     }
 }
 
+class ElementDetails extends React.Component{
+    getElementData() {
+        const data = [];
+
+        for (let c = 0; c < 4; c++) {
+            data.push(
+                <tr>
+                    <td>value {c + 1}</td>
+                    <td><input type="text"/></td>
+                </tr>
+            );
+        }
+
+        return data;
+    }
+    render() {
+        const elementData = this.getElementData();
+
+        return (
+            <table className="element-details">
+                <tbody>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+                {elementData}
+                </tbody>
+            </table>
+        );
+    }
+}
+
 class sideMenu extends React.Component {
     constructor(props) {
         super(props);
@@ -143,11 +175,16 @@ class sideMenu extends React.Component {
     render() {
         return (
             <div className="side-menu">
+                <div className="side-menu__section__wrapper">
+                    <div className="side-menu__section">
+                        <GroupDetails groups={this.props.groups} className="side-menu__section__list"/>
+                        <ElementDetails/>
+                    </div>
+                </div>
                 <div
                     className="side-menu__split-bar"
                     onMouseDown={this.handleMouseDown}
                 />
-                <GroupDetails groups={this.props.groups} className="side-menu__list"/>
             </div>
         );
     }
