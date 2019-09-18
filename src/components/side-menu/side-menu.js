@@ -130,6 +130,7 @@ class sideMenu extends React.Component {
             curColumnWidth: null,
             pageX: null,
             width: null,
+            leftArea: null,
             mouseMove(e) {
                 e.preventDefault();
                 if (this.column) {
@@ -137,6 +138,7 @@ class sideMenu extends React.Component {
                     if (this.column.getBoundingClientRect().width > this.width
                         || (this.column.getBoundingClientRect().width === this.width && diffX > 0)) {
                         this.column.style.width = `${diffX + this.curColumnWidth}px`;
+                        this.leftArea.style.width = `${this.curColumnWidth - diffX}px`;
                     } else {
                         this.column.style.width = `${this.width}px`;
                     }
@@ -167,6 +169,7 @@ class sideMenu extends React.Component {
         slide.pageX = e.pageX;
         slide.curColumnWidth = slide.column.offsetWidth;
         slide.width = e.target.offsetWidth + 2;
+        slide.leftArea = document.getElementById('board-container');
 
         document.addEventListener('mousemove', slide.mouseMove);
         document.addEventListener('mouseup', slide.mouseUp);
