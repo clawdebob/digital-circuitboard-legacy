@@ -51,6 +51,7 @@ class App extends React.Component {
                     <SideMenu className="side-menu" groups={this.groups} renderer={this.props.renderer}/>
                     <div id="board-container">
                         {/*<Board renderer={this.state.renderer}/>*/}
+                        <div id="test" />
                     </div>
                 </div>
             </div>

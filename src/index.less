@@ -20,11 +20,20 @@ html, body, #root {
     height: 100%;
     display: flex;
     min-height: 0;
+    min-width: 0;
+    transform: translate3d(0,0,0);
+    flex: 1 1;
 
     #board-container {
         background-color: beige;
         display: inline-block;
         width: 100%;
+        overflow: auto;
         flex: 1 1;
+
+        #test {
+            width: 2000px;
+            height: 2000px;
+        }
     }
 }
