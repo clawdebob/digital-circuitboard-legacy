@@ -1,10 +1,15 @@
 import React from 'react';
+import ElementDetails from '../element-details/element-details';
 
 class GroupElements extends React.Component {
     render() {
         const elements = this.props.elements.map((el, idx) => {
             return (
-                <div className="element" title={el}/>
+                <div
+                    className="element"
+                    title={el.name || el}
+                    onClick={() => this.props.handleChange(el.create().props)}
+                />
             );
         });
 
@@ -34,7 +39,6 @@ class Group extends React.Component {
         const group = this.props.group;
         const idx = this.props.index;
 
-
         return (
             <div className={`${this.props.className}-${this.state.opened ? 'opened' : 'closed'} ${this.props.className}`}>
                 <div
@@ -48,6 +52,7 @@ class Group extends React.Component {
                 <GroupElements
                     elements={group.elements}
                     className={`elements-list`}
+                    handleChange={(props) => this.props.handleChange(props)}
                 />
             </div>
         );
@@ -75,6 +80,7 @@ class GroupDetails extends React.Component {
                     group={group}
                     className={`${this.props.className}__group`}
                     index={idx}
+                    handleChange={(props) => this.props.handleChange(props)}
                 />
             );
         });
@@ -85,38 +91,6 @@ class GroupDetails extends React.Component {
             >
                 {component}
             </div>
-        );
-    }
-}
-
-class ElementDetails extends React.Component{
-    getElementData() {
-        const data = [];
-
-        for (let c = 0; c < 4; c++) {
-            data.push(
-                <tr>
-                    <td>value {c + 1}</td>
-                    <td><input type="text"/></td>
-                </tr>
-            );
-        }
-
-        return data;
-    }
-    render() {
-        const elementData = this.getElementData();
-
-        return (
-            <table className="element-details">
-                <tbody>
-                <tr>
-                    <th>Name</th>
-                    <th>Value</th>
-                </tr>
-                {elementData}
-                </tbody>
-            </table>
         );
     }
 }
@@ -143,7 +117,8 @@ class sideMenu extends React.Component {
                     }
                 }
             },
-            mouseUp() {
+            mouseUp(e) {
+                e.preventDefault();
                 this.column = undefined;
                 this.pageX = undefined;
                 this.curColumnWidth = undefined;
@@ -152,18 +127,24 @@ class sideMenu extends React.Component {
                 document.removeEventListener('mousemove', this.mouseMove);
             },
         };
+        this.state = {
+            currentEl: null,
+            originalData: null
+        };
 
         let slide = this.slide;
 
         slide.mouseMove = slide.mouseMove.bind(slide);
         slide.mouseUp = slide.mouseUp.bind(slide);
         this.handleMouseDown = this.handleMouseDown.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
 
     handleMouseDown(e) {
         const slide = this.slide;
 
+        e.preventDefault();
         slide.column = e.target.parentElement;
         slide.pageX = e.pageX;
         slide.curColumnWidth = slide.column.offsetWidth;
@@ -173,13 +154,27 @@ class sideMenu extends React.Component {
         document.addEventListener('mouseup', slide.mouseUp);
     }
 
+    handleChange(curEl) {
+        this.setState({
+            currentEl: curEl,
+        });
+        this.props.renderer.render();
+    };
+
     render() {
         return (
             <div className="side-menu">
                 <div className="side-menu__section__wrapper">
                     <div className="side-menu__section">
-                        <GroupDetails groups={this.props.groups} className="side-menu__section__list"/>
-                        <ElementDetails/>
+                        <GroupDetails
+                            groups={this.props.groups}
+                            handleChange={(props) => this.handleChange(props)}
+                            className="side-menu__section__list"
+                        />
+                        <ElementDetails
+                            currentEl={this.state.currentEl}
+                            handleChange={(props) => this.handleChange(props)}
+                        />
                     </div>
                 </div>
                 <div

@@ -5,6 +5,12 @@ import MainMenu from './components/main-menu/main-menu.js';
 import Board from './components/board/board.js';
 import Renderer from './render.js';
 import SideMenu from "./components/side-menu/side-menu";
+import And from './elements/And/And'
+
+function ElementBase(name, create = () => 0) {
+    this.name = name;
+    this.create = create;
+}
 
 class App extends React.Component {
     constructor(props) {
@@ -13,19 +19,19 @@ class App extends React.Component {
         this.state = {
             renderer: null,
         };
-
-
     }
 
     componentDidMount() {
-        console.log(2);
         this.setState({renderer: new Renderer()});
     }
 
     groups = [
         {
             name: 'Base',
-            elements: ['Or', 'And', 'Xor', 'Nand', 'Nor'],
+            elements: [
+                new ElementBase('Or'),
+                new ElementBase('And', (props) => new And(props)),
+                new ElementBase('Xor'), 'Nand', 'Nor'],
         },
         {
             name: 'Gates',
@@ -48,11 +54,8 @@ class App extends React.Component {
             <div className="app">
                 <MainMenu renderer={this.state.renderer} number={this.number}/>
                 <div className="drawing-area">
-                    <SideMenu className="side-menu" groups={this.groups} renderer={this.props.renderer}/>
-                    <div id="board-container">
-                        {/*<Board renderer={this.state.renderer}/>*/}
-                        <div id="test" />
-                    </div>
+                    <SideMenu className="side-menu" groups={this.groups} renderer={this.state.renderer}/>
+                    <Board renderer={this.state.renderer} />
                 </div>
             </div>
         );

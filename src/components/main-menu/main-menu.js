@@ -1,5 +1,4 @@
 import React from 'react';
-import SideMenu from '../side-menu/side-menu.js';
 
 function SubList(props) {
     const list = props.list.map((entry, idx) => {

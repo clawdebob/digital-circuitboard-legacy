@@ -1,34 +1,19 @@
-import {fabric} from 'fabric';
+import * as Two from 'twojs-ts';
 
 class Renderer {
     constructor() {
-        this.canvas = new fabric.Canvas('board', {
-            width: 1680,
-            height: 1020
-        });
-
-        var rect = new fabric.Rect({
-            top : 100,
-            left : 1000,
-            width : 60,
-            height : 70,
-            fill : 'red'
-        });
-
-        this.canvas.add(rect);
+        const board = document.getElementById('board');
+        const params = {width: 2000, height: 2000};
+        this.svg = new Two(params).appendTo(board);
         this.render = this.render.bind(this);
     }
 
     render() {
-        var rect = new fabric.Rect({
-            top : 100,
-            left : 500,
-            width : 60,
-            height : 70,
-            fill : 'green'
-        });
-
-        this.canvas.add(rect);
+        const rect = this.svg.makeRectangle(213, 100, 100, 100);
+        rect.fill = '#FF8000';
+        rect.opacity = 0.75;
+        rect.noStroke();
+        this.svg.update();
     }
 }
 

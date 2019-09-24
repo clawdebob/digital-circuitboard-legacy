@@ -1,12 +1,14 @@
 @import "components/main-menu/main-menu";
 @import "components/side-menu/side-menu";
 @import "components/board/board";
+@import "components/element-details/element-details";
 @menu-color: lightgrey;
 @menu-hover: grey;
 
 html, body, #root {
     margin: 0;
     height: 100%;
+    overflow: hidden;
 }
 
 .app {
@@ -20,20 +22,5 @@ html, body, #root {
     height: 100%;
     display: flex;
     min-height: 0;
-    min-width: 0;
-    transform: translate3d(0,0,0);
     flex: 1 1;
-
-    #board-container {
-        background-color: beige;
-        display: inline-block;
-        width: 100%;
-        overflow: auto;
-        flex: 1 1;
-
-        #test {
-            width: 2000px;
-            height: 2000px;
-        }
-    }
 }
