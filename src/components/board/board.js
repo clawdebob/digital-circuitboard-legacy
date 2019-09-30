@@ -24,6 +24,7 @@ class Board extends React.Component {
         e.preventDefault();
         const coords = this.getCoords(e);
         const el = this.props.currentEl;
+        console.log('click');
 
         this.props.renderer.renderElement(el, coords.x + el.width/2, coords.y + el.height/2);
     }
@@ -31,12 +32,10 @@ class Board extends React.Component {
     ghostHelper(e) {
         e.preventDefault();
         const coords = this.getCoords(e);
-        const ghost = this.props.currentEl;
-        const activeGhosts = document.getElementsByClassName('ghost');
+        const ghost = JSON.parse(JSON.stringify(this.props.currentEl));
         ghost.props.className = 'ghost';
-        if (activeGhosts.length > 0) {
-            this.props.renderer.removeElement(ghost);
-        }
+        ghost.props.opacity = 0.5;
+        this.props.renderer.removeElement(ghost);
         this.props.renderer.renderElement(ghost, coords.x + ghost.width/2, coords.y + ghost.height/2);
     }
 
@@ -47,8 +46,8 @@ class Board extends React.Component {
                 break;
             case 'create':
                 this.board.style.cursor = 'crosshair';
-                this.board.addEventListener('click', this.dragHandler);
                 this.board.addEventListener('mousemove', this.ghostHelper);
+                this.board.addEventListener('click', this.dragHandler);
                 break;
             default:
                 break;

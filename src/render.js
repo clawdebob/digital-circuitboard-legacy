@@ -18,14 +18,13 @@ class Renderer {
             rect.node_id = props.id;
         }
         if (props.className) {
-            rect.className = props.className;
+            rect.classList.push(props.className);
         }
         return this.render();
     }
 
     removeElement(element) {
         const els = this.svg.scene.getByClassName(element.props.className);
-        console.log(els);
         for (let c = 0; c < els.length; c++) {
             let elem = els[c];
             elem.remove();
