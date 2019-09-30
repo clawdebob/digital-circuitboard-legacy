@@ -1,4 +1,4 @@
-import * as Two from 'twojs-ts';
+import Two from 'two.js';
 
 class Renderer {
     constructor() {
@@ -8,11 +8,32 @@ class Renderer {
         this.render = this.render.bind(this);
     }
 
-    render() {
-        const rect = this.svg.makeRectangle(213, 100, 100, 100);
-        rect.fill = '#FF8000';
-        rect.opacity = 0.75;
+    renderElement(element, x, y) {
+        const props = element.props;
+        const rect = this.svg.makeRectangle(x, y, element.width, element.height);
+        rect.fill = props.fill;
+        rect.opacity = props.opacity || 1;
         rect.noStroke();
+        if (props.id) {
+            rect.node_id = props.id;
+        }
+        if (props.className) {
+            rect.className = props.className;
+        }
+        return this.render();
+    }
+
+    removeElement(element) {
+        const els = this.svg.scene.getByClassName(element.props.className);
+        console.log(els);
+        for (let c = 0; c < els.length; c++) {
+            let elem = els[c];
+            elem.remove();
+        }
+        return this.render();
+    }
+
+    render() {
         this.svg.update();
     }
 }

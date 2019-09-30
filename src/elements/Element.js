@@ -5,8 +5,12 @@ class Element {
             inContacts: props.inContacts,
             outContacts: props.outContacts,
             signals: props.signals,
-            color: props.color,
+            fill: props.fill,
         };
+    }
+
+    setProps(props) {
+        this.props = props;
     }
 }
 

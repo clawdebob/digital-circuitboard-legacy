@@ -10,14 +10,14 @@ class ElementDetails extends React.Component{
     }
 
     resetElementState() {
+        const curEl = JSON.parse(JSON.stringify(this.props.currentEl));
         let [input, span] = document.getElementsByName(this.currentProp);
-        console.log(input.value);
+
         span.style.display = 'block';
         input.style.display = 'none';
-        const props = JSON.parse(JSON.stringify(this.props.currentEl));
-        props[this.currentProp] = input.value;
-        this.props.handleChange(props);
-        document.removeEventListener('click', this.resetElementState)
+        curEl.props[this.currentProp] = input.value;
+        this.props.handleChange(curEl);
+        document.removeEventListener('click', this.resetElementState);
     }
 
     handleClick(e, prop) {
@@ -36,19 +36,27 @@ class ElementDetails extends React.Component{
     getElementData() {
         const element = this.props.currentEl;
 
-        return Object.keys(element).map((prop, ind) => {
+        return Object.keys(element.props).map((prop, ind) => {
+            const key = `${element.props.name}_${prop}`;
             return (
-                <tr>
-                    <td>{prop}</td>
-                    <td onClick={(e) => this.handleClick(e, prop)}>
+                <tr key={key}>
+                    <td key={prop}>{prop}</td>
+                    <td
+                        onClick={(e) => this.handleClick(e, prop)}
+                        key={key}
+                    >
                         <input
                             type="text"
-                            defaultValue={this.props.currentEl[prop]}
+                            defaultValue={element.props[prop]}
                             name={prop}
+                            key={key}
                         />
                         <span
                             className={`${this.className}__prop-value`}
-                            name={prop}>{element[prop]}
+                            name={prop}
+                            key={ind}
+                        >
+                            {element.props[prop]}
                         </span>
                     </td>
                 </tr>
@@ -58,7 +66,6 @@ class ElementDetails extends React.Component{
 
     render() {
         if (this.props.currentEl) {
-            this.originalData = JSON.parse(JSON.stringify(this.props.currentEl));
             const elementData = this.getElementData();
 
             return (

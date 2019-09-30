@@ -1,15 +1,14 @@
 import Element from '../Element'
 
 const defaultProps = {
-    name: 'And',
+    name: 'Xor',
     inContacts: 2,
     outContacts: 1,
     signals: 'true/false',
-    fill: '#FF8000',
-
+    fill: '#453dff',
 };
 
-class And extends Element {
+class Xor extends Element {
     constructor(props) {
         props ? super(props) : super(defaultProps);
 
@@ -19,4 +18,4 @@ class And extends Element {
     }
 }
 
-export default And;
+export default Xor;
