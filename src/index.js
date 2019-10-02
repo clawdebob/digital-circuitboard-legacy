@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.less';
 import MainMenu from './components/main-menu/main-menu.js';
 import Board from './components/board/board.js';
-import Renderer from './render.js';
 import SideMenu from "./components/side-menu/side-menu";
 import And from './elements/And/And'
 import Xor from './elements/Xor/Xor'
@@ -18,16 +17,11 @@ class App extends React.Component {
         super(props);
 
         this.state = {
-            renderer: null,
             currentEl: null,
             boardState: 'default',
         };
 
         this.handleChange = this.handleChange.bind(this);
-    }
-
-    componentDidMount() {
-        this.setState({renderer: new Renderer()});
     }
 
     groups = [
@@ -67,18 +61,16 @@ class App extends React.Component {
     render() {
         return (
             <div className="app">
-                <MainMenu renderer={this.state.renderer} number={this.number}/>
+                <MainMenu/>
                 <div className="drawing-area">
                     <SideMenu
                         className="side-menu"
                         groups={this.groups}
-                        renderer={this.state.renderer}
                         currentEl={this.state.currentEl}
                         handleChange={(props) => this.handleChange(props)}
                         setBoardState={(state) => this.setBoardState(state)}
                     />
                     <Board
-                        renderer={this.state.renderer}
                         currentEl={this.state.currentEl}
                         state={this.state.boardState}
                     />

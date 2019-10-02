@@ -3,7 +3,8 @@ import Two from 'two.js';
 class Renderer {
     constructor() {
         const board = document.getElementById('board');
-        const params = {width: 2000, height: 2000};
+        const params = {width: 2000, height: 1000};
+
         this.svg = new Two(params).appendTo(board);
         this.render = this.render.bind(this);
     }

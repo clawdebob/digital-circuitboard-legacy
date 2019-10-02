@@ -35,14 +35,6 @@ class Options extends React.Component {
 class mainMenu extends React.Component {
     constructor(props) {
         super(props);
-        this.onClick = this.onClick.bind(this);
-    }
-    componentDidMount() {
-        console.log(1);
-    }
-
-    onClick() {
-        this.props.renderer.render();
     }
 
     options = [

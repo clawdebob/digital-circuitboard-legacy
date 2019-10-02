@@ -66,7 +66,6 @@ class Group extends React.Component {
                     handleChange={(props) => this.props.handleChange(props)}
                     setBoardState={(state) => this.props.setBoardState(state)}
                     currentEl={this.props.currentEl}
-                    renderer={this.props.renderer}
                 />
             </div>
         );
@@ -96,7 +95,6 @@ class GroupDetails extends React.Component {
                     index={idx}
                     handleChange={(props) => this.props.handleChange(props)}
                     setBoardState={(state) => this.props.setBoardState(state)}
-                    renderer={this.props.renderer}
                     currentEl={this.props.currentEl}
                 />
             );
@@ -180,13 +178,11 @@ class sideMenu extends React.Component {
                             groups={this.props.groups}
                             handleChange={(props) => this.props.handleChange(props)}
                             className="side-menu__section__list"
-                            renderer={this.props.renderer}
                             currentEl={this.props.currentEl}
                             setBoardState={(state) => this.props.setBoardState(state)}
                         />
                         <ElementDetails
                             currentEl={this.props.currentEl}
-                            renderer={this.props.renderer}
                             handleChange={(props) => this.props.handleChange(props)}
                         />
                     </div>

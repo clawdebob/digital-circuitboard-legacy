@@ -1,11 +1,15 @@
 import React from 'react';
+import Renderer from '../../render.js';
 
 class Board extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            eventType: null,
+            ghost: null,
+            x: null,
+            y: null,
         };
+        this.ghost = null;
 
         this.dragHandler = this.dragHandler.bind(this);
         this.ghostHelper = this.ghostHelper.bind(this);
@@ -20,23 +24,31 @@ class Board extends React.Component {
         return {x: x, y: y};
     }
 
+    calcCoords(coords) {
+        coords.x = Math.floor(coords.x/22)*22 + 10;
+        coords.y = Math.floor(coords.y/22)*22 + 10;
+
+        this.setState(coords);
+    }
+
     dragHandler(e) {
         e.preventDefault();
-        const coords = this.getCoords(e);
         const el = this.props.currentEl;
-        console.log('click');
 
-        this.props.renderer.renderElement(el, coords.x + el.width/2, coords.y + el.height/2);
+        this.renderer.renderElement(el, this.state.x + el.width/2, this.state.y + el.height/2);
     }
 
     ghostHelper(e) {
         e.preventDefault();
-        const coords = this.getCoords(e);
-        const ghost = JSON.parse(JSON.stringify(this.props.currentEl));
-        ghost.props.className = 'ghost';
-        ghost.props.opacity = 0.5;
-        this.props.renderer.removeElement(ghost);
-        this.props.renderer.renderElement(ghost, coords.x + ghost.width/2, coords.y + ghost.height/2);
+        const ghost = this.ghost;
+        let coords = this.getCoords(e);
+
+        if(ghost) {
+            this.calcCoords(coords);
+
+            this.renderer.removeElement(ghost);
+            this.renderer.renderElement(ghost, coords.x + ghost.width/2, coords.y + ghost.height/2);
+        }
     }
 
     setBoardState() {
@@ -48,6 +60,11 @@ class Board extends React.Component {
                 this.board.style.cursor = 'crosshair';
                 this.board.addEventListener('mousemove', this.ghostHelper);
                 this.board.addEventListener('click', this.dragHandler);
+                const ghost = JSON.parse(JSON.stringify(this.props.currentEl));
+
+                ghost.props.className = 'ghost';
+                ghost.props.opacity = 0.5;
+                this.ghost = ghost;
                 break;
             default:
                 break;
@@ -56,6 +73,8 @@ class Board extends React.Component {
 
     componentDidMount() {
         this.board = document.getElementById('board');
+        this.renderer = new Renderer();
+        // this.applyPointEvents();
     }
 
     render() {
