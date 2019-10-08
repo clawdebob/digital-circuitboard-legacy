@@ -18,7 +18,7 @@ class App extends React.Component {
 
         this.state = {
             currentEl: null,
-            boardState: 'default',
+            boardState: null,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -61,7 +61,7 @@ class App extends React.Component {
     render() {
         return (
             <div className="app">
-                <MainMenu/>
+                <MainMenu onClick={() => {this.setBoardState('wire')}}/>
                 <div className="drawing-area">
                     <SideMenu
                         className="side-menu"
