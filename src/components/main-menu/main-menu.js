@@ -33,10 +33,6 @@ class Options extends React.Component {
 }
 
 class mainMenu extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     options = [
         {
             name: 'File',

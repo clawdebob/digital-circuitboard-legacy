@@ -10,12 +10,14 @@ class ElementDetails extends React.Component{
     }
 
     resetElementState() {
-        const curEl = JSON.parse(JSON.stringify(this.props.currentEl));
+        const curEl = this.props.currentEl;
         let [input, span] = document.getElementsByName(this.currentProp);
 
         span.style.display = 'block';
         input.style.display = 'none';
-        curEl.props[this.currentProp] = input.value;
+        curEl.props[this.currentProp] = Number(input.value) || input.value;
+        curEl.setProps(curEl.props);
+
         this.props.handleChange(curEl);
         document.removeEventListener('click', this.resetElementState);
     }

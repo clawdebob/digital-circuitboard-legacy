@@ -32,14 +32,14 @@ class Board extends React.Component {
     }
 
     calcCoords(coords) {
-        coords.x = Math.floor(coords.x/22)*22 + 10;
-        coords.y = Math.floor(coords.y/22)*22 + 10;
+        coords.x = Math.floor(coords.x/12)*12 + 5;
+        coords.y = Math.floor(coords.y/12)*12 + 5;
         this.setState(coords);
     }
 
     calcWireCoords(coords, isWireStart = false) {
-        coords.x = Math.floor(coords.x/22)*22 + 10;
-        coords.y = Math.floor(coords.y/22)*22 + 10;
+        coords.x = Math.floor(coords.x/12)*12 + 5;
+        coords.y = Math.floor(coords.y/12)*12 + 5;
 
         if(isWireStart) {
             this.setState({x1: coords.x, y1: coords.y});
@@ -77,7 +77,7 @@ class Board extends React.Component {
         e.preventDefault();
         const el = this.props.currentEl;
 
-        this.renderer.renderElement(el, this.state.x + el.width/2, this.state.y + el.height/2);
+        this.renderer.renderElement(el, this.state.x, this.state.y);
     }
 
     orientationCorrection(x1, y1, x2, y2) {
@@ -110,7 +110,7 @@ class Board extends React.Component {
         if(ghost) {
             this.calcCoords(coords);
             this.renderer.removeElement(ghost);
-            this.renderer.renderElement(ghost, coords.x + ghost.width/2, coords.y + ghost.height/2);
+            this.renderer.renderElement(ghost, coords.x, coords.y, true);
         }
 
         if(this.props.state === 'wire' && this.down) {

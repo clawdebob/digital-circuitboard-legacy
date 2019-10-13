@@ -11,7 +11,7 @@ class Renderer {
 
     renderWire(props, x1,y1,x2,y2) {
         const wire = this.svg.makeLine(x1,y1,x2,y2);
-        wire.fill = props.fill;
+        wire.fill = props.fill || '#000000';
         wire.opacity = 1;
         wire.linewidth = 2;
         if (props.id) {
@@ -24,11 +24,21 @@ class Renderer {
         return this.render();
     }
 
-    renderElement(element, x, y) {
+    renderElement(element, x, y, ghost = false) {
         const props = element.props;
-        const rect = this.svg.makeRectangle(x, y, element.width, element.height);
+        const originY = element.height/2 - element.originY;
+        const originX = element.width/2;
+        const rect = this.svg.makeRectangle(x + originX, y + originY, element.width, element.height);
         rect.fill = props.fill;
         rect.opacity = props.opacity || 1;
+        if(!ghost) {
+            element.inPins.pinPositionsArray.forEach((val) => {
+                this.renderWire({}, x + val.x1, y + val.y1, x + val.x2,  y + val.y2);
+            });
+            element.outPins.pinPositionsArray.forEach((val) => {
+                this.renderWire({}, x + val.x1, y + val.y1, x + val.x2,  y + val.y2);
+            });
+        }
         rect.noStroke();
         if (props.id) {
             rect.node_id = props.id;
