@@ -1,5 +1,9 @@
 class Pin {
-    constructor(n, width, height, originY, out = false) {
+    constructor(el, out = false) {
+        const n = out ? el.props.outContacts : el.props.inContacts;
+        const width = el.width;
+        const height = el.height;
+        const originY = el.originY;
         const pinLength = 12;
         let y1 = 0;
         let availableLen = height - (2 * originY);
@@ -39,6 +43,7 @@ class Pin {
                     : {x1: -pinLength, y1: val, x2: 0, y2: val};
             });
         this.pinValues = new Array(n).fill(false);
+        this.model = null;
     }
 }
 

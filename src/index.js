@@ -4,6 +4,7 @@ import './index.less';
 import MainMenu from './components/main-menu/main-menu.js';
 import Board from './components/board/board.js';
 import SideMenu from "./components/side-menu/side-menu";
+import ActionPanel from "./components/action-panel/action-panel";
 import And from './elements/And/And'
 import Xor from './elements/Xor/Xor'
 
@@ -61,7 +62,10 @@ class App extends React.Component {
     render() {
         return (
             <div className="app">
-                <MainMenu onClick={() => {this.setBoardState('wire')}}/>
+                <MainMenu onClick={() => {this.setBoardState('wire')}}>
+
+                </MainMenu>
+                <ActionPanel setBoardState={(state) => this.setBoardState(state)}/>
                 <div className="drawing-area">
                     <SideMenu
                         className="side-menu"
@@ -73,6 +77,7 @@ class App extends React.Component {
                     <Board
                         currentEl={this.state.currentEl}
                         state={this.state.boardState}
+                        setBoardState={(state) => this.setBoardState(state)}
                     />
                 </div>
             </div>

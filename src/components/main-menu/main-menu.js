@@ -87,8 +87,13 @@ class mainMenu extends React.Component {
     render() {
         return (
             <div className="main-menu-wrapper">
-                <h3 className="scheme-title" onClick={this.props.onClick}>SchemeName.dcb</h3>
-                <Options className="main-menu" options={this.options} />
+                <div className="logo-block">
+                    <div className="logo"/>
+                </div>
+                <div className="menu-block">
+                    <h3 className="scheme-title" onClick={this.props.onClick}>SchemeName.dcb</h3>
+                    <Options className="main-menu" options={this.options} />
+                </div>
             </div>
         );
     }

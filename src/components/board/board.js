@@ -1,6 +1,9 @@
 import React from 'react';
 import Renderer from '../../render';
 import Wire from '../../elements/Wire/Wire';
+import STATE from './board-states.consts';
+import _ from 'lodash';
+import {fromEvent} from "rxjs";
 
 class Board extends React.Component {
     constructor(props) {
@@ -15,6 +18,10 @@ class Board extends React.Component {
         this.ghost = null;
         this.down = false;
         this.wiresToBuild = null;
+        this.startingEl = null;
+        this.endingEl = null;
+        this.elements = [];
+        this.wires = [];
 
         this.dragHandler = this.dragHandler.bind(this);
         this.ghostHelper = this.ghostHelper.bind(this);
@@ -58,12 +65,42 @@ class Board extends React.Component {
     endWire(e) {
         e.preventDefault();
         const wire = new Wire();
+        const startingEl = this.startingEl;
+        const endingEl = this.endingEl;
         wire.className = 'Wire';
         if(this.wiresToBuild) {
             const main = this.wiresToBuild.main;
             const bend = this.wiresToBuild.bend;
             if(main) {
-                this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
+                if (startingEl || endingEl) {
+                    if(!((startingEl.el.id === endingEl.el.id)
+                        && (startingEl.pin === endingEl.pin)
+                        && (startingEl.type === endingEl.type))
+                    ) {
+                        console.log(startingEl, endingEl);
+                        if(startingEl.type === 'in') {
+                            wire.inConnector = _.clone(startingEl);
+                        } else if(startingEl.type === 'out') {
+                            wire.outConnector = _.clone(startingEl);
+                        }
+                        if(endingEl.type === 'in') {
+                            wire.inConnector = _.clone(endingEl);
+                        } else if(endingEl.type === 'out') {
+                            wire.outConnector = _.clone(endingEl);
+                        }
+                    } else {
+                        if(startingEl.type === 'in') {
+                            wire.inConnector = _.clone(startingEl);
+                        } else if(startingEl.type === 'out') {
+                            wire.outConnector = _.clone(startingEl);
+                        }
+                    }
+                    if(main.x1 !== main.x2 && (Math.abs(main.y1 - main.y2)!== 2)) {
+                        this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
+                    } else {
+                        this.renderer.removeElement({className: 'main'});
+                    }
+                }
                 if(bend) {
                     this.renderer.renderWire(bend, bend.x1, bend.y1, bend.x2, bend.y2);
                 }
@@ -71,13 +108,68 @@ class Board extends React.Component {
         }
         this.down = false;
         this.board.removeEventListener('mousemove', this.ghostHelper);
+        if(this.props.state === STATE.WIRE) {
+            this.props.setBoardState(STATE.EDIT);
+        }
     }
 
     dragHandler(e) {
         e.preventDefault();
-        const el = this.props.currentEl;
+        const el = _.cloneDeep(this.props.currentEl);
 
         this.renderer.renderElement(el, this.state.x, this.state.y);
+        this.elements.push(el);
+        el.setId();
+        el.updateState();
+        this.renderer.render();
+        this.applyHelpers(el);
+    }
+
+    applyHelpers(el) {
+        const iterFunc = (startFunction, endFunction) => {
+            return (helper, idx) => {
+                const domEl = helper._renderer.elem;
+
+                fromEvent(domEl, 'mousemove')
+                    .subscribe(() => {
+                        if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
+                            helper.opacity = 1;
+                            this.renderer.render();
+                        }
+                        endFunction(el, idx);
+                    });
+                fromEvent(domEl, 'mousedown')
+                    .subscribe(() => {
+                        if(this.props.state === STATE.EDIT) {
+                            this.props.setBoardState(STATE.WIRE);
+                        }
+                        startFunction(el, idx);
+                    });
+                fromEvent(domEl, 'mouseout')
+                    .subscribe(() => {
+                        if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
+                            helper.opacity = 0;
+                            this.renderer.render();
+                        }
+                    });
+            };
+        };
+        const vm = this;
+
+        _.forEach(
+            el.outPins.helpers,
+            iterFunc(
+                    (el, idx) => {vm.startingEl = {el: el, pin: idx, type: 'out'}},
+                    (el, idx) => {vm.endingEl = {el: el, pin: idx, type: 'out'}}
+                )
+        );
+        _.forEach(
+            el.inPins.helpers,
+            iterFunc(
+                    (el, idx) => {vm.startingEl = {el: el, pin: idx, type: 'in'}},
+                    (el, idx) => {vm.endingEl = {el: el, pin: idx, type: 'in'}}
+                )
+        );
     }
 
     orientationCorrection(x1, y1, x2, y2) {
@@ -107,13 +199,13 @@ class Board extends React.Component {
         const ghost = this.ghost;
         let coords = this.getCoords(e);
 
-        if(ghost) {
+        if(ghost && this.props.state === STATE.CREATE) {
             this.calcCoords(coords);
             this.renderer.removeElement(ghost);
-            this.renderer.renderElement(ghost, coords.x, coords.y, true);
+            this.renderer.renderGhost(ghost, coords.x, coords.y);
         }
 
-        if(this.props.state === 'wire' && this.down) {
+        if(this.props.state === STATE.WIRE && this.down) {
             const wire = new Wire();
             const bend = new Wire();
             wire.className = 'main';
@@ -188,27 +280,27 @@ class Board extends React.Component {
     setBoardState() {
         this.resetComponent();
         switch(this.props.state) {
-            case 'wire':
-                this.board.style.cursor = 'crosshair';
+            case STATE.WIRE:
+                this.board.style.cursor = 'initial';
                 this.board.addEventListener('mousedown', this.startWire);
                 this.board.addEventListener('mousemove', this.ghostHelper);
                 this.board.addEventListener('mouseup', this.endWire);
                 break;
-            case 'edit':
-
+            case STATE.EDIT:
+                this.board.style.cursor = 'initial';
+                this.board.addEventListener('mousemove', this.ghostHelper);
                 break;
-            case 'create':
+            case STATE.CREATE:
                 this.board.style.cursor = 'crosshair';
                 this.board.addEventListener('mousemove', this.ghostHelper);
                 this.board.addEventListener('click', this.dragHandler);
-                const ghost = JSON.parse(JSON.stringify(this.props.currentEl));
+                const ghost = _.cloneDeep(this.props.currentEl);
 
                 ghost.props.className = 'ghost';
                 ghost.props.opacity = 0.5;
                 this.ghost = ghost;
                 break;
             default:
-                // this.resetComponent();
                 break;
         }
     }

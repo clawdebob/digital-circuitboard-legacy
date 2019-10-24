@@ -1,19 +1,27 @@
 .main-menu-wrapper {
     background-color: @menu-color;
     width: 100%;
-    display: inline-block;
+    display: flex;
     border-bottom: 1px solid;
     top: 0;
     left: 0;
 }
 
 .scheme-title {
-    margin-left: 10px;
-    max-width: fit-content;
+    margin: 5px 19px;
+    width: min-content;
 
     &:hover {
         background-color: @menu-hover;
     }
+}
+
+.logo {
+    background-color: white;
+    border: 1px solid;
+    width: 40px;
+    height: 40px;
+    margin: 10px;
 }
 
 .main-menu {

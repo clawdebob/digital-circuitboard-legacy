@@ -17,6 +17,13 @@ class And extends Element {
     constructor(props) {
         props ? super(props) : super(defaultProps);
     }
+
+    operation() {
+        this.outPins.pinValues[0] = true;
+    }
 }
+
+
+
 
 export default And;
