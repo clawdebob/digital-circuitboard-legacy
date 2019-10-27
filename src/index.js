@@ -7,6 +7,7 @@ import SideMenu from "./components/side-menu/side-menu";
 import ActionPanel from "./components/action-panel/action-panel";
 import And from './elements/And/And'
 import Xor from './elements/Xor/Xor'
+import Constant from './elements/Constant/Constant'
 
 function ElementBase(name, create = () => 0) {
     this.name = name;
@@ -31,7 +32,10 @@ class App extends React.Component {
             elements: [
                 new ElementBase('Or'),
                 new ElementBase('And', (props) => new And(props)),
-                new ElementBase('Xor', (props) => new Xor(props)), 'Nand', 'Nor'],
+                new ElementBase('Xor', (props) => new Xor(props)),
+                new ElementBase('Constant', (props => new Constant(props))),
+                'Nand',
+                'Nor'],
         },
         {
             name: 'Gates',

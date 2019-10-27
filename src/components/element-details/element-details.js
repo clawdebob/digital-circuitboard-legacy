@@ -11,6 +11,7 @@ class ElementDetails extends React.Component{
 
     resetElementState() {
         const curEl = this.props.currentEl;
+        console.log(this.currentProp);
         let [input, span] = document.getElementsByName(this.currentProp);
 
         span.style.display = 'block';
@@ -26,10 +27,11 @@ class ElementDetails extends React.Component{
         let [input, span] = document.getElementsByName(prop);
         span.style.display = 'none';
         input.style.display = 'block';
+
+        this.currentProp = prop;
         if (prop !== this.currentProp && this.currentProp) {
             this.resetElementState();
         }
-        this.currentProp = prop;
 
         input.focus();
         document.addEventListener('click', this.resetElementState);
@@ -39,7 +41,8 @@ class ElementDetails extends React.Component{
         const element = this.props.currentEl;
 
         return Object.keys(element.props).map((prop, ind) => {
-            const key = `${element.props.name}_${prop}`;
+            const key = `${element.name}_${prop}`;
+            console.log(key);
             return (
                 <tr key={key}>
                     <td key={prop}>{prop}</td>

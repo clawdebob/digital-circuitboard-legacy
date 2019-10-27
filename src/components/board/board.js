@@ -77,29 +77,34 @@ class Board extends React.Component {
                         && (startingEl.pin === endingEl.pin)
                         && (startingEl.type === endingEl.type))
                     ) {
-                        console.log(startingEl, endingEl);
-                        if(startingEl.type === 'in') {
+                        if(startingEl.type === 'out') {
                             wire.inConnector = _.clone(startingEl);
-                        } else if(startingEl.type === 'out') {
+                        } else if(startingEl.type === 'in') {
                             wire.outConnector = _.clone(startingEl);
                         }
-                        if(endingEl.type === 'in') {
+                        if(endingEl.type === 'out') {
                             wire.inConnector = _.clone(endingEl);
-                        } else if(endingEl.type === 'out') {
+                        } else if(endingEl.type === 'in') {
                             wire.outConnector = _.clone(endingEl);
                         }
                     } else {
-                        if(startingEl.type === 'in') {
+                        if(startingEl.type === 'out') {
                             wire.inConnector = _.clone(startingEl);
-                        } else if(startingEl.type === 'out') {
+                        } else if(startingEl.type === 'in') {
                             wire.outConnector = _.clone(startingEl);
                         }
                     }
                     if(main.x1 !== main.x2 && (Math.abs(main.y1 - main.y2)!== 2)) {
-                        this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
+                        this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2)
+                        this.wires.push(wire);
+                        wire.renderFlag.subscribe(() => {
+                           this.renderer.render();
+                        });
+                        wire.wire();
                     } else {
                         this.renderer.removeElement({className: 'main'});
                     }
+                    // console.log(this.wires, this.elements);
                 }
                 if(bend) {
                     this.renderer.renderWire(bend, bend.x1, bend.y1, bend.x2, bend.y2);
@@ -120,20 +125,22 @@ class Board extends React.Component {
         this.renderer.renderElement(el, this.state.x, this.state.y);
         this.elements.push(el);
         el.setId();
+        el.renderFlag.subscribe(() => {
+           this.renderer.render();
+        });
         el.updateState();
-        this.renderer.render();
         this.applyHelpers(el);
     }
 
     applyHelpers(el) {
         const iterFunc = (startFunction, endFunction) => {
-            return (helper, idx) => {
-                const domEl = helper._renderer.elem;
+            return (pin, idx) => {
+                const domEl = pin.helper._renderer.elem;
 
                 fromEvent(domEl, 'mousemove')
                     .subscribe(() => {
                         if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
-                            helper.opacity = 1;
+                            pin.helper.opacity = 1;
                             this.renderer.render();
                         }
                         endFunction(el, idx);
@@ -148,28 +155,29 @@ class Board extends React.Component {
                 fromEvent(domEl, 'mouseout')
                     .subscribe(() => {
                         if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
-                            helper.opacity = 0;
+                            pin.helper.opacity = 0;
                             this.renderer.render();
                         }
                     });
             };
         };
         const vm = this;
-
         _.forEach(
-            el.outPins.helpers,
+            el.outPins.pins,
             iterFunc(
-                    (el, idx) => {vm.startingEl = {el: el, pin: idx, type: 'out'}},
-                    (el, idx) => {vm.endingEl = {el: el, pin: idx, type: 'out'}}
-                )
+                (el, idx) => {vm.startingEl = {el: el, pin: idx, type: 'out'}},
+                (el, idx) => {vm.endingEl = {el: el, pin: idx, type: 'out'}}
+            )
         );
-        _.forEach(
-            el.inPins.helpers,
-            iterFunc(
+        if(el.props.inContacts) {
+            _.forEach(
+                el.inPins.pins,
+                iterFunc(
                     (el, idx) => {vm.startingEl = {el: el, pin: idx, type: 'in'}},
                     (el, idx) => {vm.endingEl = {el: el, pin: idx, type: 'in'}}
                 )
-        );
+            );
+        }
     }
 
     orientationCorrection(x1, y1, x2, y2) {

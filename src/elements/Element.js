@@ -1,5 +1,6 @@
 import Pin from "./Pin/Pin";
 import _ from 'lodash';
+import {BehaviorSubject} from 'rxjs'
 
 class Element {
     static elementCounter = 0;
@@ -12,6 +13,7 @@ class Element {
         this.setProps(props.props);
         this.model = null;
         this.helpers = null;
+        this.renderFlag = new BehaviorSubject(false);
     }
 
     setProps(props) {
@@ -29,21 +31,32 @@ class Element {
         Element.elementCounter++;
     }
 
+    wire() {
+        if (this.props.inPins) {
+
+        }
+    }
+
+    unwire() {
+
+    }
+
     operation() {}
 
-    // getHelpers() {
-    //     return _.get(this.model, 'children[3]')
-    // }
-
-
     updateState() {
-        this.inPins.pinValues.forEach((pin, idx) => {
-            this.model.children[1].children[idx].stroke = pin ? '#00FF00' : '#006200';
-        });
+        if(this.props.inContacts) {
+            this.inPins.pins.forEach((pin, idx) => {
+                pin.value = _.get(pin,'wiredTo.signal', undefined);
+                console.log(pin.value);
+                this.model.children[1].children[idx].stroke = pin.value ? '#00FF00' : '#006200';
+            });
+        }
         this.operation();
-        this.outPins.pinValues.forEach((pin, idx) => {
-            this.model.children[2].children[idx].stroke = pin ? '#00FF00' : '#006200';
+        this.outPins.pins.forEach((pin, idx) => {
+            this.model.children[2].children[idx].stroke = pin.value ? '#00FF00' : '#006200';
+            pin.valueUpdate.next(pin.value);
         });
+        this.renderFlag.next();
     }
 }
 

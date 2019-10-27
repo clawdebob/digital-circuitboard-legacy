@@ -1,3 +1,5 @@
+import {BehaviorSubject} from 'rxjs'
+
 class Pin {
     constructor(el, out = false) {
         const n = out ? el.props.outContacts : el.props.inContacts;
@@ -7,7 +9,7 @@ class Pin {
         const pinLength = 12;
         let y1 = 0;
         let availableLen = height - (2 * originY);
-        const maxPoints = availableLen / 10;
+        const maxPoints = Math.round(availableLen / 10);
         const pointsArray = new Array(maxPoints);
         const pivotPoint = Math.round(maxPoints / 2);
         for (let i = 0; i < maxPoints; i++) {
@@ -34,7 +36,7 @@ class Pin {
             yPositions.push(pointsArray[pivotPoint - 1]);
         }
 
-        this.pinPositionsArray = yPositions
+        const pinPositionsArray = yPositions
             .sort()
             .map((val) => {
                 val++;
@@ -42,8 +44,18 @@ class Pin {
                     {x1: width, y1: val, x2: width + pinLength, y2: val}
                     : {x1: -pinLength, y1: val, x2: 0, y2: val};
             });
-        this.pinValues = new Array(n).fill(false);
-        this.model = null;
+        this.pins = new Array(n)
+            .fill(null)
+            .map((val, idx) => {
+            return {
+                coords: pinPositionsArray[idx],
+                value: false,
+                model: null,
+                helper: null,
+                wiredTo: null,
+                valueUpdate: new BehaviorSubject(false),
+            };
+        });
     }
 }
 

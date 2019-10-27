@@ -1,4 +1,5 @@
 import Element from '../Element'
+import _ from 'lodash'
 
 const defaultProps = {
     name: 'And',
@@ -19,7 +20,9 @@ class And extends Element {
     }
 
     operation() {
-        this.outPins.pinValues[0] = true;
+        this.outPins.pins[0].value = _.reduce(this.inPins.pins,(result, pin) => {
+            return result && pin.value;
+        }, 1);
     }
 }
 

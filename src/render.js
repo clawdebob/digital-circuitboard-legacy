@@ -23,6 +23,7 @@ class Renderer {
         }
 
         this.render();
+        props.model = wire;
         return wire;
     }
 
@@ -74,13 +75,15 @@ class Renderer {
         const outPins = [];
         const outHelpers = [];
         const inHelpers = [];
-        element.inPins.pinPositionsArray.forEach((val) => {
-            inPins.push(this.renderWire({}, x + val.x1, y + val.y1, x + val.x2,  y + val.y2));
-            inHelpers.push(this.renderHelpCircle(x + val.x1, y + val.y1));
-        });
-        element.outPins.pinPositionsArray.forEach((val) => {
-            outPins.push(this.renderWire({}, x + val.x1, y + val.y1, x + val.x2,  y + val.y2));
-            outHelpers.push(this.renderHelpCircle(x + val.x2,  y + val.y2));
+        if(element.inPins) {
+            element.inPins.pins.forEach((val) => {
+                inPins.push(this.renderWire({}, x + val.coords.x1, y + val.coords.y1, x + val.coords.x2,  y + val.coords.y2));
+                inHelpers.push(this.renderHelpCircle(x + val.coords.x1, y + val.coords.y1));
+            });
+        }
+        element.outPins.pins.forEach((val) => {
+            outPins.push(this.renderWire({}, x + val.coords.x1, y + val.coords.y1, x + val.coords.x2,  y + val.coords.y2));
+            outHelpers.push(this.renderHelpCircle(x + val.coords.x2,  y + val.coords.y2));
         });
         const inPinsGroup = this.svg.makeGroup(inPins);
         const outPinsGroup = this.svg.makeGroup(outPins);
@@ -92,10 +95,15 @@ class Renderer {
         }
 
         element.model = group;
-        element.outPins.model = outPins;
-        element.outPins.helpers = outHelpers;
-        element.inPins.model = inPins;
-        element.inPins.helpers = inHelpers;
+
+        _.forEach(inPins, (val, idx) => {
+            element.inPins.pins[idx].model = val;
+            element.inPins.pins[idx].helper = inHelpers[idx];
+        });
+        _.forEach(outPins, (val, idx) => {
+            element.outPins.pins[idx].model = val;
+            element.outPins.pins[idx].helper = outHelpers[idx];
+        });
 
         return this.render();
     }
