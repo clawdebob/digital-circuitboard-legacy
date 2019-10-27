@@ -3,7 +3,7 @@ import Renderer from '../../render';
 import Wire from '../../elements/Wire/Wire';
 import STATE from './board-states.consts';
 import _ from 'lodash';
-import {fromEvent} from "rxjs";
+import {fromEvent, BehaviorSubject} from "rxjs";
 
 class Board extends React.Component {
     constructor(props) {

@@ -11,7 +11,6 @@ class ElementDetails extends React.Component{
 
     resetElementState() {
         const curEl = this.props.currentEl;
-        console.log(this.currentProp);
         let [input, span] = document.getElementsByName(this.currentProp);
 
         span.style.display = 'block';
@@ -42,7 +41,6 @@ class ElementDetails extends React.Component{
 
         return Object.keys(element.props).map((prop, ind) => {
             const key = `${element.name}_${prop}`;
-            console.log(key);
             return (
                 <tr key={key}>
                     <td key={prop}>{prop}</td>

@@ -13,7 +13,7 @@ class Element {
         this.setProps(props.props);
         this.model = null;
         this.helpers = null;
-        this.renderFlag = new BehaviorSubject(false);
+        this.renderFlag = new BehaviorSubject(null);
     }
 
     setProps(props) {
@@ -31,23 +31,17 @@ class Element {
         Element.elementCounter++;
     }
 
-    wire() {
-        if (this.props.inPins) {
-
-        }
-    }
-
-    unwire() {
-
+    getElementHelpers() {
+        return _.get(this.model, 'children[3].children', null);
     }
 
     operation() {}
 
     updateState() {
-        if(this.props.inContacts) {
+        const hasIn = Boolean(this.props.inContacts);
+        if(hasIn) {
             this.inPins.pins.forEach((pin, idx) => {
                 pin.value = _.get(pin,'wiredTo.signal', undefined);
-                console.log(pin.value);
                 this.model.children[1].children[idx].stroke = pin.value ? '#00FF00' : '#006200';
             });
         }

@@ -8,6 +8,9 @@ class Renderer {
 
         this.svg = new Two(params).appendTo(board);
         this.render = this.render.bind(this);
+        this.background = this.svg.makeGroup();
+        this.middleground = this.svg.makeGroup();
+        this.foreground = this.svg.makeGroup();
     }
 
     renderWire(props, x1,y1,x2,y2) {
@@ -22,8 +25,9 @@ class Renderer {
             wire.classList.push(props.className);
         }
 
-        this.render();
         props.model = wire;
+        this.background.add(wire);
+        this.render();
         return wire;
     }
 
@@ -56,6 +60,7 @@ class Renderer {
         circle.stroke = '#14ff53';
         circle.classList.push('help-circle');
         circle.opacity = 0;
+        circle.className = 'help-circle';
         this.render();
         // circle._renderer.elem.addEventListener('mousemove', () => {
         //     circle.opacity = 1;
@@ -104,6 +109,7 @@ class Renderer {
             element.outPins.pins[idx].model = val;
             element.outPins.pins[idx].helper = outHelpers[idx];
         });
+        this.foreground.add(group);
 
         return this.render();
     }
