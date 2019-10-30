@@ -41,7 +41,7 @@ class Element {
         const hasIn = Boolean(this.props.inContacts);
         if(hasIn) {
             this.inPins.pins.forEach((pin, idx) => {
-                pin.value = _.get(pin,'wiredTo.signal', undefined);
+                pin.value = _.get(pin,'wiredTo.outPins.pins[0].value', undefined);
                 this.model.children[1].children[idx].stroke = pin.value ? '#00FF00' : '#006200';
             });
         }

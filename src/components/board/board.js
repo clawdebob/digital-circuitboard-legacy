@@ -3,7 +3,7 @@ import Renderer from '../../render';
 import Wire from '../../elements/Wire/Wire';
 import STATE from './board-states.consts';
 import _ from 'lodash';
-import {fromEvent, BehaviorSubject} from "rxjs";
+import {fromEvent} from "rxjs";
 
 class Board extends React.Component {
     constructor(props) {
@@ -65,9 +65,11 @@ class Board extends React.Component {
     endWire(e) {
         e.preventDefault();
         const wire = new Wire();
+        const wireBend = new Wire();
         const startingEl = this.startingEl;
         const endingEl = this.endingEl;
         wire.className = 'Wire';
+        wireBend.className = 'Wire';
         if(this.wiresToBuild) {
             const main = this.wiresToBuild.main;
             const bend = this.wiresToBuild.bend;
@@ -94,20 +96,29 @@ class Board extends React.Component {
                             wire.outConnector = _.clone(startingEl);
                         }
                     }
-                    if(main.x1 !== main.x2 && (Math.abs(main.y1 - main.y2)!== 2)) {
-                        this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2)
+                    if(bend) {
+                        this.renderer.renderWire(wireBend, bend.x1, bend.y1, bend.x2, bend.y2);
+                        wireBend.outConnector = wire.outConnector;
+                        wire.outConnector = null;
+                        wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
+                        wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
+                        this.wires.push(wireBend);
+                        wireBend.renderFlag.subscribe(() => {
+                            this.renderer.render();
+                        });
+                        wireBend.wire();
+                    }
+                    if((main.x1 !== main.x2 && (Math.abs(main.y1 - main.y2)!== 2))
+                        || (main.x1 === main.x2 && (main.y1 !== main.y2))) {
+                        this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
                         this.wires.push(wire);
                         wire.renderFlag.subscribe(() => {
-                           this.renderer.render();
+                            this.renderer.render();
                         });
                         wire.wire();
                     } else {
                         this.renderer.removeElement({className: 'main'});
                     }
-                    // console.log(this.wires, this.elements);
-                }
-                if(bend) {
-                    this.renderer.renderWire(bend, bend.x1, bend.y1, bend.x2, bend.y2);
                 }
             }
         }

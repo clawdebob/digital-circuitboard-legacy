@@ -15,7 +15,12 @@ class ElementDetails extends React.Component{
 
         span.style.display = 'block';
         input.style.display = 'none';
-        curEl.props[this.currentProp] = Number(input.value) || input.value;
+        if(isNaN(input.value)) {
+            curEl.props[this.currentProp] = input.value;
+        } else {
+            curEl.props[this.currentProp] = Number(input.value);
+        }
+
         curEl.setProps(curEl.props);
 
         this.props.handleChange(curEl);

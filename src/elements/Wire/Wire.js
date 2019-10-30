@@ -5,7 +5,6 @@ import _ from 'lodash'
 const defaultProps = {
     name: 'Wire',
     props: {
-        signal: 0,
         fill: '#000000',
     }
 };
@@ -16,18 +15,27 @@ class Wire extends Element {
         this.inConnector = null;
         this.outConnector = null;
         this.model = null;
-        this.signalUpdate = new BehaviorSubject(null);
+        this.outPins = {
+            pins: [{
+                value: 0,
+                wiredTo: null,
+                valueUpdate: new BehaviorSubject(false)
+            }]
+        };
+        this.inPins = _.cloneDeep(this.outPins);
     }
 
     updateState() {
         if (this.inConnector) {
             const element = _.get(this.inConnector, 'el');
             const pinNumber = _.get(this.inConnector, 'pin');
+            const signal = element.outPins.pins[pinNumber].value;
             // const pinType = _.get(this.inConnector, 'type');
 
-            this.signal = element.outPins.pins[pinNumber].value;
-            this.model.stroke = this.signal ? '#00FF00' : '#006200';
-            this.signalUpdate.next(this.signal);
+            this.inPins.pins[0].value = signal;
+            this.outPins.pins[0].value = signal;
+            this.model.stroke = signal ? '#00FF00' : '#006200';
+            this.outPins.pins[0].valueUpdate.next(signal);
         } else {
             this.model.stroke = '#0077ff';
         }
@@ -39,7 +47,7 @@ class Wire extends Element {
         const outConnector = this.outConnector;
         if(outConnector){
             outConnector.el.inPins.pins[outConnector.pin].wiredTo = this;
-            this.signalUpdate.subscribe(() => {
+            this.outPins.pins[0].valueUpdate.subscribe(() => {
                 outConnector.el.updateState();
             });
         }
