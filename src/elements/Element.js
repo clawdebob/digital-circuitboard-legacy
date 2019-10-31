@@ -31,10 +31,6 @@ class Element {
         Element.elementCounter++;
     }
 
-    getElementHelpers() {
-        return _.get(this.model, 'children[3].children', null);
-    }
-
     operation() {}
 
     updateState() {

@@ -27,6 +27,15 @@ class Renderer {
 
         props.model = wire;
         this.background.add(wire);
+        if(props.className === 'Wire') {
+            const inHelper = this.renderHelpCircle(x1, y1);
+            const outHelper = this.renderHelpCircle(x2, y2);
+            this.foreground.add(inHelper);
+            this.foreground.add(outHelper);
+
+            props.inPins.pins[0].helper = inHelper;
+            props.outPins.pins[0].helper = outHelper;
+        }
         this.render();
         return wire;
     }
@@ -62,14 +71,6 @@ class Renderer {
         circle.opacity = 0;
         circle.className = 'help-circle';
         this.render();
-        // circle._renderer.elem.addEventListener('mousemove', () => {
-        //     circle.opacity = 1;
-        //     this.render();
-        // });
-        // circle._renderer.elem.addEventListener('mouseout', () => {
-        //     circle.opacity = 0;
-        //     this.render();
-        // });
 
         return circle;
     }

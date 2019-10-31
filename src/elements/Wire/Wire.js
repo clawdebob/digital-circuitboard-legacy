@@ -1,6 +1,6 @@
 import Element from '../Element'
-import {BehaviorSubject} from "rxjs";
 import _ from 'lodash'
+import Pin from '../Pin/Pin'
 
 const defaultProps = {
     name: 'Wire',
@@ -15,14 +15,8 @@ class Wire extends Element {
         this.inConnector = null;
         this.outConnector = null;
         this.model = null;
-        this.outPins = {
-            pins: [{
-                value: 0,
-                wiredTo: null,
-                valueUpdate: new BehaviorSubject(false)
-            }]
-        };
-        this.inPins = _.cloneDeep(this.outPins);
+        this.outPins = new Pin(this);
+        this.inPins = new Pin(this);
     }
 
     updateState() {
@@ -47,11 +41,13 @@ class Wire extends Element {
         const outConnector = this.outConnector;
         if(outConnector){
             outConnector.el.inPins.pins[outConnector.pin].wiredTo = this;
+            outConnector.el.inPins.disablePinHelper(outConnector.pin);
             this.outPins.pins[0].valueUpdate.subscribe(() => {
                 outConnector.el.updateState();
             });
         }
         if(inConnector) {
+            inConnector.el.outPins.disablePinHelper(inConnector.pin);
             inConnector.el.outPins.pins[inConnector.pin].valueUpdate.subscribe(() => {
                 this.updateState();
             });

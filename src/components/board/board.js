@@ -103,6 +103,7 @@ class Board extends React.Component {
                         wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
                         wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
                         this.wires.push(wireBend);
+                        this.applyHelpers(wireBend);
                         wireBend.renderFlag.subscribe(() => {
                             this.renderer.render();
                         });
@@ -112,6 +113,7 @@ class Board extends React.Component {
                         || (main.x1 === main.x2 && (main.y1 !== main.y2))) {
                         this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
                         this.wires.push(wire);
+                        this.applyHelpers(wire);
                         wire.renderFlag.subscribe(() => {
                             this.renderer.render();
                         });
@@ -150,22 +152,23 @@ class Board extends React.Component {
 
                 fromEvent(domEl, 'mousemove')
                     .subscribe(() => {
-                        if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
+                        if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
+                            console.log(el);
                             pin.helper.opacity = 1;
                             this.renderer.render();
+                            endFunction(el, idx);
                         }
-                        endFunction(el, idx);
                     });
                 fromEvent(domEl, 'mousedown')
                     .subscribe(() => {
-                        if(this.props.state === STATE.EDIT) {
+                        if(this.props.state === STATE.EDIT && pin.helperEnabled) {
                             this.props.setBoardState(STATE.WIRE);
+                            startFunction(el, idx);
                         }
-                        startFunction(el, idx);
                     });
                 fromEvent(domEl, 'mouseout')
                     .subscribe(() => {
-                        if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
+                        if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
                             pin.helper.opacity = 0;
                             this.renderer.render();
                         }
@@ -180,7 +183,7 @@ class Board extends React.Component {
                 (el, idx) => {vm.endingEl = {el: el, pin: idx, type: 'out'}}
             )
         );
-        if(el.props.inContacts) {
+        if(el.inPins) {
             _.forEach(
                 el.inPins.pins,
                 iterFunc(
