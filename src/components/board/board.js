@@ -23,6 +23,9 @@ class Board extends React.Component {
         this.elements = [];
         this.wires = [];
 
+        window.wires = this.wires;
+        window.elements = this.elements;
+
         this.dragHandler = this.dragHandler.bind(this);
         this.ghostHelper = this.ghostHelper.bind(this);
         this.startWire = this.startWire.bind(this);
@@ -96,19 +99,6 @@ class Board extends React.Component {
                             wire.outConnector = _.clone(startingEl);
                         }
                     }
-                    if(bend) {
-                        this.renderer.renderWire(wireBend, bend.x1, bend.y1, bend.x2, bend.y2);
-                        wireBend.outConnector = wire.outConnector;
-                        wire.outConnector = null;
-                        wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
-                        wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
-                        this.wires.push(wireBend);
-                        this.applyHelpers(wireBend);
-                        wireBend.renderFlag.subscribe(() => {
-                            this.renderer.render();
-                        });
-                        wireBend.wire();
-                    }
                     if((main.x1 !== main.x2 && (Math.abs(main.y1 - main.y2)!== 2))
                         || (main.x1 === main.x2 && (main.y1 !== main.y2))) {
                         this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
@@ -120,6 +110,26 @@ class Board extends React.Component {
                         wire.wire();
                     } else {
                         this.renderer.removeElement({className: 'main'});
+                    }
+                    if(bend) {
+                        if(wire.outConnector && wire.inConnector) {
+                            wireBend.outConnector = wire.outConnector;
+                            wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
+                            wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
+                        } else if (wire.outConnector && !wire.inConnector) {
+                            wire.inConnector = _.clone({el: wireBend, pin: 0, type: 'out'});
+                            wireBend.outConnector = _.clone({el: wire, pin: 0, type: 'in'});
+                        } else {
+                            wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
+                            wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
+                        }
+                        this.wires.push(wireBend);
+                        this.renderer.renderWire(wireBend, bend.x1, bend.y1, bend.x2, bend.y2);
+                        this.applyHelpers(wireBend);
+                        wireBend.renderFlag.subscribe(() => {
+                            this.renderer.render();
+                        });
+                        wireBend.wire();
                     }
                 }
             }
@@ -153,7 +163,6 @@ class Board extends React.Component {
                 fromEvent(domEl, 'mousemove')
                     .subscribe(() => {
                         if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
-                            console.log(el);
                             pin.helper.opacity = 1;
                             this.renderer.render();
                             endFunction(el, idx);
@@ -165,6 +174,10 @@ class Board extends React.Component {
                             this.props.setBoardState(STATE.WIRE);
                             startFunction(el, idx);
                         }
+                    });
+                fromEvent(domEl, 'mouseout')
+                    .subscribe(() => {
+                        this.endingEl = this.startingEl;
                     });
                 fromEvent(domEl, 'mouseout')
                     .subscribe(() => {
@@ -303,17 +316,14 @@ class Board extends React.Component {
         this.resetComponent();
         switch(this.props.state) {
             case STATE.WIRE:
-                this.board.style.cursor = 'initial';
                 this.board.addEventListener('mousedown', this.startWire);
                 this.board.addEventListener('mousemove', this.ghostHelper);
                 this.board.addEventListener('mouseup', this.endWire);
                 break;
             case STATE.EDIT:
-                this.board.style.cursor = 'initial';
                 this.board.addEventListener('mousemove', this.ghostHelper);
                 break;
             case STATE.CREATE:
-                this.board.style.cursor = 'crosshair';
                 this.board.addEventListener('mousemove', this.ghostHelper);
                 this.board.addEventListener('click', this.dragHandler);
                 const ghost = _.cloneDeep(this.props.currentEl);
@@ -336,7 +346,7 @@ class Board extends React.Component {
         this.setBoardState();
         return (
             <div className="board__container">
-                <div className="board" id="board" />
+                <div className={`board board--${this.props.state}`} id="board" />
             </div>
         );
     }

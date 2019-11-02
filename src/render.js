@@ -14,22 +14,23 @@ class Renderer {
     }
 
     renderWire(props, x1,y1,x2,y2) {
-        const wire = this.svg.makeLine(x1,y1,x2,y2);
-        wire.fill = props.fill || '#000000';
-        wire.opacity = 1;
-        wire.linewidth = 2;
+        const line = this.svg.makeLine(x1,y1,x2,y2);
+        line.fill = props.fill || '#000000';
+        line.opacity = 1;
+        line.linewidth = 2;
         if (props.id) {
-            wire.node_id = props.id;
+            line.node_id = props.id;
         }
         if (props.className) {
-            wire.classList.push(props.className);
+            line.classList.push(props.className);
         }
 
-        props.model = wire;
-        this.background.add(wire);
+        props.model = line;
+        this.background.add(line);
         if(props.className === 'Wire') {
-            const inHelper = this.renderHelpCircle(x1, y1);
-            const outHelper = this.renderHelpCircle(x2, y2);
+            console.log(x1, y1, x2, y2);
+            const inHelper = props.inConnector ? this.renderHelpCircle(x1, y1) : this.renderHelpCircle(x2, y2);
+            const outHelper = props.inConnector ? this.renderHelpCircle(x2, y2) : this.renderHelpCircle(x1, y1);
             this.foreground.add(inHelper);
             this.foreground.add(outHelper);
 
@@ -37,7 +38,7 @@ class Renderer {
             props.outPins.pins[0].helper = outHelper;
         }
         this.render();
-        return wire;
+        return line;
     }
 
     makeElement(element, x, y) {

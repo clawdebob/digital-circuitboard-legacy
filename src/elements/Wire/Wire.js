@@ -42,6 +42,9 @@ class Wire extends Element {
         if(outConnector){
             outConnector.el.inPins.pins[outConnector.pin].wiredTo = this;
             outConnector.el.inPins.disablePinHelper(outConnector.pin);
+            if(outConnector.el.name === 'Wire') {
+                outConnector.el.inConnector = {el: this, pin: 0, type: 'out'};
+            }
             this.outPins.pins[0].valueUpdate.subscribe(() => {
                 outConnector.el.updateState();
             });
