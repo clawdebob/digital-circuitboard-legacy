@@ -28,7 +28,6 @@ class Renderer {
         props.model = line;
         this.background.add(line);
         if(props.className === 'Wire') {
-            console.log(x1, y1, x2, y2);
             const inHelper = props.inConnector ? this.renderHelpCircle(x1, y1) : this.renderHelpCircle(x2, y2);
             const outHelper = props.inConnector ? this.renderHelpCircle(x2, y2) : this.renderHelpCircle(x1, y1);
             this.foreground.add(inHelper);
