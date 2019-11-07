@@ -99,6 +99,9 @@ class Renderer {
         if (element.id) {
             rect.classList.push(element.id);
         }
+        if (element.className) {
+            rect.className = element.className;
+        }
 
         element.model = group;
 

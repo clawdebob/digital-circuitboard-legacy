@@ -5,10 +5,11 @@ import MainMenu from './components/main-menu/main-menu.js';
 import Board from './components/board/board.js';
 import SideMenu from "./components/side-menu/side-menu";
 import ActionPanel from "./components/action-panel/action-panel";
-import And from './elements/And/And'
-import Xor from './elements/Xor/Xor'
-import Or from './elements/Or/Or'
-import Constant from './elements/Constant/Constant'
+import And from './elements/And/And';
+import Xor from './elements/Xor/Xor';
+import Or from './elements/Or/Or';
+import Constant from './elements/Constant/Constant';
+import Button from './elements/Button/Button';
 
 function ElementBase(name, create = () => 0) {
     this.name = name;
@@ -35,6 +36,7 @@ class App extends React.Component {
                 new ElementBase('And', (props) => new And(props)),
                 new ElementBase('Xor', (props) => new Xor(props)),
                 new ElementBase('Constant', (props => new Constant(props))),
+                new ElementBase('Button', (props => new Button(props))),
                 'Nand',
                 'Nor'],
         },

@@ -9,6 +9,7 @@ class Element {
         this.name = props.name;
         this.width = props.width;
         this.height = props.height;
+        this.className = props.className ? `element-${props.className}` : null;
         this.originY = props.originY || 0;
         this.setProps(props.props);
         this.model = null;

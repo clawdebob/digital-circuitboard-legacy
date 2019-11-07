@@ -18,7 +18,7 @@ class Constant extends Element {
     }
 
     operation() {
-        this.outPins.pins[0].value = this.props.signal;
+        this.outPins.pins[0].value = Number(this.props.signal);
     }
 }
 
