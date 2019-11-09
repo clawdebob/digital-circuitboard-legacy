@@ -1,4 +1,5 @@
 import Element from '../Element'
+import STATE from '../../components/board/board-states.consts';
 import {fromEvent} from "rxjs";
 
 const defaultProps = {
@@ -24,9 +25,10 @@ class Button extends Element {
         const body = this.model.children[0]._renderer.elem;
         fromEvent(body, 'click').subscribe((e) => {
             e.preventDefault();
-            this.props.initialSignal = Number(!this.props.initialSignal);
-            console.log(this.props.initialSignal);
-            super.updateState();
+            if(Element.boardState === STATE.EDIT){
+                this.props.initialSignal = Number(!this.props.initialSignal);
+                super.updateState();
+            }
         });
         this.updateState = super.updateState();
     }

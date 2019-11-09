@@ -3,6 +3,7 @@ import Renderer from '../../render';
 import Wire from '../../elements/Wire/Wire';
 import STATE from './board-states.consts';
 import _ from 'lodash';
+import Element from '../../elements/Element';
 import {fromEvent} from "rxjs";
 
 class Board extends React.Component {
@@ -314,6 +315,7 @@ class Board extends React.Component {
 
     setBoardState() {
         this.resetComponent();
+        Element.boardState = this.props.state;
         switch(this.props.state) {
             case STATE.WIRE:
                 this.board.addEventListener('mousedown', this.startWire);

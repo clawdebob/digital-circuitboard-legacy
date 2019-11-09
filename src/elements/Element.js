@@ -4,6 +4,7 @@ import {BehaviorSubject} from 'rxjs'
 
 class Element {
     static elementCounter = 0;
+    static boardState;
 
     constructor(props) {
         this.name = props.name;
