@@ -23,6 +23,7 @@ class Board extends React.Component {
         this.endingEl = null;
         this.elements = [];
         this.wires = [];
+        this.eventSubscriptions = [];
 
         window.wires = this.wires;
         window.elements = this.elements;
@@ -306,10 +307,10 @@ class Board extends React.Component {
                 this.renderer.removeElement(this.ghost);
             }
             this.ghost = null;
-            this.board.removeEventListener('mousedown', this.startWire);
-            this.board.removeEventListener('mousemove', this.ghostHelper);
-            this.board.removeEventListener('mouseup', this.endWire);
-            this.board.removeEventListener('click', this.dragHandler);
+            _.forEach(this.eventSubscriptions, (subscription) => {
+                subscription.unsubscribe();
+            });
+            this.eventSubscriptions = [];
         }
     }
 
@@ -318,16 +319,28 @@ class Board extends React.Component {
         Element.boardState = this.props.state;
         switch(this.props.state) {
             case STATE.WIRE:
-                this.board.addEventListener('mousedown', this.startWire);
-                this.board.addEventListener('mousemove', this.ghostHelper);
-                this.board.addEventListener('mouseup', this.endWire);
+                this.eventSubscriptions.push(
+                    fromEvent(this.board, 'mousemove')
+                        .subscribe(this.ghostHelper),
+                    fromEvent(this.board, 'mousedown')
+                        .subscribe(this.startWire),
+                    fromEvent(this.board, 'mouseup')
+                        .subscribe(this.endWire),
+                );
                 break;
             case STATE.EDIT:
-                this.board.addEventListener('mousemove', this.ghostHelper);
+                this.eventSubscriptions.push(
+                    fromEvent(this.board, 'mousemove')
+                        .subscribe(this.ghostHelper)
+                );
                 break;
             case STATE.CREATE:
-                this.board.addEventListener('mousemove', this.ghostHelper);
-                this.board.addEventListener('click', this.dragHandler);
+                this.eventSubscriptions.push(
+                    fromEvent(this.board, 'mousemove')
+                        .subscribe(this.ghostHelper),
+                    fromEvent(this.board, 'click')
+                        .subscribe(this.dragHandler)
+                );
                 const ghost = _.cloneDeep(this.props.currentEl);
 
                 ghost.props.className = 'ghost';
@@ -342,6 +355,10 @@ class Board extends React.Component {
     componentDidMount() {
         this.board = document.getElementById('board');
         this.renderer = new Renderer();
+        fromEvent(this.board, 'mousedown')
+            .subscribe((e) => {
+                e.preventDefault();
+            });
     }
 
     render() {
