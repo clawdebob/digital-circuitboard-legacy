@@ -67,10 +67,66 @@ class Board extends React.Component {
         this.calcWireCoords(coords, true);
     }
 
+    tryProlongWire(wire) {
+        const inEl = wire.inConnector;
+        const outEl = wire.outConnector;
+        const coords = this.wiresToBuild.main;
+        let prolonged = false;
+        const optimize = (connector) => {
+            const el = connector.el;
+            const elX1 = _.get(el, 'model.vertices[0].x');
+            const elY1 = _.get(el, 'model.vertices[0].y');
+            const elX2 = _.get(el, 'model.vertices[1].x');
+            const elY2 = _.get(el, 'model.vertices[1].y');
+            if (el.className === 'Wire' && (coords.x2 === elX1 || coords.y2 === elY1)) {
+                if (coords.x2 === elX1) {
+                    const minY = Math.min(coords.y1, coords.y2, elY1, elY2);
+                    const maxY = Math.max(coords.y1, coords.y2, elY1, elY2);
+                    if(elY1 > elY2) {
+                        coords.y2 = minY;
+                        coords.y1 = maxY;
+                    } else {
+                        coords.y1 = minY;
+                        coords.y2 = maxY;
+                    }
+
+                } else {
+                    const minX = Math.min(coords.x1, coords.x2, elX1, elX2);
+                    const maxX = Math.max(coords.x1, coords.x2, elX1, elX2);
+                    if(elX1 < elX2) {
+                        coords.x1 = minX;
+                        coords.x2 = maxX;
+                    } else {
+                        coords.x2 = minX;
+                        coords.x1 = maxX;
+                    }
+                }
+                prolonged = true;
+                const idx = _.findIndex(this.wires, el);
+                if (connector.type === 'in') {
+                    wire.outConnector = el.outConnector;
+                } else {
+                    wire.inConnector = el.inConnector;
+                }
+                el.unsub();
+                this.renderer.removeElementById(el.id);
+                this.wires.splice(idx,1);
+            }
+        };
+        if(inEl){
+            optimize(inEl);
+        }
+        if(outEl) {
+            optimize(outEl);
+        }
+
+        return prolonged;
+    }
+
     endWire(e) {
         e.preventDefault();
-        const wire = new Wire();
-        const wireBend = new Wire();
+        let wire = new Wire();
+        let wireBend = new Wire();
         const startingEl = this.startingEl;
         const endingEl = this.endingEl;
         wire.className = 'Wire';
@@ -103,6 +159,7 @@ class Board extends React.Component {
                     }
                     if((main.x1 !== main.x2 && (Math.abs(main.y1 - main.y2)!== 2))
                         || (main.x1 === main.x2 && (main.y1 !== main.y2))) {
+                        this.tryProlongWire(wire);
                         this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
                         this.wires.push(wire);
                         this.applyHelpers(wire);

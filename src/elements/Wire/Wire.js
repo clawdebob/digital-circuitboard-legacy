@@ -1,6 +1,7 @@
 import Element from '../Element'
 import _ from 'lodash'
 import Pin from '../Pin/Pin'
+import {distinctUntilChanged} from "rxjs/operators";
 
 const defaultProps = {
     name: 'Wire',
@@ -17,6 +18,8 @@ class Wire extends Element {
         this.model = null;
         this.outPins = new Pin(this);
         this.inPins = new Pin(this);
+        this.inSub = null;
+        this.outSub = null;
     }
 
     updateState() {
@@ -36,6 +39,17 @@ class Wire extends Element {
         this.renderFlag.next();
     }
 
+    unsub() {
+        const inConnector = this.inConnector;
+        const outConnector = this.outConnector;
+        if(outConnector){
+            this.outSub.unsubscribe();
+        }
+        if(inConnector) {
+            this.inSub.unsubscribe();
+        }
+    }
+
     wire() {
         const inConnector = this.inConnector;
         const outConnector = this.outConnector;
@@ -45,13 +59,13 @@ class Wire extends Element {
             if(outConnector.el.name === 'Wire') {
                 outConnector.el.inConnector = {el: this, pin: 0, type: 'out'};
             }
-            this.outPins.pins[0].valueUpdate.subscribe(() => {
+            this.outSub = this.outPins.pins[0].valueUpdate.pipe(distinctUntilChanged()).subscribe(() => {
                 outConnector.el.updateState();
             });
         }
         if(inConnector) {
             inConnector.el.outPins.disablePinHelper(inConnector.pin);
-            inConnector.el.outPins.pins[inConnector.pin].valueUpdate.subscribe(() => {
+            this.inSub = inConnector.el.outPins.pins[inConnector.pin].valueUpdate.pipe(distinctUntilChanged()).subscribe(() => {
                 this.updateState();
             });
         }

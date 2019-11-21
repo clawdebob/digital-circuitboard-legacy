@@ -13,29 +13,74 @@ class Renderer {
         this.foreground = this.svg.makeGroup();
     }
 
-    renderWire(props, x1,y1,x2,y2) {
+    renderWire(wire, x1,y1,x2,y2) {
         const line = this.svg.makeLine(x1,y1,x2,y2);
-        line.fill = props.fill || '#000000';
+        line.fill = wire.fill || '#000000';
         line.opacity = 1;
         line.linewidth = 2;
-        if (props.id) {
-            line.node_id = props.id;
-        }
-        if (props.className) {
-            line.classList.push(props.className);
+        if (wire.className) {
+            line.classList.push(wire.className);
         }
 
-        props.model = line;
+        wire.model = line;
         this.background.add(line);
-        if(props.className === 'Wire') {
-            const inHelper = props.inConnector ? this.renderHelpCircle(x1, y1) : this.renderHelpCircle(x2, y2);
-            const outHelper = props.inConnector ? this.renderHelpCircle(x2, y2) : this.renderHelpCircle(x1, y1);
+        if(wire.className === 'Wire') {
+            const inHelper = wire.inConnector ? this.renderHelpCircle(x1, y1) : this.renderHelpCircle(x2, y2);
+            const outHelper = wire.inConnector ? this.renderHelpCircle(x2, y2) : this.renderHelpCircle(x1, y1);
             this.foreground.add(inHelper);
             this.foreground.add(outHelper);
+            const tempsForJunctions = [];
 
-            props.inPins.pins[0].helper = inHelper;
-            props.outPins.pins[0].helper = outHelper;
+            // console.log(x1,y1,x2,y2);
+
+            if (x1 === x2) {
+                if (y1 < y2) {
+                    for(let y = y1 + 13; y < y2 - 12; y += 12) {
+                        const circle = this.svg.makeCircle(x1, y, 5);
+                        circle.stroke = '#14ff53';
+                        circle.fill = '#00000000';
+                        circle.opacity = 0;
+                        tempsForJunctions.push(circle);
+                    }
+                } else {
+                    for(let y = y1 - 13; y > y2 + 12; y -= 12) {
+                        const circle = this.svg.makeCircle(x1, y, 5);
+                        circle.stroke = '#14ff53';
+                        circle.fill = '#00000000';
+                        circle.opacity = 0;
+                        tempsForJunctions.push(circle);
+                    }
+                }
+            } else {
+                if (x1 < x2) {
+                    for(let x = x1 + 13; x < x2 - 12; x += 12) {
+                        const circle = this.svg.makeCircle(x, y1, 5);
+                        circle.stroke = '#14ff53';
+                        circle.fill = '#00000000';
+                       circle.opacity = 0;
+                        tempsForJunctions.push(circle);
+                    }
+                } else {
+                    for(let x = x1 - 13; x > x2 + 12; x -= 12) {
+                        const circle = this.svg.makeCircle(x, y1, 5);
+                        circle.stroke = '#14ff53';
+                        circle.fill = '#00000000';
+                       circle.opacity = 0;
+                        tempsForJunctions.push(circle);
+                    }
+                }
+            }
+            const jgroup = this.svg.makeGroup(tempsForJunctions);
+            const group = this.svg.makeGroup(line, jgroup, inHelper, outHelper);
+            if (wire.id) {
+                line.classList.push(wire.id);
+                group.classList.push(wire.id);
+            }
+
+            wire.inPins.pins[0].helper = inHelper;
+            wire.outPins.pins[0].helper = outHelper;
         }
+
         this.render();
         return line;
     }
@@ -120,6 +165,14 @@ class Renderer {
 
     getElement(element) {
         return this.svg.scene.getByClassName(element.props.className || element.className);
+    }
+
+    removeElementById(id) {
+        const els = this.svg.scene.getByClassName(id);
+        _.forEach(els, (el) => {
+            el.remove();
+        });
+        return this.render();
     }
 
     removeElement(element) {
