@@ -8,7 +8,7 @@ class Pin {
                 .map((val, idx) => {
                     return {
                         coords: null,
-                        value: false,
+                        value: undefined,
                         model: null,
                         helper: null,
                         helperEnabled: true,
@@ -64,7 +64,7 @@ class Pin {
                 .map((val, idx) => {
                     return {
                         coords: pinPositionsArray[idx],
-                        value: false,
+                        value: undefined,
                         model: null,
                         helper: null,
                         helperEnabled: true,

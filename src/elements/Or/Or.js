@@ -20,9 +20,9 @@ class Or extends Element {
     }
 
     operation() {
-        this.outPins.pins[0].value = _.reduce(this.inPins.pins,(result, pin) => {
-            return result || pin.value;
-        }, 0);
+        this.outPins.pins[0].value = Number(_.reduce(this.inPins.pins,(result, pin) => {
+            return Boolean(result || pin.value);
+        }, 0));
     }
 }
 

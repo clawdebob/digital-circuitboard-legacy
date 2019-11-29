@@ -2,6 +2,7 @@ import Element from '../Element'
 import _ from 'lodash'
 import Pin from '../Pin/Pin'
 import {distinctUntilChanged} from "rxjs/operators";
+import {fromEvent} from "rxjs";
 
 const defaultProps = {
     name: 'Wire',
@@ -18,6 +19,7 @@ class Wire extends Element {
         this.model = null;
         this.outPins = new Pin(this);
         this.inPins = new Pin(this);
+        this.junctionHelpers = [];
         this.inSub = null;
         this.outSub = null;
     }
@@ -31,10 +33,11 @@ class Wire extends Element {
 
             this.inPins.pins[0].value = signal;
             this.outPins.pins[0].value = signal;
-            this.model.stroke = signal ? '#00FF00' : '#006200';
+
+            this.model.stroke = this.getStateColor(signal);
             this.outPins.pins[0].valueUpdate.next(signal);
         } else {
-            this.model.stroke = '#0077ff';
+            this.model.stroke = this.getStateColor(undefined);
         }
         this.renderFlag.next();
     }
@@ -68,6 +71,8 @@ class Wire extends Element {
             this.inSub = inConnector.el.outPins.pins[inConnector.pin].valueUpdate.pipe(distinctUntilChanged()).subscribe(() => {
                 this.updateState();
             });
+        } else {
+            this.updateState();
         }
     }
 }

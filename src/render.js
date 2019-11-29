@@ -27,49 +27,35 @@ class Renderer {
         if(wire.className === 'Wire') {
             const inHelper = wire.inConnector ? this.renderHelpCircle(x1, y1) : this.renderHelpCircle(x2, y2);
             const outHelper = wire.inConnector ? this.renderHelpCircle(x2, y2) : this.renderHelpCircle(x1, y1);
-            this.foreground.add(inHelper);
-            this.foreground.add(outHelper);
             const tempsForJunctions = [];
 
-            // console.log(x1,y1,x2,y2);
-
+            this.foreground.add(inHelper);
+            this.foreground.add(outHelper);
             if (x1 === x2) {
                 if (y1 < y2) {
                     for(let y = y1 + 13; y < y2 - 12; y += 12) {
-                        const circle = this.svg.makeCircle(x1, y, 5);
-                        circle.stroke = '#14ff53';
-                        circle.fill = '#00000000';
-                        circle.opacity = 0;
-                        tempsForJunctions.push(circle);
+                        tempsForJunctions.push(this.renderHelpCircle(x1, y));
                     }
                 } else {
                     for(let y = y1 - 13; y > y2 + 12; y -= 12) {
-                        const circle = this.svg.makeCircle(x1, y, 5);
-                        circle.stroke = '#14ff53';
-                        circle.fill = '#00000000';
-                        circle.opacity = 0;
-                        tempsForJunctions.push(circle);
+                        tempsForJunctions.push(this.renderHelpCircle(x1, y));
                     }
                 }
             } else {
                 if (x1 < x2) {
                     for(let x = x1 + 13; x < x2 - 12; x += 12) {
-                        const circle = this.svg.makeCircle(x, y1, 5);
-                        circle.stroke = '#14ff53';
-                        circle.fill = '#00000000';
-                       circle.opacity = 0;
-                        tempsForJunctions.push(circle);
+                        tempsForJunctions.push(this.renderHelpCircle(x, y1));
                     }
                 } else {
                     for(let x = x1 - 13; x > x2 + 12; x -= 12) {
-                        const circle = this.svg.makeCircle(x, y1, 5);
-                        circle.stroke = '#14ff53';
-                        circle.fill = '#00000000';
-                       circle.opacity = 0;
-                        tempsForJunctions.push(circle);
+                        tempsForJunctions.push(this.renderHelpCircle(x, y1));
                     }
                 }
             }
+            _.forEach(tempsForJunctions, (model) => {
+               wire.junctionHelpers.push(model);
+               this.foreground.add(model);
+            });
             const jgroup = this.svg.makeGroup(tempsForJunctions);
             const group = this.svg.makeGroup(line, jgroup, inHelper, outHelper);
             if (wire.id) {

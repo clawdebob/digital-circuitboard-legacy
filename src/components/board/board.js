@@ -236,13 +236,10 @@ class Board extends React.Component {
                     });
                 fromEvent(domEl, 'mouseout')
                     .subscribe(() => {
-                        this.endingEl = this.startingEl;
-                    });
-                fromEvent(domEl, 'mouseout')
-                    .subscribe(() => {
                         if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
                             pin.helper.opacity = 0;
                             this.renderer.render();
+                            this.endingEl = this.startingEl;
                         }
                     });
             };
@@ -264,6 +261,28 @@ class Board extends React.Component {
                 )
             );
         }
+        // _.forEach(el.junctionHelpers, (model) => {
+        //     const domModel = model._renderer.elem;
+        //     fromEvent(domModel, 'mousemove').subscribe(() => {
+        //         if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
+        //             model.opacity = 1;
+        //             this.renderer.render();
+        //         }
+        //     });
+        //     fromEvent(domModel, 'mouseout').subscribe(() => {
+        //         if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
+        //             model.opacity = 0;
+        //             this.renderer.render();
+        //         }
+        //     });
+        //     fromEvent(domModel, 'mousedown')
+        //         .subscribe(() => {
+        //             if(this.props.state === STATE.EDIT) {
+        //                 this.props.setBoardState(STATE.WIRE);
+        //                 this.startingEl = {el: el, pin: 0, type: 'out'};
+        //             }
+        //         });
+        // });
     }
 
     orientationCorrection(x1, y1, x2, y2) {
