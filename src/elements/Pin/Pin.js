@@ -2,7 +2,7 @@ import {BehaviorSubject} from 'rxjs'
 
 class Pin {
     constructor(el, out = false) {
-        if(el.name === 'Wire') {
+        if(el.name === 'Wire' || el.name === 'Junction') {
             this.pins = new Array(1)
                 .fill(null)
                 .map((val, idx) => {

@@ -1,6 +1,7 @@
 import React from 'react';
 import Renderer from '../../render';
 import Wire from '../../elements/Wire/Wire';
+import Junction from '../../elements/Junction/Junction';
 import STATE from './board-states.consts';
 import _ from 'lodash';
 import Element from '../../elements/Element';
@@ -18,6 +19,8 @@ class Board extends React.Component {
         };
         this.ghost = null;
         this.down = false;
+        this.junctionStartingFlag = false;
+        this.junctionEndingFlag = false;
         this.wiresToBuild = null;
         this.startingEl = null;
         this.endingEl = null;
@@ -67,6 +70,14 @@ class Board extends React.Component {
         this.calcWireCoords(coords, true);
     }
 
+    deleteWire(wire) {
+        const idx = _.findIndex(this.wires, wire);
+
+        wire.unsub();
+        this.renderer.removeElementById(wire.id);
+        this.wires.splice(idx,1);
+    }
+
     tryProlongWire(wire) {
         const inEl = wire.inConnector;
         const outEl = wire.outConnector;
@@ -102,15 +113,12 @@ class Board extends React.Component {
                     }
                 }
                 prolonged = true;
-                const idx = _.findIndex(this.wires, el);
                 if (connector.type === 'in') {
                     wire.outConnector = el.outConnector;
                 } else {
                     wire.inConnector = el.inConnector;
                 }
-                el.unsub();
-                this.renderer.removeElementById(el.id);
-                this.wires.splice(idx,1);
+                this.deleteWire(el);
             }
         };
         if(inEl){
@@ -125,10 +133,14 @@ class Board extends React.Component {
 
     endWire(e) {
         e.preventDefault();
+        // console.log(this.junctionStartingFlag, this.junctionEndingFlag);
         let wire = new Wire();
         let wireBend = new Wire();
         const startingEl = this.startingEl;
         const endingEl = this.endingEl;
+        const junction = new Junction();
+
+        console.log(startingEl, this.wiresToBuild);
         wire.className = 'Wire';
         wireBend.className = 'Wire';
         if(this.wiresToBuild) {
@@ -150,11 +162,19 @@ class Board extends React.Component {
                         } else if(endingEl.type === 'in') {
                             wire.outConnector = _.clone(endingEl);
                         }
+                        if(this.junctionStartingFlag) {
+                            junction.setId();
+                            junction.pushWire(wire);
+                        }
                     } else {
                         if(startingEl.type === 'out') {
                             wire.inConnector = _.clone(startingEl);
                         } else if(startingEl.type === 'in') {
                             wire.outConnector = _.clone(startingEl);
+                        }
+                        if(this.junctionStartingFlag) {
+                            junction.setId();
+                            junction.pushWire(wire);
                         }
                     }
                     if((main.x1 !== main.x2 && (Math.abs(main.y1 - main.y2)!== 2))
@@ -172,9 +192,17 @@ class Board extends React.Component {
                     }
                     if(bend) {
                         if(wire.outConnector && wire.inConnector) {
-                            wireBend.outConnector = wire.outConnector;
-                            wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
-                            wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
+                            const onlyStart = this.junctionStartingFlag && !this.junctionEndingFlag;
+
+                            if(startingEl.type === 'in' || onlyStart) {
+                                wireBend.inConnector = wire.inConnector;
+                                wireBend.outConnector = _.clone({el: wire, pin: 0, type: 'in'});
+                                wire.inConnector = _.clone({el: wireBend, pin: 0, type: 'out'});
+                            } else {
+                                wireBend.outConnector = wire.outConnector;
+                                wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
+                                wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
+                            }
                         } else if (wire.outConnector && !wire.inConnector) {
                             wire.inConnector = _.clone({el: wireBend, pin: 0, type: 'out'});
                             wireBend.outConnector = _.clone({el: wire, pin: 0, type: 'in'});
@@ -190,14 +218,125 @@ class Board extends React.Component {
                         });
                         wireBend.wire();
                     }
+                    console.log(wire, wireBend);
+                    if(this.junctionStartingFlag) {
+                        const coords = this.startingEl.el.getCoords();
+
+                        // wire.unsub();
+                        // junction.pushWire(wire);
+                        this.renderer.renderJunction(
+                            junction,
+                            coords.orientation === 'horizontal' ? main.x1 : coords.x1,
+                            coords.orientation === 'horizontal' ? coords.y1 : main.y1,
+                        );
+                        this.elements.push(junction);
+                        this.sliceWire(this.startingEl.el, junction);
+                        console.log(this.startingEl, this.endingEl);
+                        // this.tryProlongWire(wire);
+                        // this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
+                        // this.wires.push(wire);
+                        // this.applyHelpers(wire);
+                        junction.renderFlag.subscribe(() => {
+                            this.renderer.render();
+                        });
+                        // wire.wire();
+                        console.log(this.startingEl, this.endingEl);
+                    }
                 }
             }
         }
         this.down = false;
         this.board.removeEventListener('mousemove', this.ghostHelper);
+        this.startingEl = null;
+        this.endingEl = null;
+        this.junctionStartingFlag = false;
+        this.junctionEndingFlag = false;
+
         if(this.props.state === STATE.WIRE) {
             this.props.setBoardState(STATE.EDIT);
         }
+    }
+
+    sliceWire(wire, junction) {
+        const inConnector = _.get(wire.inConnector, 'el', null);
+        const outConnector = _.get(wire.outConnector, 'el', null);
+        const coords = wire.getCoords();
+        const jcoords = junction.getCoords();
+        const firstWire = new Wire();
+        const secondWire = new Wire();
+        const idx = _.findIndex(this.wires, wire);
+
+        firstWire.className = 'Wire';
+        secondWire.className = 'Wire';
+
+        if(inConnector && outConnector) {
+            const inConnectorCoords = inConnector.getCoords();
+            const outConnectorCoords = outConnector.getCoords();
+
+            if(coords.orientation === 'horizontal') {
+                if(inConnectorCoords.x1 > outConnectorCoords.x1) {
+                    const start = {
+                        x1: Math.max(coords.x1, coords.x2),
+                        y1: coords.y1,
+                        x2: jcoords.x1,
+                        y2: jcoords.y1
+                    };
+                    const end = {
+                        x1: jcoords.x1,
+                        y1: jcoords.y1,
+                        x2: Math.min(coords.x1, coords.x2),
+                        y2: coords.y1,
+                    };
+                    console.log('worst case');
+                } else {
+                    const start = {
+                        x1: Math.min(coords.x1, coords.x2),
+                        y1: coords.y1,
+                        x2: jcoords.x1,
+                        y2: jcoords.y1
+                    };
+                    const end = {
+                        x1: jcoords.x1,
+                        y1: jcoords.y1,
+                        x2: Math.max(coords.x1, coords.x2),
+                        y2: coords.y1,
+                    };
+                    this.deleteWire(wire);
+
+                    firstWire.inConnector = wire.inConnector;
+                    firstWire.outConnector = {el: junction, pin: 0, type: 'in'};
+                    secondWire.inConnector = {el: junction, pin: 0, type: 'out'};
+                    secondWire.outConnector = wire.outConnector;
+
+                    this.renderer.renderWire(firstWire, start.x1, start.y1, start.x2, start.y2);
+                    this.renderer.renderWire(secondWire, end.x1, end.y1, end.x2, end.y2);
+                    this.applyHelpers(firstWire);
+                    this.applyHelpers(secondWire);
+                    this.wires.splice(idx, 0, firstWire);
+                    this.wires.splice(idx, 0, secondWire);
+                    firstWire.renderFlag.subscribe(() => {
+                        this.renderer.render();
+                    });
+                    secondWire.renderFlag.subscribe(() => {
+                        this.renderer.render();
+                    });
+                    firstWire.wire();
+                    secondWire.wire();
+                    if(outConnector.name === 'Junction') {
+                        outConnector.removeWire(wire);
+                        outConnector.pushWire(secondWire);
+                    }
+                    junction.pushWire(firstWire);
+                    junction.pushWire(secondWire);
+                    junction.updateState();
+                    console.log(start, end);
+                }
+            }
+
+
+        }
+
+
     }
 
     dragHandler(e) {
@@ -261,28 +400,34 @@ class Board extends React.Component {
                 )
             );
         }
-        // _.forEach(el.junctionHelpers, (model) => {
-        //     const domModel = model._renderer.elem;
-        //     fromEvent(domModel, 'mousemove').subscribe(() => {
-        //         if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
-        //             model.opacity = 1;
-        //             this.renderer.render();
-        //         }
-        //     });
-        //     fromEvent(domModel, 'mouseout').subscribe(() => {
-        //         if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
-        //             model.opacity = 0;
-        //             this.renderer.render();
-        //         }
-        //     });
-        //     fromEvent(domModel, 'mousedown')
-        //         .subscribe(() => {
-        //             if(this.props.state === STATE.EDIT) {
-        //                 this.props.setBoardState(STATE.WIRE);
-        //                 this.startingEl = {el: el, pin: 0, type: 'out'};
-        //             }
-        //         });
-        // });
+        _.forEach(el.junctionHelpers, (model) => {
+            const domModel = model._renderer.elem;
+
+            fromEvent(domModel, 'mousemove').subscribe(() => {
+                if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
+                    const stId = _.get(this.startingEl, 'el.id', null);
+                    const endId = _.get(this.endingEl, 'el.id', null);
+
+                    model.opacity = 1;
+                    this.renderer.render();
+                    this.endingEl = {el: el, pin: 0, type: null};
+                    this.junctionEndingFlag = stId && endId && (stId !== endId) ;
+                }
+            });
+            fromEvent(domModel, 'mouseout').subscribe(() => {
+                if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
+                    model.opacity = 0;
+                    this.renderer.render();
+                }
+            });
+            fromEvent(domModel, 'mousedown').subscribe(() => {
+                    if(this.props.state === STATE.EDIT) {
+                        this.props.setBoardState(STATE.WIRE);
+                        this.startingEl = {el: el, pin: 0, type: null};
+                        this.junctionStartingFlag = true;
+                    }
+                });
+        });
     }
 
     orientationCorrection(x1, y1, x2, y2) {

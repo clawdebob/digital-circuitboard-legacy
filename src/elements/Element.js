@@ -16,6 +16,8 @@ class Element {
         this.model = null;
         this.helpers = null;
         this.renderFlag = new BehaviorSubject(null);
+        this.x = null;
+        this.y = null;
     }
 
     setProps(props) {
@@ -33,6 +35,16 @@ class Element {
         Element.elementCounter++;
     }
 
+    getCoords() {
+        if(this.model) {
+            return {
+                x1: this.x,
+                y1: this.y,
+                orientation: 'horizontal',
+            };
+        }
+    }
+
     operation() {}
 
     errorCheck() {
@@ -40,7 +52,7 @@ class Element {
         const outPins = _.get(this.outPins, 'pins', null);
 
         if(inPins) {
-            if (_.countBy(inPins, 'value')['undefined'] === inPins.length){
+            if (_.countBy(inPins, 'value')['undefined'] === inPins.length || _.countBy(inPins, 'value')['null']){
                 _.map(outPins, (pin) => {
                     return _.set(pin, 'value', null);
                 });
@@ -57,6 +69,9 @@ class Element {
                 break;
             case 1:
                 stroke = '#00FF00';
+                break;
+            case 'overload':
+                stroke = '#ff7700';
                 break;
             case undefined:
                 stroke = '#0077ff';

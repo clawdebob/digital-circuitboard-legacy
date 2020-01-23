@@ -23,7 +23,6 @@ class Renderer {
         }
 
         wire.model = line;
-        this.background.add(line);
         if(wire.className === 'Wire') {
             const inHelper = wire.inConnector ? this.renderHelpCircle(x1, y1) : this.renderHelpCircle(x2, y2);
             const outHelper = wire.inConnector ? this.renderHelpCircle(x2, y2) : this.renderHelpCircle(x1, y1);
@@ -66,6 +65,7 @@ class Renderer {
             wire.inPins.pins[0].helper = inHelper;
             wire.outPins.pins[0].helper = outHelper;
         }
+        this.background.add(line);
 
         this.render();
         return line;
@@ -73,12 +73,14 @@ class Renderer {
 
     makeElement(element, x, y) {
         const props = element.props;
-        const originY = element.height/2 - element.originY;
-        const originX = element.width/2;
-        const rect = this.svg.makeRectangle(x + originX, y + originY, element.width, element.height);
+        const originY = y + element.height/2 - element.originY;
+        const originX = x + element.width/2;
+        const rect = this.svg.makeRectangle(originX, originY, element.width, element.height);
 
         rect.fill = props.fill;
         rect.opacity = props.opacity || 1;
+        element.x = originX;
+        element.y = originY;
 
         if (props.className) {
             rect.classList.push(props.className);
@@ -102,6 +104,21 @@ class Renderer {
         circle.opacity = 0;
         circle.className = 'help-circle';
         this.render();
+
+        return circle;
+    }
+
+    renderJunction(junction, x,y) {
+        const circle = this.svg.makeCircle(x, y, 3);
+
+        circle.classList.push('junction-circle');
+        circle.className = 'junction-circle';
+        circle.fill = '#000000';
+        this.foreground.add(circle);
+        this.render();
+        junction.model = circle;
+        junction.x = x;
+        junction.y = y;
 
         return circle;
     }
