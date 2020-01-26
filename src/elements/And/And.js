@@ -1,5 +1,5 @@
-import Element from '../Element'
-import _ from 'lodash'
+import Element from '../Element';
+import _ from 'lodash';
 
 const defaultProps = {
     name: 'And',

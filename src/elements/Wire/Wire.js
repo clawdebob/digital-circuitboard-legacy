@@ -1,8 +1,7 @@
-import Element from '../Element'
-import _ from 'lodash'
-import Pin from '../Pin/Pin'
+import Element from '../Element';
+import _ from 'lodash';
+import Pin from '../Pin/Pin';
 import {distinctUntilChanged} from "rxjs/operators";
-import {fromEvent} from "rxjs";
 
 const defaultProps = {
     name: 'Wire',
@@ -31,18 +30,32 @@ class Wire extends Element {
             const element = _.get(this.inConnector, 'el');
             const pinNumber = _.get(this.inConnector, 'pin');
             const signal = element.outPins.pins[pinNumber].value;
-            // const pinType = _.get(this.inConnector, 'type');
 
             this.inPins.pins[0].value = signal;
             this.outPins.pins[0].value = signal;
-
             this.model.stroke = this.getStateColor(signal);
-            this.outPins.pins[0].valueUpdate.next(signal);
+            try {
+                this.outPins.pins[0].valueUpdate.next(signal);
+            } catch (e) {
+                const overload = 'overload';
+                const signalSource = this.getCurrentSignalSource().el;
+                const sourcePinIdx = this.getCurrentSignalSource().pin;
+                const signalGoal = this.getCurrentSignalGoal().el;
+                const goalPinIdx = this.getCurrentSignalGoal().pin;
+
+                signalSource.model.children[2].children[sourcePinIdx].stroke = this.getStateColor(overload);
+                signalGoal.model.children[1].children[goalPinIdx].stroke = this.getStateColor(overload);
+                signalGoal.inPins.pins[goalPinIdx].value = overload;
+                signalSource.outPins.pins[sourcePinIdx].value = overload;
+                for(let el = signalSource.outPins.pins[sourcePinIdx].wiredTo; el.name === 'Wire'; el = el.outConnector.el) {
+                    el.model.stroke = this.getStateColor(overload);
+                    el.outPins.pins[0].value = overload;
+                }
+            }
         } else {
             this.model.stroke = this.getStateColor(undefined);
         }
         this.renderFlag.next();
-        // console.log(this.getCoords());
     }
 
     unsub() {
@@ -87,7 +100,7 @@ class Wire extends Element {
         let signalGoal;
 
         for(let el = this; el.name === 'Wire' && el.outConnector; el = el.outConnector.el) {
-            signalGoal = el.outConnector.el;
+            signalGoal = el.outConnector;
         }
 
         return signalGoal;
@@ -97,7 +110,7 @@ class Wire extends Element {
         let signalSource;
 
         for(let el = this; el.name === 'Wire' && el.inConnector; el = el.inConnector.el) {
-           signalSource = el.inConnector.el;
+           signalSource = el.inConnector;
         }
 
         return signalSource;
@@ -125,6 +138,10 @@ class Wire extends Element {
         }
         if(inConnector) {
             inConnector.el.outPins.disablePinHelper(inConnector.pin);
+            inConnector.el.outPins.pins[inConnector.pin].wiredTo = this;
+            if(inConnector.el.name === 'Wire') {
+                inConnector.el.outConnector = {el: this, pin: 0, type: 'in'};
+            }
             this.inSub = inConnector.el.outPins.pins[inConnector.pin].valueUpdate.pipe(distinctUntilChanged()).subscribe(() => {
                 this.updateState();
             });

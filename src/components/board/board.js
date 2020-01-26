@@ -140,7 +140,7 @@ class Board extends React.Component {
         const endingEl = this.endingEl;
         const junction = new Junction();
 
-        console.log(startingEl, this.wiresToBuild);
+        // console.log(startingEl, this.wiresToBuild);
         wire.className = 'Wire';
         wireBend.className = 'Wire';
         if(this.wiresToBuild) {
@@ -218,12 +218,10 @@ class Board extends React.Component {
                         });
                         wireBend.wire();
                     }
-                    console.log(wire, wireBend);
+                    // console.log(wire, wireBend);
                     if(this.junctionStartingFlag) {
                         const coords = this.startingEl.el.getCoords();
 
-                        // wire.unsub();
-                        // junction.pushWire(wire);
                         this.renderer.renderJunction(
                             junction,
                             coords.orientation === 'horizontal' ? main.x1 : coords.x1,
@@ -231,16 +229,11 @@ class Board extends React.Component {
                         );
                         this.elements.push(junction);
                         this.sliceWire(this.startingEl.el, junction);
-                        console.log(this.startingEl, this.endingEl);
-                        // this.tryProlongWire(wire);
-                        // this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
-                        // this.wires.push(wire);
-                        // this.applyHelpers(wire);
+                        // console.log(this.startingEl, this.endingEl);
                         junction.renderFlag.subscribe(() => {
                             this.renderer.render();
                         });
-                        // wire.wire();
-                        console.log(this.startingEl, this.endingEl);
+                        // console.log(this.startingEl, this.endingEl);
                     }
                 }
             }
@@ -265,6 +258,96 @@ class Board extends React.Component {
         const firstWire = new Wire();
         const secondWire = new Wire();
         const idx = _.findIndex(this.wires, wire);
+        const applySlice = (inConnectorCoords, outConnectorCoords) => {
+            let start = {};
+            let end = {};
+
+            if(coords.orientation === 'horizontal') {
+                if(inConnectorCoords.x1 > outConnectorCoords.x1) {
+                    start = {
+                        x1: Math.max(coords.x1, coords.x2),
+                        y1: coords.y1,
+                        x2: jcoords.x1,
+                        y2: jcoords.y1
+                    };
+                    end = {
+                        x1: jcoords.x1,
+                        y1: jcoords.y1,
+                        x2: Math.min(coords.x1, coords.x2),
+                        y2: coords.y1,
+                    };
+                } else {
+                    start = {
+                        x1: Math.min(coords.x1, coords.x2),
+                        y1: coords.y1,
+                        x2: jcoords.x1,
+                        y2: jcoords.y1
+                    };
+                    end = {
+                        x1: jcoords.x1,
+                        y1: jcoords.y1,
+                        x2: Math.max(coords.x1, coords.x2),
+                        y2: coords.y1,
+                    };
+                }
+            } else {
+                if(inConnectorCoords.y1 < outConnectorCoords.y1) {
+                    start = {
+                        x1: coords.x1,
+                        y1: Math.max(coords.y1, coords.y2),
+                        x2: jcoords.x1,
+                        y2: jcoords.y1
+                    };
+                    end = {
+                        x1: jcoords.x1,
+                        y1: jcoords.y1,
+                        x2: coords.x1,
+                        y2: Math.min(coords.y1, coords.y2),
+                    };
+                } else {
+                    start = {
+                        x1: coords.x1,
+                        y1: Math.min(coords.y1, coords.y2),
+                        x2: jcoords.x1,
+                        y2: jcoords.y1
+                    };
+                    end = {
+                        x1: jcoords.x1,
+                        y1: jcoords.y1,
+                        x2: coords.x1,
+                        y2: Math.max(coords.y1, coords.y2),
+                    };
+                }
+            }
+            this.deleteWire(wire);
+
+            firstWire.inConnector = wire.inConnector;
+            firstWire.outConnector = {el: junction, pin: 0, type: 'in'};
+            secondWire.inConnector = {el: junction, pin: 0, type: 'out'};
+            secondWire.outConnector = wire.outConnector;
+
+            this.renderer.renderWire(firstWire, start.x1, start.y1, start.x2, start.y2);
+            this.renderer.renderWire(secondWire, end.x1, end.y1, end.x2, end.y2);
+            this.applyHelpers(firstWire);
+            this.applyHelpers(secondWire);
+            this.wires.splice(idx, 0, firstWire);
+            this.wires.splice(idx, 0, secondWire);
+            firstWire.renderFlag.subscribe(() => {
+                this.renderer.render();
+            });
+            secondWire.renderFlag.subscribe(() => {
+                this.renderer.render();
+            });
+            firstWire.wire();
+            secondWire.wire();
+            if(_.get(outConnector, 'name', null) === 'Junction') {
+                outConnector.removeWire(wire);
+                outConnector.pushWire(secondWire);
+            }
+            junction.pushWire(firstWire);
+            junction.pushWire(secondWire);
+            junction.updateState();
+        };
 
         firstWire.className = 'Wire';
         secondWire.className = 'Wire';
@@ -273,69 +356,20 @@ class Board extends React.Component {
             const inConnectorCoords = inConnector.getCoords();
             const outConnectorCoords = outConnector.getCoords();
 
-            if(coords.orientation === 'horizontal') {
-                if(inConnectorCoords.x1 > outConnectorCoords.x1) {
-                    const start = {
-                        x1: Math.max(coords.x1, coords.x2),
-                        y1: coords.y1,
-                        x2: jcoords.x1,
-                        y2: jcoords.y1
-                    };
-                    const end = {
-                        x1: jcoords.x1,
-                        y1: jcoords.y1,
-                        x2: Math.min(coords.x1, coords.x2),
-                        y2: coords.y1,
-                    };
-                    console.log('worst case');
-                } else {
-                    const start = {
-                        x1: Math.min(coords.x1, coords.x2),
-                        y1: coords.y1,
-                        x2: jcoords.x1,
-                        y2: jcoords.y1
-                    };
-                    const end = {
-                        x1: jcoords.x1,
-                        y1: jcoords.y1,
-                        x2: Math.max(coords.x1, coords.x2),
-                        y2: coords.y1,
-                    };
-                    this.deleteWire(wire);
+            applySlice(inConnectorCoords, outConnectorCoords);
+        } else if(inConnector) {
+            const inConnectorCoords = inConnector.getCoords();
+            const distanceX1 = Math.abs(inConnectorCoords.x1 - coords.x1);
+            const distanceX2 = Math.abs(inConnectorCoords.x1 - coords.x2);
+            const distanceY1 = Math.abs(inConnectorCoords.y1 - coords.y1);
+            const distanceY2 = Math.abs(inConnectorCoords.y1 - coords.y2);
+            const outCoords = {
+                x1: Math.max(distanceX1, distanceX2) === distanceX1 ? coords.x1 : coords.x2,
+                y1: Math.max(distanceY1, distanceY2) === distanceX1 ? coords.x1 : coords.x2,
+            };
 
-                    firstWire.inConnector = wire.inConnector;
-                    firstWire.outConnector = {el: junction, pin: 0, type: 'in'};
-                    secondWire.inConnector = {el: junction, pin: 0, type: 'out'};
-                    secondWire.outConnector = wire.outConnector;
-
-                    this.renderer.renderWire(firstWire, start.x1, start.y1, start.x2, start.y2);
-                    this.renderer.renderWire(secondWire, end.x1, end.y1, end.x2, end.y2);
-                    this.applyHelpers(firstWire);
-                    this.applyHelpers(secondWire);
-                    this.wires.splice(idx, 0, firstWire);
-                    this.wires.splice(idx, 0, secondWire);
-                    firstWire.renderFlag.subscribe(() => {
-                        this.renderer.render();
-                    });
-                    secondWire.renderFlag.subscribe(() => {
-                        this.renderer.render();
-                    });
-                    firstWire.wire();
-                    secondWire.wire();
-                    if(outConnector.name === 'Junction') {
-                        outConnector.removeWire(wire);
-                        outConnector.pushWire(secondWire);
-                    }
-                    junction.pushWire(firstWire);
-                    junction.pushWire(secondWire);
-                    junction.updateState();
-                    console.log(start, end);
-                }
-            }
-
-
+            applySlice(inConnectorCoords, outCoords);
         }
-
 
     }
 

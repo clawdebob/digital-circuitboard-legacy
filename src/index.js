@@ -6,8 +6,10 @@ import Board from './components/board/board.js';
 import SideMenu from "./components/side-menu/side-menu";
 import ActionPanel from "./components/action-panel/action-panel";
 import And from './elements/And/And';
+import Nand from './elements/Nand/Nand';
 import Xor from './elements/Xor/Xor';
 import Or from './elements/Or/Or';
+import Nor from './elements/Nor/Nor';
 import Constant from './elements/Constant/Constant';
 import Button from './elements/Button/Button';
 
@@ -37,8 +39,9 @@ class App extends React.Component {
                 new ElementBase('Xor', (props) => new Xor(props)),
                 new ElementBase('Constant', (props => new Constant(props))),
                 new ElementBase('Button', (props => new Button(props))),
-                'Nand',
-                'Nor'],
+                new ElementBase('Nor', (props => new Nor(props))),
+                new ElementBase('Nand', (props => new Nand(props)))
+            ],
         },
         {
             name: 'Gates',

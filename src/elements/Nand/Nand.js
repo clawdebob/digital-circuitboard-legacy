@@ -1,27 +1,29 @@
 import Element from '../Element';
-import _ from "lodash";
+import _ from 'lodash';
 
 const defaultProps = {
-    name: 'Xor',
+    name: 'Nand',
     props: {
         inContacts: 3,
         outContacts: 1,
         signals: 'true/false',
-        fill: '#453dff',
+        fill: '#aaaaaa',
     },
     originY: 5,
     width: 50,
     height: 60,
 };
 
-class Xor extends Element {
+class Nand extends Element {
     constructor(props) {
         props ? super(props) : super(defaultProps);
     }
 
     operation() {
-        this.outPins.pins[0].value = _.countBy(this.inPins.pins, 'value')['1'] === 1 ? 1 : 0;
+        this.outPins.pins[0].value = Number(!_.reduce(this.inPins.pins,(result, pin) => {
+            return Boolean(result && pin.value);
+        }, 1));
     }
 }
 
-export default Xor;
+export default Nand;
