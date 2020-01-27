@@ -53,7 +53,6 @@ class Element {
 
         if(inPins) {
             if(_.countBy(inPins, 'value')['overload']) {
-                console.log('yep');
                 _.map(outPins, (pin) => {
                     return _.set(pin, 'value', 'overload');
                 });

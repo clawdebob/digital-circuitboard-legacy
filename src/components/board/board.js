@@ -369,6 +369,18 @@ class Board extends React.Component {
             };
 
             applySlice(inConnectorCoords, outCoords);
+        } else if (outConnector) {
+            const outConnectorCoords = outConnector.getCoords();
+            const distanceX1 = Math.abs(outConnectorCoords.x1 - coords.x1);
+            const distanceX2 = Math.abs(outConnectorCoords.x1 - coords.x2);
+            const distanceY1 = Math.abs(outConnectorCoords.y1 - coords.y1);
+            const distanceY2 = Math.abs(outConnectorCoords.y1 - coords.y2);
+            const inCoords = {
+                x1: Math.max(distanceX1, distanceX2) === distanceX1 ? coords.x1 : coords.x2,
+                y1: Math.max(distanceY1, distanceY2) === distanceX1 ? coords.x1 : coords.x2,
+            };
+
+            applySlice(inCoords, outConnectorCoords);
         }
 
     }

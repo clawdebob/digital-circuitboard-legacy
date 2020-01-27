@@ -21,7 +21,6 @@ class Junction extends Element {
         this.inSub = [];
         this.outSub = [];
         this.errorRegistred = false;
-        this.errorClear = false;
     }
 
     pushWire(wire) {
@@ -114,6 +113,16 @@ class Junction extends Element {
             this.setErrorState();
         }
         this.outPins.pins[0].value = signal;
+        _.forEach(this.outSub, (sub) => {
+            if(this.model) {
+                let lastWire = sub;
+
+                for(let el = lastWire; el.outConnector && _.get(el, 'outConnector.el.name', null) === 'Wire'; el = el.outConnector.el) {
+                    lastWire = el.outConnector.el;
+                }
+                _.set(lastWire, 'outPins.pins[0].value', signal);
+            }
+        });
         this.outPins.pins[0].valueUpdate.next(signal);
         if(this.model) {
             this.model.fill = this.getStateColor(signal);
