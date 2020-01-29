@@ -133,14 +133,12 @@ class Board extends React.Component {
 
     endWire(e) {
         e.preventDefault();
-        // console.log(this.junctionStartingFlag, this.junctionEndingFlag);
         let wire = new Wire();
         let wireBend = new Wire();
         const startingEl = this.startingEl;
         const endingEl = this.endingEl;
         const junction = new Junction();
 
-        // console.log(startingEl, this.wiresToBuild);
         wire.className = 'Wire';
         wireBend.className = 'Wire';
         if(this.wiresToBuild) {
@@ -148,93 +146,94 @@ class Board extends React.Component {
             const bend = this.wiresToBuild.bend;
             if(main) {
                 if (startingEl || endingEl) {
-                    if(!((startingEl.el.id === endingEl.el.id)
-                        && (startingEl.pin === endingEl.pin)
-                        && (startingEl.type === endingEl.type))
-                    ) {
-                        if(startingEl.type === 'out') {
-                            wire.inConnector = _.clone(startingEl);
-                        } else if(startingEl.type === 'in') {
-                            wire.outConnector = _.clone(startingEl);
+                    if(startingEl.type !== endingEl.type) {
+                        if (!((startingEl.el.id === endingEl.el.id)
+                            && (startingEl.pin === endingEl.pin)
+                            && (startingEl.type === endingEl.type))
+                        ) {
+                            if (startingEl.type === 'out') {
+                                wire.inConnector = _.clone(startingEl);
+                            } else if (startingEl.type === 'in') {
+                                wire.outConnector = _.clone(startingEl);
+                            }
+                            if (endingEl.type === 'out') {
+                                wire.inConnector = _.clone(endingEl);
+                            } else if (endingEl.type === 'in') {
+                                wire.outConnector = _.clone(endingEl);
+                            }
+                            if (this.junctionStartingFlag) {
+                                junction.setId();
+                                junction.pushWire(wire);
+                            }
+                        } else {
+                            if (startingEl.type === 'out') {
+                                wire.inConnector = _.clone(startingEl);
+                            } else if (startingEl.type === 'in') {
+                                wire.outConnector = _.clone(startingEl);
+                            }
+                            if (this.junctionStartingFlag) {
+                                junction.setId();
+                                junction.pushWire(wire);
+                            }
                         }
-                        if(endingEl.type === 'out') {
-                            wire.inConnector = _.clone(endingEl);
-                        } else if(endingEl.type === 'in') {
-                            wire.outConnector = _.clone(endingEl);
+                        if ((main.x1 !== main.x2 && (Math.abs(main.y1 - main.y2) !== 2))
+                            || (main.x1 === main.x2 && (main.y1 !== main.y2))) {
+                            this.tryProlongWire(wire);
+                            this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
+                            this.wires.push(wire);
+                            this.applyHelpers(wire);
+                            wire.renderFlag.subscribe(() => {
+                                this.renderer.render();
+                            });
+                            wire.wire();
+                        } else {
+                            this.renderer.removeElement({className: 'main'});
                         }
-                        if(this.junctionStartingFlag) {
-                            junction.setId();
-                            junction.pushWire(wire);
-                        }
-                    } else {
-                        if(startingEl.type === 'out') {
-                            wire.inConnector = _.clone(startingEl);
-                        } else if(startingEl.type === 'in') {
-                            wire.outConnector = _.clone(startingEl);
-                        }
-                        if(this.junctionStartingFlag) {
-                            junction.setId();
-                            junction.pushWire(wire);
-                        }
-                    }
-                    if((main.x1 !== main.x2 && (Math.abs(main.y1 - main.y2)!== 2))
-                        || (main.x1 === main.x2 && (main.y1 !== main.y2))) {
-                        this.tryProlongWire(wire);
-                        this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
-                        this.wires.push(wire);
-                        this.applyHelpers(wire);
-                        wire.renderFlag.subscribe(() => {
-                            this.renderer.render();
-                        });
-                        wire.wire();
-                    } else {
-                        this.renderer.removeElement({className: 'main'});
-                    }
-                    if(bend) {
-                        if(wire.outConnector && wire.inConnector) {
-                            const onlyStart = this.junctionStartingFlag && !this.junctionEndingFlag;
+                        if (bend) {
+                            if (wire.outConnector && wire.inConnector) {
+                                const onlyStart = this.junctionStartingFlag && !this.junctionEndingFlag;
 
-                            if(startingEl.type === 'in' || onlyStart) {
-                                wireBend.inConnector = wire.inConnector;
-                                wireBend.outConnector = _.clone({el: wire, pin: 0, type: 'in'});
+                                if (startingEl.type === 'in' || onlyStart) {
+                                    wireBend.inConnector = wire.inConnector;
+                                    wireBend.outConnector = _.clone({el: wire, pin: 0, type: 'in'});
+                                    wire.inConnector = _.clone({el: wireBend, pin: 0, type: 'out'});
+                                } else {
+                                    wireBend.outConnector = wire.outConnector;
+                                    wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
+                                    wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
+                                }
+                            } else if (wire.outConnector && !wire.inConnector) {
                                 wire.inConnector = _.clone({el: wireBend, pin: 0, type: 'out'});
+                                wireBend.outConnector = _.clone({el: wire, pin: 0, type: 'in'});
                             } else {
-                                wireBend.outConnector = wire.outConnector;
                                 wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
                                 wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
                             }
-                        } else if (wire.outConnector && !wire.inConnector) {
-                            wire.inConnector = _.clone({el: wireBend, pin: 0, type: 'out'});
-                            wireBend.outConnector = _.clone({el: wire, pin: 0, type: 'in'});
-                        } else {
-                            wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
-                            wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
+                            this.wires.push(wireBend);
+                            this.renderer.renderWire(wireBend, bend.x1, bend.y1, bend.x2, bend.y2);
+                            this.applyHelpers(wireBend);
+                            wireBend.renderFlag.subscribe(() => {
+                                this.renderer.render();
+                            });
+                            wireBend.wire();
                         }
-                        this.wires.push(wireBend);
-                        this.renderer.renderWire(wireBend, bend.x1, bend.y1, bend.x2, bend.y2);
-                        this.applyHelpers(wireBend);
-                        wireBend.renderFlag.subscribe(() => {
-                            this.renderer.render();
-                        });
-                        wireBend.wire();
-                    }
-                    // console.log(wire, wireBend);
-                    if(this.junctionStartingFlag) {
-                        const coords = this.startingEl.el.getCoords();
+                        if (this.junctionStartingFlag) {
+                            const coords = this.startingEl.el.getCoords();
 
-                        this.renderer.renderJunction(
-                            junction,
-                            coords.orientation === 'horizontal' ? main.x1 : coords.x1,
-                            coords.orientation === 'horizontal' ? coords.y1 : main.y1,
-                        );
-                        this.elements.push(junction);
-                        this.sliceWire(this.startingEl.el, junction);
-                        // console.log(this.startingEl, this.endingEl);
-                        junction.renderFlag.subscribe(() => {
-                            this.renderer.render();
-                        });
-                        // console.log(this.startingEl, this.endingEl);
+                            this.renderer.renderJunction(
+                                junction,
+                                coords.orientation === 'horizontal' ? main.x1 : coords.x1,
+                                coords.orientation === 'horizontal' ? coords.y1 : main.y1,
+                            );
+                            this.elements.push(junction);
+                            this.sliceWire(this.startingEl.el, junction);
+                            junction.renderFlag.subscribe(() => {
+                                this.renderer.render();
+                            });
+                        }
                     }
+                    this.renderer.removeElement({className: 'main'});
+                    this.renderer.removeElement({className: 'bend'});
                 }
             }
         }
@@ -322,7 +321,7 @@ class Board extends React.Component {
             this.deleteWire(wire);
 
             firstWire.inConnector = wire.inConnector;
-            firstWire.outConnector = {el: junction, pin: 0, type: 'in'};
+            firstWire.outConnector = wire.inConnector ? {el: junction, pin: 0, type: 'in'} : null;
             secondWire.inConnector = {el: junction, pin: 0, type: 'out'};
             secondWire.outConnector = wire.outConnector;
 
@@ -338,14 +337,14 @@ class Board extends React.Component {
             secondWire.renderFlag.subscribe(() => {
                 this.renderer.render();
             });
+            junction.pushWire(firstWire);
+            junction.pushWire(secondWire);
             firstWire.wire();
             secondWire.wire();
             if(_.get(outConnector, 'name', null) === 'Junction') {
                 outConnector.removeWire(wire);
                 outConnector.pushWire(secondWire);
             }
-            junction.pushWire(firstWire);
-            junction.pushWire(secondWire);
             junction.updateState();
         };
 

@@ -23,6 +23,17 @@ class Junction extends Element {
         this.errorRegistred = false;
     }
 
+    // updateWires() {
+    //     _.forEach(this.outSub, (wire) => {
+    //         const signalSource = wire.getCurrentSignalSource();
+    //
+    //         if(signalSource.id !== this.id) {
+    //             this.removeWire(wire);
+    //             this.inSub.push(wire);
+    //         }
+    //     });
+    // }
+
     pushWire(wire) {
         const signalSource = wire.getCurrentSignalSource();
 

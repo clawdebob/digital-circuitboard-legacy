@@ -136,7 +136,9 @@ class Wire extends Element {
                 }
             }
         }
+        console.log(inConnector, this.inConnector);
         if(inConnector) {
+            console.log(this);
             inConnector.el.outPins.disablePinHelper(inConnector.pin);
             inConnector.el.outPins.pins[inConnector.pin].wiredTo = this;
             if(inConnector.el.name === 'Wire') {
