@@ -23,17 +23,6 @@ class Junction extends Element {
         this.errorRegistred = false;
     }
 
-    // updateWires() {
-    //     _.forEach(this.outSub, (wire) => {
-    //         const signalSource = wire.getCurrentSignalSource();
-    //
-    //         if(signalSource.id !== this.id) {
-    //             this.removeWire(wire);
-    //             this.inSub.push(wire);
-    //         }
-    //     });
-    // }
-
     pushWire(wire) {
         const signalSource = wire.getCurrentSignalSource();
 
@@ -124,16 +113,16 @@ class Junction extends Element {
             this.setErrorState();
         }
         this.outPins.pins[0].value = signal;
-        _.forEach(this.outSub, (sub) => {
-            if(this.model) {
+        if(this.model) {
+            _.forEach(this.outSub, (sub) => {
                 let lastWire = sub;
 
-                for(let el = lastWire; el.outConnector && _.get(el, 'outConnector.el.name', null) === 'Wire'; el = el.outConnector.el) {
+                for (let el = lastWire; el.outConnector && _.get(el, 'outConnector.el.name', null) === 'Wire'; el = el.outConnector.el) {
                     lastWire = el.outConnector.el;
                 }
                 _.set(lastWire, 'outPins.pins[0].value', signal);
-            }
-        });
+            });
+        }
         this.outPins.pins[0].valueUpdate.next(signal);
         if(this.model) {
             this.model.fill = this.getStateColor(signal);

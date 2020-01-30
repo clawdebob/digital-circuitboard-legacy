@@ -103,25 +103,6 @@ class Element {
         this.outPins.pins.forEach((pin, idx) => {
             this.model.children[2].children[idx].stroke = this.getStateColor(pin.value);
             pin.valueUpdate.next(pin.value);
-
-            // try {
-            //
-            // } catch (e) {
-            //     const overload = 'overload';
-            //     let el = pin.wiredTo;
-            //     const inPinIdx = el.getCurrentSignalGoal().idx;
-            //
-            //     this.model.children[2].children[idx].stroke = this.getStateColor(overload);
-            //
-            //     for(el; el.id !== this.id; el = el.outConnector.el) {
-            //         el.model.stroke = this.getStateColor(overload);
-            //     }
-            //
-            //     console.log(inPinIdx);
-            //
-            //     this.model.children[1].children[inPinIdx].stroke = this.getStateColor(overload);
-            //     pin.valueUpdate.next('overload');
-            // }
         });
         this.renderFlag.next();
     }

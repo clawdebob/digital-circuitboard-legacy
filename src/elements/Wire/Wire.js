@@ -129,16 +129,14 @@ class Wire extends Element {
             this.outSub = this.outPins.pins[0].valueUpdate.pipe(distinctUntilChanged()).subscribe(() => {
                 outConnector.el.updateState();
             });
-            this.signalGoal = this.getCurrentSignalGoal();
-            if(this.signalGoal && (_.get(this.signalGoal,'id', null) === this.outConnector.el.id)) {
-                for(let el = this; el.name === 'Wire' && el.inConnector; el = el.inConnector.el) {
-                    el.signalGoal = this.signalGoal;
-                }
-            }
+            // this.signalGoal = this.getCurrentSignalGoal();
+            // if(this.signalGoal && (_.get(this.signalGoal,'id', null) === this.outConnector.el.id)) {
+            //     for(let el = this; el.name === 'Wire' && el.inConnector; el = el.inConnector.el) {
+            //         el.signalGoal = this.signalGoal;
+            //     }
+            // }
         }
-        console.log(inConnector, this.inConnector);
         if(inConnector) {
-            console.log(this);
             inConnector.el.outPins.disablePinHelper(inConnector.pin);
             inConnector.el.outPins.pins[inConnector.pin].wiredTo = this;
             if(inConnector.el.name === 'Wire') {
@@ -147,16 +145,18 @@ class Wire extends Element {
             this.inSub = inConnector.el.outPins.pins[inConnector.pin].valueUpdate.pipe(distinctUntilChanged()).subscribe(() => {
                 this.updateState();
             });
-            this.signalSource = this.getCurrentSignalSource();
-            if(this.signalSource && (_.get(this.signalSource,'id', null) === this.inConnector.el.id)) {
-                for(let el = this; el.name === 'Wire' && el.outConnector; el = el.outConnector.el) {
-                    el.signalSource = this.signalSource;
-                }
-            }
+            // this.signalSource = this.getCurrentSignalSource();
+            // if(this.signalSource && (_.get(this.signalSource,'id', null) === this.inConnector.el.id)) {
+            //     for(let el = this; el.name === 'Wire' && el.outConnector; el = el.outConnector.el) {
+            //         el.signalSource = this.signalSource;
+            //     }
+            // }
         } else {
             this.updateState();
         }
-        this.setId();
+        if(!this.id) {
+            this.setId();
+        }
     }
 }
 
