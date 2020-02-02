@@ -5,10 +5,9 @@ const defaultProps = {
     name: 'And',
     props: {
         inContacts: 3,
-        outContacts: 1,
-        signals: 'true/false',
         fill: '#FF8000',
     },
+    outContacts: 1,
     originY: 5,
     width: 50,
     height: 60,

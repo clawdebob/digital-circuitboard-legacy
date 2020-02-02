@@ -21,8 +21,6 @@ class Wire extends Element {
         this.junctionHelpers = [];
         this.inSub = null;
         this.outSub = null;
-        this.signalSource = null;
-        this.signalGoal = null;
     }
 
     updateState() {
@@ -82,9 +80,6 @@ class Wire extends Element {
 
             if(coords.x1 === coords.x2) {
                 orientation = 'vertical';
-                // if(coords.y1 > coords.y2) {
-                //
-                // }
             } else if (coords.y1 === coords.y2) {
                 orientation = 'horizontal';
             }
@@ -103,7 +98,7 @@ class Wire extends Element {
             signalGoal = el.outConnector;
         }
 
-        return signalGoal;
+        return _.get(signalGoal, 'el.name', null) ? signalGoal : null;
     }
 
     getCurrentSignalSource() {
@@ -113,7 +108,7 @@ class Wire extends Element {
            signalSource = el.inConnector;
         }
 
-        return signalSource;
+        return _.get(signalSource, 'el.name', null) !== 'Wire' ? signalSource : null;
     }
 
     wire() {
@@ -145,18 +140,17 @@ class Wire extends Element {
             this.inSub = inConnector.el.outPins.pins[inConnector.pin].valueUpdate.pipe(distinctUntilChanged()).subscribe(() => {
                 this.updateState();
             });
-            // this.signalSource = this.getCurrentSignalSource();
-            // if(this.signalSource && (_.get(this.signalSource,'id', null) === this.inConnector.el.id)) {
-            //     for(let el = this; el.name === 'Wire' && el.outConnector; el = el.outConnector.el) {
-            //         el.signalSource = this.signalSource;
-            //     }
-            // }
         } else {
             this.updateState();
         }
         if(!this.id) {
             this.setId();
         }
+    }
+
+    //debug function
+    getElement() {
+        return _.get(this.model, '_renderer.elem', null);
     }
 }
 

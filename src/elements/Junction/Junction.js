@@ -57,11 +57,11 @@ class Junction extends Element {
                     globalEl.model.stroke = this.getStateColor(null);
                     globalEl.model.fill = this.getStateColor(null);
                     globalEl.setErrorState();
-                } else {
+                } else if(globalEl.name !== 'Wire') {
                     globalEl.model.children[2].children[globalElPinIdx].stroke = this.getStateColor(null);
                 }
 
-                for (let el = pin.wiredTo; el.name === 'Wire'; el = el.outConnector.el) {
+                for (let el = pin.wiredTo; _.get(el, 'name', null) === 'Wire' && el; el = el.outConnector.el) {
                     el.model.stroke = this.getStateColor(null);
                 }
             }
@@ -72,7 +72,6 @@ class Junction extends Element {
         _.forEach(this.inSub, (sub) => {
             const globalElObj = sub.getCurrentSignalSource();
 
-
             if(globalElObj && this.model) {
                 const globalEl = globalElObj.el;
                 const globalElPinIdx = globalElObj.pin;
@@ -82,11 +81,11 @@ class Junction extends Element {
                     globalEl.model.stroke = this.getStateColor(pin.value);
                     globalEl.model.fill = this.getStateColor(pin.value);
                     globalEl.unsetErrorState();
-                } else {
+                } else if (globalEl.name !== 'Wire') {
                     globalEl.model.children[2].children[globalElPinIdx].stroke = this.getStateColor(pin.value);
                 }
 
-                for (let el = pin.wiredTo; el.name === 'Wire'; el = el.outConnector.el) {
+                for (let el = pin.wiredTo; _.get(el, 'name', null) === 'Wire'; el = el.outConnector.el) {
                     el.model.stroke = this.getStateColor(pin.value);
                 }
             }

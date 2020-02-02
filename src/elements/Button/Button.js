@@ -5,10 +5,10 @@ import {fromEvent} from "rxjs";
 const defaultProps = {
     name: 'Button',
     props: {
-        outContacts: 1,
         initialSignal: 0,
         fill: '#fff6fc',
     },
+    outContacts: 1,
     className: 'button',
     originY: 0,
     width: 26,

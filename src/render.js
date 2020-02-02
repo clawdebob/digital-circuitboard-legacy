@@ -56,12 +56,11 @@ class Renderer {
                this.foreground.add(model);
             });
             const jgroup = this.svg.makeGroup(tempsForJunctions);
-            const group = this.svg.makeGroup(line, jgroup, inHelper, outHelper);
-            if (wire.id) {
-                line.classList.push(wire.id);
-                group.classList.push(wire.id);
-            }
-
+            this.svg.makeGroup(line, jgroup, inHelper, outHelper);
+            // if (wire.id) {
+            //     line.classList.push(wire.id);
+            //     group.classList.push(wire.id);
+            // }
             wire.inPins.pins[0].helper = inHelper;
             wire.outPins.pins[0].helper = outHelper;
         }
@@ -172,6 +171,7 @@ class Renderer {
 
     removeElementById(id) {
         const els = this.svg.scene.getByClassName(id);
+
         _.forEach(els, (el) => {
             el.remove();
         });
@@ -180,10 +180,10 @@ class Renderer {
 
     removeElement(element) {
         const els = this.svg.scene.getByClassName(_.get(element, 'props.className', false) || element.className);
-        for (let c = 0; c < els.length; c++) {
-            let elem = els[c];
-            elem.remove();
-        }
+
+        _.forEach(els, (el) => {
+            el.remove();
+        });
         return this.render();
     }
 

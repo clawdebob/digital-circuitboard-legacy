@@ -30,6 +30,18 @@ class Board extends React.Component {
 
         window.wires = this.wires;
         window.elements = this.elements;
+        window.disableWireModels = () => {
+            _.forEach (this.wires, (wire) => {
+                wire.model.stroke = '#00000000';
+            });
+            this.renderer.render();
+        };
+
+        window.getAllWireModels = () => {
+            _.forEach (this.wires, (wire) => {
+                console.log(wire.getElement());
+            });
+        };
 
         this.dragHandler = this.dragHandler.bind(this);
         this.ghostHelper = this.ghostHelper.bind(this);
@@ -131,13 +143,79 @@ class Board extends React.Component {
         return prolonged;
     }
 
+    revertChain(wire, chainWire, goal) {
+        let wiresToReplace = [chainWire];
+        let el = chainWire;
+        for (el; el.inConnector && _.get(el, 'inConnector.el.name', null) === 'Wire'; el = el.inConnector.el) {
+            wiresToReplace.push(el.inConnector.el);
+        }
+        // wiresToReplace.push(el);
+        if(_.get(goal, 'name', null) === 'Junction') {
+            goal.removeWire(wiresToReplace[wiresToReplace.length - 1]);
+        }
+
+        const replacementWires = _.map(wiresToReplace, () => {
+            const replacement = new Wire();
+            replacement.className = 'Wire';
+
+            return replacement;
+        });
+
+        const len = replacementWires.length;
+
+        for(let c = 0; c < len; c++) {
+            const coords = wiresToReplace[c].getCoords();
+            const replacement = replacementWires[c];
+
+            if(c === 0) {
+                replacement.inConnector = {el: wire, pin: 0, type: 'out'};
+                if(len > 1) {
+                    replacement.outConnector = {
+                        el: replacementWires[c + 1],
+                        pin: 0,
+                        type: 'in'
+                    };
+                } else if (!goal) {
+                    replacement.outConnector = null;
+                } else {
+                    replacement.outConnector = {
+                        el: goal,
+                        pin: 0,
+                        type: 'in'
+                    };
+                }
+            } else if (c === len - 1) {
+                replacement.inConnector = {el: replacementWires[c - 1], pin: 0, type: 'out'};
+                replacement.outConnector = goal ? {el: goal, pin: 0, type: 'in'} : null;
+            } else {
+                replacement.inConnector = {el: replacementWires[c - 1], pin: 0, type: 'out'};
+                replacement.outConnector = {el: replacementWires[c + 1], pin: 0, type: 'in'};
+            }
+            this.deleteWire(wiresToReplace[c]);
+            this.renderer.renderWire(replacement, coords.x1, coords.y1, coords.x2, coords.y2);
+            this.wires.push(replacement);
+            this.applyHelpers(replacement);
+            replacement.renderFlag.subscribe(() => {
+                this.renderer.render();
+            });
+        }
+        _.forEach(replacementWires, (wire) => {
+            wire.wire();
+        });
+        wire.outConnector = {el: replacementWires[0], pin: 0, type: 'in'};
+        if(_.get(goal, 'name', null) === 'Junction') {
+            goal.pushWire(replacementWires[len - 1]);
+        }
+    }
+
     endWire(e) {
         e.preventDefault();
         let wire = new Wire();
         let wireBend = new Wire();
         const startingEl = this.startingEl;
         const endingEl = this.endingEl;
-        const junction = new Junction();
+        const startJunction = new Junction();
+        const endJunction = new Junction();
 
         wire.className = 'Wire';
         wireBend.className = 'Wire';
@@ -161,61 +239,27 @@ class Board extends React.Component {
                             wire.outConnector = _.clone(endingEl);
                         }
                         if (this.junctionStartingFlag) {
-                            junction.setId();
-                            junction.pushWire(wire);
+                            startJunction.setId();
+                            startJunction.pushWire(wire);
+                        }
+                        if(this.junctionEndingFlag) {
+                            endJunction.setId();
+                            endJunction.pushWire(wire)
                         }
                         if(startingEl.type === endingEl.type) {
+                            let goal, chainWire;
                             if(_.get(startingEl, 'el.name', null) === 'Wire') {
-                                const goal = startingEl.el.getCurrentSignalSource();
-
+                                chainWire = startingEl.el;
+                                goal = startingEl.el.getCurrentSignalSource();
+                                wire.inConnector = _.clone(endingEl);
+                            } else if(_.get(endingEl, 'el.name', null) === 'Wire') {
+                                chainWire = endingEl.el;
+                                goal = endingEl.el.getCurrentSignalSource();
+                                wire.inConnector = _.clone(startingEl);
+                            }
+                            if(goal && chainWire) {
                                 if(_.get(goal, 'el.name', null) === 'Junction') {
-                                    const chainWire = startingEl.el;
-                                    wire.inConnector = _.clone(endingEl);
-                                    wire.outConnector = {el: chainWire, pin: 0, type: 'in'};
-                                    let wiresToReplace = [chainWire];
-                                    for (let el = chainWire; el.inConnector && _.get(el, 'inConnector.el.name', null) === 'Wire'; el = el.inConnector.el) {
-                                        wiresToReplace.push(chainWire);
-                                    }
-                                    goal.el.removeWire(wiresToReplace[wiresToReplace.length - 1]);
-
-                                    const replacementWires = _.map(wiresToReplace, (wire) => {
-                                        const replacement = new Wire();
-                                        replacement.className = 'Wire';
-
-                                        return replacement;
-                                    });
-
-                                    const len = replacementWires.length;
-
-                                    for(let c = 0; c < len; c++) {
-                                        const coords = wiresToReplace[c].getCoords();
-                                        const replacement = replacementWires[c];
-                                        if(c === 0) {
-                                            replacement.inConnector = {el: wire, pin: 0, type: 'out'};
-                                            replacement.outConnector = {
-                                                el: len > 1 ? replacementWires[c + 1] : goal.el,
-                                                pin: 0,
-                                                type: 'in'
-                                            };
-                                        } else if (c === len - 1) {
-                                            replacement.inConnector = {el: replacementWires[c - 1], pin: 0, type: 'out'};
-                                            replacement.outConnector = {el: goal.el, pin: 0, type: 'in'};
-                                        } else {
-                                            replacement.inConnector = {el: replacementWires[c - 1], pin: 0, type: 'out'};
-                                            replacement.outConnector = {el: replacementWires[c + 1], pin: 0, type: 'in'};
-                                        }
-                                        this.deleteWire(wire);
-                                        this.renderer.renderWire(replacement, coords.x1, coords.y1, coords.x2, coords.y2);
-                                        this.wires.push(replacement);
-                                        this.applyHelpers(replacement);
-                                        replacement.renderFlag.subscribe(() => {
-                                            this.renderer.render();
-                                        });
-                                    }
-                                    _.forEach(replacementWires, (wire) => {
-                                        wire.wire();
-                                    });
-                                    goal.el.pushWire(replacementWires[len - 1]);
+                                    this.revertChain(wire, chainWire, goal.el);
                                 }
                             } else {
                                 main = null;
@@ -229,8 +273,8 @@ class Board extends React.Component {
                             wire.outConnector = _.clone(startingEl);
                         }
                         if (this.junctionStartingFlag) {
-                            junction.setId();
-                            junction.pushWire(wire);
+                            startJunction.setId();
+                            startJunction.pushWire(wire);
                         }
                     }
                     if(main) {
@@ -278,13 +322,28 @@ class Board extends React.Component {
                         const coords = this.startingEl.el.getCoords();
 
                         this.renderer.renderJunction(
-                            junction,
+                            startJunction,
                             coords.orientation === 'horizontal' ? main.x1 : coords.x1,
                             coords.orientation === 'horizontal' ? coords.y1 : main.y1,
                         );
-                        this.elements.push(junction);
-                        this.sliceWire(this.startingEl.el, junction);
-                        junction.renderFlag.subscribe(() => {
+                        this.elements.push(startJunction);
+                        this.sliceWire(this.startingEl.el, startJunction);
+                        startJunction.renderFlag.subscribe(() => {
+                            this.renderer.render();
+                        });
+                    }
+                    if(this.junctionEndingFlag) {
+                        const coords = this.endingEl.el.getCoords();
+                        const wireCoords = bend ? wireBend.getCoords() : wire.getCoords();
+
+                        this.renderer.renderJunction(
+                            endJunction,
+                            coords.orientation === 'horizontal' ? wireCoords.x1 : coords.x1,
+                            coords.orientation === 'horizontal' ? coords.y1 : wireCoords.y2,
+                        );
+                        this.elements.push(endJunction);
+                        this.sliceWire(this.endingEl.el, endJunction);
+                        endJunction.renderFlag.subscribe(() => {
                             this.renderer.render();
                         });
                     }
@@ -378,6 +437,9 @@ class Board extends React.Component {
 
             firstWire.inConnector = wire.inConnector;
             firstWire.outConnector = wire.inConnector ? {el: junction, pin: 0, type: 'in'} : null;
+            if(!wire.getCurrentSignalSource() && wire.inConnector) {
+                this.revertChain(firstWire, wire.inConnector.el, null);
+            }
             secondWire.inConnector = {el: junction, pin: 0, type: 'out'};
             secondWire.outConnector = wire.outConnector;
 

@@ -3,10 +3,10 @@ import Element from '../Element';
 const defaultProps = {
     name: 'Constant',
     props: {
-        outContacts: 1,
         signal: 0,
         fill: '#1e8eff',
     },
+    outContacts: 1,
     originY: 0,
     width: 26,
     height: 26,

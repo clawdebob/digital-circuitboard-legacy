@@ -5,10 +5,11 @@ class Pin {
         if(el.name === 'Wire' || el.name === 'Junction') {
             this.pins = new Array(1)
                 .fill(null)
-                .map((val, idx) => {
+                .map(() => {
                     return {
                         coords: null,
                         value: undefined,
+                        invert: false,
                         model: null,
                         helper: null,
                         helperEnabled: true,
@@ -17,7 +18,7 @@ class Pin {
                     };
                 });
         } else {
-            const n = out ? el.props.outContacts : el.props.inContacts;
+            const n = out ? el.outContacts : el.props.inContacts;
             const width = el.width;
             const height = el.height;
             const originY = el.originY;
@@ -27,6 +28,8 @@ class Pin {
             const maxPoints = Math.round(availableLen / 10);
             const pointsArray = new Array(maxPoints);
             const pivotPoint = Math.round(maxPoints / 2);
+
+            el.maxContacts = maxPoints;
             for (let i = 0; i < maxPoints; i++) {
                 pointsArray[i] = y1;
                 y1 += 12;

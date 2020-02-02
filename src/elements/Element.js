@@ -8,6 +8,7 @@ class Element {
 
     constructor(props) {
         this.name = props.name;
+        this.outContacts = props.outContacts;
         this.width = props.width;
         this.height = props.height;
         this.className = props.className ? `element-${props.className}` : null;
@@ -25,7 +26,7 @@ class Element {
         if (this.props.inContacts) {
             this.inPins = new Pin(this);
         }
-        if (this.props.outContacts) {
+        if (this.outContacts) {
             this.outPins = new Pin(this, true);
         }
     }
@@ -33,6 +34,9 @@ class Element {
     setId() {
         this.id = this.name + Element.elementCounter;
         Element.elementCounter++;
+        if(this.model) {
+            this.model.classList.push(this.id);
+        }
     }
 
     getCoords() {

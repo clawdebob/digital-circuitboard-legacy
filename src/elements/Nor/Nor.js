@@ -5,11 +5,10 @@ const defaultProps = {
     name: 'Nor',
     props: {
         inContacts: 3,
-        outContacts: 1,
-        signals: 'true/false',
         fill: '#dd4477',
     },
     originY: 5,
+    outContacts: 1,
     width: 50,
     height: 60,
 };
