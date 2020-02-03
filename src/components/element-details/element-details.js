@@ -18,14 +18,14 @@ class ElementDetails extends React.Component{
         const curEl = this.props.currentEl;
         const [input] = document.getElementsByName(this.currentProp);
 
-        if(isNaN(input.value)) {
+        if(input.value === 'true' || input.value === 'false') {
+            curEl.props[this.currentProp] = input.value === 'true';
+        } else if(isNaN(input.value)) {
             curEl.props[this.currentProp] = input.value;
         } else {
             curEl.props[this.currentProp] = Number(input.value);
         }
-
         curEl.setProps(curEl.props);
-
         this.props.handleChange(curEl);
         if(this.blurSubscription) {
             this.blurSubscription.unsubscribe();
@@ -47,29 +47,31 @@ class ElementDetails extends React.Component{
 
     generateOptions(type, prop) {
         let optionsList;
+        let optionsArray = [];
         const element = this.props.currentEl;
+        const getOptionArray = (array) => _.map(array, (val) => (<option value={val} key={val}>{val}</option>));
 
         switch(type) {
             case 'signal':
-                optionsList = _.map([0, 1], (val) => {
-                   return (
-                       <option value={val}>{val}</option>
-                   );
-                });
+                optionsList = getOptionArray([0, 1]);
                 break;
             case 'range':
-                let optionArray = [];
-
-                if(prop === 'inContacts' || prop === 'outContacts') {
+                if(prop === 'inContacts') {
                     for(let c = 2; c <= element.maxContacts; c++) {
-                        optionArray.push(c);
+                        optionsArray.push(c);
                     }
-                    optionsList = _.map(optionArray, (val) => {
-                        return (
-                            <option value={val}>{val}</option>
-                        );
-                    });
+                    optionsList = getOptionArray(optionsArray);
                 }
+                break;
+            case 'answer':
+                optionsList = _.map(
+                    ['Yes', 'No'],
+                    (val) => {
+                        const mean = val === 'Yes';
+
+                        return (<option value={mean} key={val}>{val}</option>)
+                    }
+                );
                 break;
             default:
                 optionsList = (<option>Not specified</option>);
@@ -81,12 +83,25 @@ class ElementDetails extends React.Component{
 
     getElementData() {
         const element = this.props.currentEl;
+        const contactsNum = _.get(element, 'props.inContacts', null);
+
+        if(contactsNum) {
+            for(let c = 1; c <= contactsNum; c++) {
+                element.props[`invert${c}`] = element.inPins.pins[c - 1].invert;
+            }
+        }
 
         return Object.keys(element.props).map((prop) => {
             const key = `${element.name}_${prop}`;
-            const type = _.get(DETAILS[prop], 'inputType', null);
-            const name = _.get(DETAILS[prop], 'name', null);
-            const valueType = _.get(DETAILS[prop], 'valueType', null);
+            let type = _.get(DETAILS[prop], 'inputType', null);
+            let name = _.get(DETAILS[prop], 'name', null);
+            let valueType = _.get(DETAILS[prop], 'valueType', null);
+
+            if((/invert\d+/).test(prop)) {
+                name = DETAILS['invert'].name + prop.match(/\d+/)[0];
+                type = DETAILS['invert'].inputType;
+                valueType = DETAILS['invert'].valueType;
+            }
 
             return (
                 <tr key={key}>

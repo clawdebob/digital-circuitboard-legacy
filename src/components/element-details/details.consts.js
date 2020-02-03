@@ -22,6 +22,11 @@ const DETAILS = {
         name: 'Current value',
         inputType: 'select',
         valueType: 'signal'
+    },
+    invert: {
+        name: 'Invert ',
+        inputType: 'select',
+        valueType: 'answer'
     }
 };
 

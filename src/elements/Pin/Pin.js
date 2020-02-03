@@ -72,6 +72,7 @@ class Pin {
                         helper: null,
                         helperEnabled: true,
                         wiredTo: null,
+                        invert: (out ? false : (el.props[`invert${idx + 1}`] || false)),
                         valueUpdate: new BehaviorSubject(false),
                     };
                 });
