@@ -16,6 +16,7 @@ const defaultProps = {
 class Nor extends Element {
     constructor(props) {
         props ? super(props) : super(defaultProps);
+        this.outPins.pins[0].invert = true;
     }
 
     operation() {

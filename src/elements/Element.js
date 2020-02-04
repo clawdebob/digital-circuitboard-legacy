@@ -100,6 +100,9 @@ class Element {
             this.inPins.pins.forEach((pin, idx) => {
                 pin.value = _.get(pin,'wiredTo.outPins.pins[0].value', undefined);
                 this.model.children[1].children[idx].stroke = this.getStateColor(pin.value);
+                if(pin.invert && !isNaN(pin.value) && pin.value !== null) {
+                    pin.value = Number(!pin.value);
+                }
             });
         }
         this.operation();

@@ -107,6 +107,20 @@ class Renderer {
         return circle;
     }
 
+    renderInvertCircle(x, y) {
+        const circle = this.svg.makeCircle(x, y, 3.5);
+
+        circle.fill = '#ffffff';
+        circle.stroke = '#000000';
+        circle.classList.push('invert-circle');
+        circle.className = 'invert-circle';
+        circle.linewidth = 2;
+        this.render();
+        console.log(circle);
+
+        return circle;
+    }
+
     renderJunction(junction, x,y) {
         const circle = this.svg.makeCircle(x, y, 3);
 
@@ -128,21 +142,46 @@ class Renderer {
         const outPins = [];
         const outHelpers = [];
         const inHelpers = [];
+        const invertInCircles = [];
+        const invertOutCircles = [];
+
         if(element.inPins) {
             element.inPins.pins.forEach((val) => {
-                inPins.push(this.renderWire({}, x + val.coords.x1, y + val.coords.y1, x + val.coords.x2,  y + val.coords.y2));
-                inHelpers.push(this.renderHelpCircle(x + val.coords.x1, y + val.coords.y1));
+                const [x1,y1,x2,y2] = [x + val.coords.x1, y + val.coords.y1, x + val.coords.x2,  y + val.coords.y2];
+
+                inPins.push(this.renderWire({}, x1, y1, x2, y2));
+                if(val.invert) {
+                    invertInCircles.push(this.renderInvertCircle(x2, y2));
+                }
+                inHelpers.push(this.renderHelpCircle(x1, y1));
             });
         }
-        element.outPins.pins.forEach((val) => {
-            outPins.push(this.renderWire({}, x + val.coords.x1, y + val.coords.y1, x + val.coords.x2,  y + val.coords.y2));
-            outHelpers.push(this.renderHelpCircle(x + val.coords.x2,  y + val.coords.y2));
-        });
+        if(element.outPins) {
+            element.outPins.pins.forEach((val) => {
+                const [x1,y1,x2,y2] = [x + val.coords.x1, y + val.coords.y1, x + val.coords.x2,  y + val.coords.y2];
+
+                outPins.push(this.renderWire({}, x1, y1, x2, y2));
+                if(val.invert) {
+                    invertOutCircles.push(this.renderInvertCircle(x1, y1));
+                }
+                outHelpers.push(this.renderHelpCircle(x2, y2));
+            });
+        }
         const inPinsGroup = this.svg.makeGroup(inPins);
         const outPinsGroup = this.svg.makeGroup(outPins);
         const inHelpersGroup = this.svg.makeGroup(inHelpers);
         const outHelpersGroup = this.svg.makeGroup(outHelpers);
-        const group = this.svg.makeGroup(rect, inPinsGroup, outPinsGroup, inHelpersGroup, outHelpersGroup);
+        const invertInCirclesGroup = this.svg.makeGroup(invertInCircles);
+        const invertOutCirclesGroup = this.svg.makeGroup(invertOutCircles);
+        const group = this.svg.makeGroup(
+            rect,
+            inPinsGroup,
+            outPinsGroup,
+            inHelpersGroup,
+            outHelpersGroup,
+            invertInCirclesGroup,
+            invertOutCirclesGroup
+        );
         if (element.id) {
             rect.classList.push(element.id);
         }
