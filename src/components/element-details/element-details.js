@@ -16,16 +16,21 @@ class ElementDetails extends React.Component{
 
     resetElementState() {
         const curEl = this.props.currentEl;
+        const prop = this.currentProp;
         const [input] = document.getElementsByName(this.currentProp);
 
-        if(input.value === 'true' || input.value === 'false') {
-            curEl.props[this.currentProp] = input.value === 'true';
-        } else if(isNaN(input.value)) {
-            curEl.props[this.currentProp] = input.value;
+        if((/invert\d+/).test(prop)) {
+            curEl.setInPinInvertState(Number(prop.match(/\d+/)[0]) - 1,input.value === 'true')
         } else {
-            curEl.props[this.currentProp] = Number(input.value);
+            if(input.value === 'true' || input.value === 'false') {
+                curEl.props[prop] = input.value === 'true';
+            } else if(isNaN(input.value)) {
+                curEl.props[prop] = input.value;
+            } else {
+                curEl.props[prop] = Number(input.value);
+            }
+            curEl.setProps(curEl.props);
         }
-        curEl.setProps(curEl.props);
         this.props.handleChange(curEl);
         if(this.blurSubscription) {
             this.blurSubscription.unsubscribe();
@@ -65,7 +70,7 @@ class ElementDetails extends React.Component{
                 break;
             case 'answer':
                 optionsList = _.map(
-                    ['Yes', 'No'],
+                    ['No', 'Yes'],
                     (val) => {
                         const mean = val === 'Yes';
 
@@ -83,15 +88,16 @@ class ElementDetails extends React.Component{
 
     getElementData() {
         const element = this.props.currentEl;
+        const propsKeys = Object.keys(element.props)
         const contactsNum = _.get(element, 'props.inContacts', null);
 
         if(contactsNum) {
             for(let c = 1; c <= contactsNum; c++) {
-                element.props[`invert${c}`] = element.inPins.pins[c - 1].invert;
+                propsKeys.push(`invert${c}`);
             }
         }
 
-        return Object.keys(element.props).map((prop) => {
+        return propsKeys.map((prop) => {
             const key = `${element.name}_${prop}`;
             let type = _.get(DETAILS[prop], 'inputType', null);
             let name = _.get(DETAILS[prop], 'name', null);

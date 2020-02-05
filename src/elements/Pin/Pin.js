@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {BehaviorSubject} from 'rxjs';
 
 class Pin {
@@ -62,17 +63,19 @@ class Pin {
                         {x1: width, y1: val, x2: width + pinLength, y2: val}
                         : {x1: -pinLength, y1: val, x2: 0, y2: val};
                 });
+            const type = out ? 'outPins' : 'inPins';
+
             this.pins = new Array(n)
                 .fill(null)
                 .map((val, idx) => {
                     return {
                         coords: pinPositionsArray[idx],
-                        value: undefined,
+                        value: _.get(el, `${type}.pins.[${idx}].value`, undefined),
                         model: null,
                         helper: null,
                         helperEnabled: true,
-                        wiredTo: null,
-                        invert: (out ? false : (el.props[`invert${idx + 1}`] || false)),
+                        wiredTo: _.get(el, `${type}.pins.[${idx}].wiredTo`, null),
+                        invert: _.get(el, `${type}.pins.[${idx}].invert`, false),
                         valueUpdate: new BehaviorSubject(false),
                     };
                 });

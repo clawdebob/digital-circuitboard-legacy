@@ -12,6 +12,7 @@ import Or from './elements/Or/Or';
 import Nor from './elements/Nor/Nor';
 import Constant from './elements/Constant/Constant';
 import Button from './elements/Button/Button';
+import Nxor from "./elements/Nxor/Nxor";
 
 function ElementBase(name, create = () => 0) {
     this.name = name;
@@ -40,7 +41,8 @@ class App extends React.Component {
                 new ElementBase('Constant', (props => new Constant(props))),
                 new ElementBase('Button', (props => new Button(props))),
                 new ElementBase('Nor', (props => new Nor(props))),
-                new ElementBase('Nand', (props => new Nand(props)))
+                new ElementBase('Nand', (props => new Nand(props))),
+                new ElementBase('Nxor', (props => new Nxor(props)))
             ],
         },
         {

@@ -1,20 +1,20 @@
 import Element from '../Element';
-import _ from 'lodash';
+import _ from "lodash";
 
 const defaultProps = {
-    name: 'Nand',
+    name: 'Nxor',
     props: {
         inContacts: 3,
         fill: '#ffffff',
     },
+    outContacts: 1,
     originY: 5,
     width: 50,
-    outContacts: 1,
     height: 60,
-    signature: '&'
+    signature: '=1'
 };
 
-class Nand extends Element {
+class Nxor extends Element {
     constructor(props) {
         props ? super(props) : super(defaultProps);
     }
@@ -25,10 +25,8 @@ class Nand extends Element {
     }
 
     operation() {
-        this.outPins.pins[0].value = Number(!_.reduce(this.inPins.pins,(result, pin) => {
-            return Boolean(result && pin.value);
-        }, 1));
+        this.outPins.pins[0].value = Number(!(_.countBy(this.inPins.pins, 'value')['1'] === 1 ? 1 : 0));
     }
 }
 
-export default Nand;
+export default Nxor;

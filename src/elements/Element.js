@@ -11,10 +11,13 @@ class Element {
         this.outContacts = props.outContacts;
         this.width = props.width;
         this.height = props.height;
+        this.signature = props.signature || '';
         this.className = props.className ? `element-${props.className}` : null;
         this.originY = props.originY || 0;
+        this.signatureSize = props.signatureSize || 24;
         this.setProps(props.props);
         this.model = null;
+        this.signatureModel = null;
         this.helpers = null;
         this.renderFlag = new BehaviorSubject(null);
         this.x = null;
@@ -28,6 +31,12 @@ class Element {
         }
         if (this.outContacts) {
             this.outPins = new Pin(this, true);
+        }
+    }
+
+    setInPinInvertState(pinIdx, value) {
+        if(this.inPins) {
+            this.inPins.pins[pinIdx].invert = value;
         }
     }
 

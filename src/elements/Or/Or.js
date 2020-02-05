@@ -5,12 +5,13 @@ const defaultProps = {
     name: 'Or',
     props: {
         inContacts: 3,
-        fill: '#ddff77',
+        fill: '#ffffff',
     },
     outContacts: 1,
     originY: 5,
     width: 50,
     height: 60,
+    signature: '1'
 };
 
 class Or extends Element {

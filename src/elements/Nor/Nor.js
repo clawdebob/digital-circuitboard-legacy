@@ -5,17 +5,22 @@ const defaultProps = {
     name: 'Nor',
     props: {
         inContacts: 3,
-        fill: '#dd4477',
+        fill: '#ffffff',
     },
     originY: 5,
     outContacts: 1,
     width: 50,
     height: 60,
+    signature: '1'
 };
 
 class Nor extends Element {
     constructor(props) {
         props ? super(props) : super(defaultProps);
+    }
+
+    setProps(props) {
+        super.setProps(props);
         this.outPins.pins[0].invert = true;
     }
 

@@ -114,9 +114,8 @@ class Renderer {
         circle.stroke = '#000000';
         circle.classList.push('invert-circle');
         circle.className = 'invert-circle';
-        circle.linewidth = 2;
+        circle.linewidth = 1;
         this.render();
-        console.log(circle);
 
         return circle;
     }
@@ -136,6 +135,14 @@ class Renderer {
         return circle;
     }
 
+    renderText(text, x, y, styles) {
+        const result = this.svg.makeText(text, x, y, styles);
+
+        this.render();
+
+        return result;
+    }
+
     renderElement(element, x, y) {
         const rect = this.makeElement(element, x, y);
         const inPins = [];
@@ -144,6 +151,7 @@ class Renderer {
         const inHelpers = [];
         const invertInCircles = [];
         const invertOutCircles = [];
+        const signature = [];
 
         if(element.inPins) {
             element.inPins.pins.forEach((val) => {
@@ -167,12 +175,20 @@ class Renderer {
                 outHelpers.push(this.renderHelpCircle(x2, y2));
             });
         }
+        if(element.signature) {
+            const text = this.renderText(element.signature, x + element.width/2, y + 15);
+            text.size = element.signatureSize;
+            element.signatureModel = text;
+
+            signature.push(text);
+        }
         const inPinsGroup = this.svg.makeGroup(inPins);
         const outPinsGroup = this.svg.makeGroup(outPins);
         const inHelpersGroup = this.svg.makeGroup(inHelpers);
         const outHelpersGroup = this.svg.makeGroup(outHelpers);
         const invertInCirclesGroup = this.svg.makeGroup(invertInCircles);
         const invertOutCirclesGroup = this.svg.makeGroup(invertOutCircles);
+        const signatureGroup = this.svg.makeGroup(signature);
         const group = this.svg.makeGroup(
             rect,
             inPinsGroup,
@@ -180,7 +196,8 @@ class Renderer {
             inHelpersGroup,
             outHelpersGroup,
             invertInCirclesGroup,
-            invertOutCirclesGroup
+            invertOutCirclesGroup,
+            signatureGroup
         );
         if (element.id) {
             rect.classList.push(element.id);

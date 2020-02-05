@@ -5,12 +5,13 @@ const defaultProps = {
     name: 'And',
     props: {
         inContacts: 3,
-        fill: '#FF8000',
+        fill: '#ffffff',
     },
     outContacts: 1,
     originY: 5,
     width: 50,
     height: 60,
+    signature: '&'
 };
 
 class And extends Element {

@@ -5,12 +5,13 @@ const defaultProps = {
     name: 'Xor',
     props: {
         inContacts: 3,
-        fill: '#453dff',
+        fill: '#ffffff',
     },
     outContacts: 1,
     originY: 5,
     width: 50,
     height: 60,
+    signature: '=1'
 };
 
 class Xor extends Element {
