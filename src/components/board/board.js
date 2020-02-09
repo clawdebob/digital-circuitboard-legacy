@@ -195,9 +195,6 @@ class Board extends React.Component {
             this.renderer.renderWire(replacement, coords.x1, coords.y1, coords.x2, coords.y2);
             this.wires.push(replacement);
             this.applyHelpers(replacement);
-            replacement.renderFlag.subscribe(() => {
-                this.renderer.render();
-            });
         }
         _.forEach(replacementWires, (wire) => {
             wire.wire();
@@ -219,6 +216,7 @@ class Board extends React.Component {
 
         wire.className = 'Wire';
         wireBend.className = 'Wire';
+
         if(this.wiresToBuild) {
             let main = this.wiresToBuild.main;
             let bend = this.wiresToBuild.bend;
@@ -238,16 +236,20 @@ class Board extends React.Component {
                         } else if (endingEl.type === 'in') {
                             wire.outConnector = _.clone(endingEl);
                         }
+                        if(startingEl.el.name === 'Junction') {
+                            startingEl.el.pushWire(wire);
+                        }
                         if (this.junctionStartingFlag) {
                             startJunction.setId();
                             startJunction.pushWire(wire);
                         }
-                        if(this.junctionEndingFlag) {
+                        if(this.junctionEndingFlag && !bend) {
                             endJunction.setId();
-                            endJunction.pushWire(wire)
+                            endJunction.pushWire(wire);
                         }
                         if(startingEl.type === endingEl.type) {
                             let goal, chainWire;
+
                             if(_.get(startingEl, 'el.name', null) === 'Wire') {
                                 chainWire = startingEl.el;
                                 goal = startingEl.el.getCurrentSignalSource();
@@ -272,9 +274,16 @@ class Board extends React.Component {
                         } else if (startingEl.type === 'in') {
                             wire.outConnector = _.clone(startingEl);
                         }
+                        if(startingEl.el.name === 'Junction') {
+                            startingEl.el.pushWire(wire);
+                        }
                         if (this.junctionStartingFlag) {
                             startJunction.setId();
                             startJunction.pushWire(wire);
+                        }
+                        if(this.junctionEndingFlag && !bend) {
+                            endJunction.setId();
+                            endJunction.pushWire(wire);
                         }
                     }
                     if(main) {
@@ -283,11 +292,10 @@ class Board extends React.Component {
                             this.tryProlongWire(wire);
                             this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
                             this.wires.push(wire);
+                            if(!bend) {
+                                wire.wire();
+                            }
                             this.applyHelpers(wire);
-                            wire.renderFlag.subscribe(() => {
-                                this.renderer.render();
-                            });
-                            wire.wire();
                         }
                     }
                     if (bend) {
@@ -310,13 +318,15 @@ class Board extends React.Component {
                             wireBend.inConnector = _.clone({el: wire, pin: 0, type: 'out'});
                             wire.outConnector = _.clone({el: wireBend, pin: 0, type: 'in'});
                         }
+                        if(this.junctionEndingFlag) {
+                            endJunction.setId();
+                            endJunction.pushWire(wireBend);
+                        }
                         this.wires.push(wireBend);
                         this.renderer.renderWire(wireBend, bend.x1, bend.y1, bend.x2, bend.y2);
-                        this.applyHelpers(wireBend);
-                        wireBend.renderFlag.subscribe(() => {
-                            this.renderer.render();
-                        });
                         wireBend.wire();
+                        wire.wire();
+                        this.applyHelpers(wireBend);
                     }
                     if (this.junctionStartingFlag) {
                         const coords = this.startingEl.el.getCoords();
@@ -328,9 +338,9 @@ class Board extends React.Component {
                         );
                         this.elements.push(startJunction);
                         this.sliceWire(this.startingEl.el, startJunction);
-                        startJunction.renderFlag.subscribe(() => {
-                            this.renderer.render();
-                        });
+                        startJunction.enableOutPinHelper(0);
+                        this.renderer.render();
+                        this.applyHelpers(startJunction);
                     }
                     if(this.junctionEndingFlag) {
                         const coords = this.endingEl.el.getCoords();
@@ -343,9 +353,9 @@ class Board extends React.Component {
                         );
                         this.elements.push(endJunction);
                         this.sliceWire(this.endingEl.el, endJunction);
-                        endJunction.renderFlag.subscribe(() => {
-                            this.renderer.render();
-                        });
+                        endJunction.enableOutPinHelper(0);
+                        this.renderer.render();
+                        this.applyHelpers(endJunction);
                     }
                     this.renderer.removeElement({className: 'main'});
                     this.renderer.removeElement({className: 'bend'});
@@ -381,11 +391,11 @@ class Board extends React.Component {
                     start = {
                         x1: Math.max(coords.x1, coords.x2),
                         y1: coords.y1,
-                        x2: jcoords.x1,
+                        x2: jcoords.x1 - 1,
                         y2: jcoords.y1
                     };
                     end = {
-                        x1: jcoords.x1,
+                        x1: jcoords.x1 + 1,
                         y1: jcoords.y1,
                         x2: Math.min(coords.x1, coords.x2),
                         y2: coords.y1,
@@ -394,11 +404,11 @@ class Board extends React.Component {
                     start = {
                         x1: Math.min(coords.x1, coords.x2),
                         y1: coords.y1,
-                        x2: jcoords.x1,
+                        x2: jcoords.x1 + 1,
                         y2: jcoords.y1
                     };
                     end = {
-                        x1: jcoords.x1,
+                        x1: jcoords.x1 - 1,
                         y1: jcoords.y1,
                         x2: Math.max(coords.x1, coords.x2),
                         y2: coords.y1,
@@ -408,28 +418,28 @@ class Board extends React.Component {
                 if(inConnectorCoords.y1 < outConnectorCoords.y1) {
                     start = {
                         x1: coords.x1,
-                        y1: Math.max(coords.y1, coords.y2),
+                        y1: Math.min(coords.y1, coords.y2),
                         x2: jcoords.x1,
-                        y2: jcoords.y1
+                        y2: jcoords.y1 + 2,
                     };
                     end = {
                         x1: jcoords.x1,
-                        y1: jcoords.y1,
+                        y1: jcoords.y1 - 1,
                         x2: coords.x1,
-                        y2: Math.min(coords.y1, coords.y2),
+                        y2: Math.max(coords.y1, coords.y2),
                     };
                 } else {
                     start = {
                         x1: coords.x1,
-                        y1: Math.min(coords.y1, coords.y2),
+                        y1: Math.max(coords.y1, coords.y2),
                         x2: jcoords.x1,
-                        y2: jcoords.y1
+                        y2: jcoords.y1 - 2
                     };
                     end = {
                         x1: jcoords.x1,
-                        y1: jcoords.y1,
+                        y1: jcoords.y1 + 1,
                         x2: coords.x1,
-                        y2: Math.max(coords.y1, coords.y2),
+                        y2: Math.min(coords.y1, coords.y2),
                     };
                 }
             }
@@ -449,12 +459,6 @@ class Board extends React.Component {
             this.applyHelpers(secondWire);
             this.wires.splice(idx, 0, firstWire);
             this.wires.splice(idx, 0, secondWire);
-            firstWire.renderFlag.subscribe(() => {
-                this.renderer.render();
-            });
-            secondWire.renderFlag.subscribe(() => {
-                this.renderer.render();
-            });
             junction.pushWire(firstWire);
             junction.pushWire(secondWire);
             firstWire.wire();
@@ -509,9 +513,6 @@ class Board extends React.Component {
         this.renderer.renderElement(el, this.state.x, this.state.y);
         this.elements.push(el);
         el.setId();
-        el.renderFlag.subscribe(() => {
-           this.renderer.render();
-        });
         el.updateState();
         this.applyHelpers(el);
     }
@@ -519,31 +520,34 @@ class Board extends React.Component {
     applyHelpers(el) {
         const iterFunc = (startFunction, endFunction) => {
             return (pin, idx) => {
-                const domEl = pin.helper._renderer.elem;
+                const domEl = _.get(pin, 'helper._renderer.elem', null);
 
-                fromEvent(domEl, 'mousemove')
-                    .subscribe(() => {
-                        if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
-                            pin.helper.opacity = 1;
-                            this.renderer.render();
-                            endFunction(el, idx);
-                        }
-                    });
-                fromEvent(domEl, 'mousedown')
-                    .subscribe(() => {
-                        if(this.props.state === STATE.EDIT && pin.helperEnabled) {
-                            this.props.setBoardState(STATE.WIRE);
-                            startFunction(el, idx);
-                        }
-                    });
-                fromEvent(domEl, 'mouseout')
-                    .subscribe(() => {
-                        if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
-                            pin.helper.opacity = 0;
-                            this.renderer.render();
-                            this.endingEl = this.startingEl;
-                        }
-                    });
+                if (domEl) {
+                    // this.renderer.foreground.add(pin.helper);
+                    fromEvent(domEl, 'mousemove')
+                        .subscribe(() => {
+                            if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
+                                pin.helper.opacity = 1;
+                                this.renderer.render();
+                                endFunction(el, idx);
+                            }
+                        });
+                    fromEvent(domEl, 'mousedown')
+                        .subscribe(() => {
+                            if(this.props.state === STATE.EDIT && pin.helperEnabled) {
+                                this.props.setBoardState(STATE.WIRE);
+                                startFunction(el, idx);
+                            }
+                        });
+                    fromEvent(domEl, 'mouseout')
+                        .subscribe(() => {
+                            if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
+                                pin.helper.opacity = 0;
+                                this.renderer.render();
+                                this.endingEl = this.startingEl;
+                            }
+                        });
+                }
             };
         };
         const vm = this;
@@ -581,6 +585,8 @@ class Board extends React.Component {
                 if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
                     model.opacity = 0;
                     this.renderer.render();
+                    this.junctionEndingFlag = false;
+                    this.endingEl = this.startingEl;
                 }
             });
             fromEvent(domModel, 'mousedown').subscribe(() => {

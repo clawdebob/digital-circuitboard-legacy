@@ -116,8 +116,9 @@ class Wire extends Element {
         const outConnector = this.outConnector;
 
         if(outConnector){
+            outConnector.el.disableInPinHelper(outConnector.pin);
+            this.disableOutPinHelper(0);
             outConnector.el.inPins.pins[outConnector.pin].wiredTo = this;
-            outConnector.el.inPins.disablePinHelper(outConnector.pin);
             if(outConnector.el.name === 'Wire') {
                 outConnector.el.inConnector = {el: this, pin: 0, type: 'out'};
             }
@@ -132,7 +133,12 @@ class Wire extends Element {
             // }
         }
         if(inConnector) {
-            inConnector.el.outPins.disablePinHelper(inConnector.pin);
+            if (inConnector.el.name !== 'Junction') {
+                inConnector.el.disableOutPinHelper(inConnector.pin);
+            } else if (inConnector.el.getTotalWired() === 4) {
+                inConnector.el.disableOutPinHelper(inConnector.pin);
+            }
+            this.disableInPinHelper(0);
             inConnector.el.outPins.pins[inConnector.pin].wiredTo = this;
             if(inConnector.el.name === 'Wire') {
                 inConnector.el.outConnector = {el: this, pin: 0, type: 'in'};

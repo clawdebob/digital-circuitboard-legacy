@@ -23,6 +23,18 @@ class Renderer {
         }
 
         wire.model = line;
+        if(wire.name) {
+            wire.renderFlag.subscribe(() => {
+                this.render();
+            });
+            wire.pinToggleObservable.subscribe((pin) => {
+                if(pin.helperEnabled) {
+                    this.foreground.add(pin.helper);
+                } else {
+                    this.background.add(pin.helper);
+                }
+            });
+        }
         if(wire.className === 'Wire') {
             const inHelper = wire.inConnector ? this.renderHelpCircle(x1, y1) : this.renderHelpCircle(x2, y2);
             const outHelper = wire.inConnector ? this.renderHelpCircle(x2, y2) : this.renderHelpCircle(x1, y1);
@@ -56,7 +68,7 @@ class Renderer {
                this.foreground.add(model);
             });
             const jgroup = this.svg.makeGroup(tempsForJunctions);
-            this.svg.makeGroup(line, jgroup, inHelper, outHelper);
+            wire.modelGroup = this.svg.makeGroup(line, jgroup, inHelper, outHelper);
             // if (wire.id) {
             //     line.classList.push(wire.id);
             //     group.classList.push(wire.id);
@@ -120,17 +132,30 @@ class Renderer {
         return circle;
     }
 
-    renderJunction(junction, x,y) {
+    renderJunction(junction, x, y) {
         const circle = this.svg.makeCircle(x, y, 3);
+        const helper = this.renderHelpCircle(x, y);
 
         circle.classList.push('junction-circle');
         circle.className = 'junction-circle';
         circle.fill = '#000000';
-        this.foreground.add(circle);
-        this.render();
+        this.background.add(circle);
         junction.model = circle;
         junction.x = x;
         junction.y = y;
+        junction.outPins.pins[0].helper = helper;
+        junction.renderFlag.subscribe(() => {
+            this.render();
+        });
+        junction.pinToggleObservable.subscribe((pin) => {
+            if(pin.helperEnabled) {
+                this.foreground.add(pin.helper);
+            } else {
+                this.background.add(pin.helper);
+            }
+        });
+        this.foreground.add(helper);
+        this.render();
 
         return circle;
     }
@@ -215,6 +240,9 @@ class Renderer {
         _.forEach(outPins, (val, idx) => {
             element.outPins.pins[idx].model = val;
             element.outPins.pins[idx].helper = outHelpers[idx];
+        });
+        element.renderFlag.subscribe(() => {
+            this.render();
         });
         this.foreground.add(group);
 

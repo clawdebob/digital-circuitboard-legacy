@@ -15,7 +15,8 @@ class Pin {
                         helper: null,
                         helperEnabled: true,
                         wiredTo: null,
-                        valueUpdate: new BehaviorSubject(false),
+                        valueUpdate: new BehaviorSubject(undefined),
+                        observable: null,
                     };
                 });
         } else {
@@ -76,16 +77,23 @@ class Pin {
                         helperEnabled: true,
                         wiredTo: _.get(el, `${type}.pins.[${idx}].wiredTo`, null),
                         invert: _.get(el, `${type}.pins.[${idx}].invert`, false),
-                        valueUpdate: new BehaviorSubject(false),
+                        valueUpdate: new BehaviorSubject(undefined),
+                        observable: null,
                     };
                 });
         }
     }
-
     disablePinHelper(idx) {
         if(this.pins[idx].helper) {
             this.pins[idx].helper.opacity = 0;
             this.pins[idx].helperEnabled = false;
+        }
+    }
+
+    enablePinHelper(idx) {
+        if(this.pins[idx].helper) {
+            this.pins[idx].helper.opacity = 0;
+            this.pins[idx].helperEnabled = true;
         }
     }
 }

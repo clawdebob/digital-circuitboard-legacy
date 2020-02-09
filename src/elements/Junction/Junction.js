@@ -23,6 +23,10 @@ class Junction extends Element {
         this.errorRegistred = false;
     }
 
+    getTotalWired() {
+        return _.union(this.inSub, this.outSub).length;
+    }
+
     pushWire(wire) {
         const signalSource = wire.getCurrentSignalSource();
 
@@ -91,7 +95,6 @@ class Junction extends Element {
             }
         });
     }
-
 
     operation() {
         const value = _.get(this.inSub[0],'outPins.pins[0].value', undefined);

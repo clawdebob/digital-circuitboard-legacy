@@ -1,6 +1,6 @@
 import Pin from "./Pin/Pin";
 import _ from 'lodash';
-import {BehaviorSubject} from 'rxjs'
+import {BehaviorSubject, Subject} from 'rxjs'
 
 class Element {
     static elementCounter = 0;
@@ -22,6 +22,8 @@ class Element {
         this.renderFlag = new BehaviorSubject(null);
         this.x = null;
         this.y = null;
+        this.modelGroup = null;
+        this.pinToggleObservable = new Subject();
     }
 
     setProps(props) {
@@ -45,6 +47,9 @@ class Element {
         Element.elementCounter++;
         if(this.model) {
             this.model.classList.push(this.id);
+        }
+        if(this.modelGroup) {
+            this.modelGroup.classList.push(this.id);
         }
     }
 
@@ -100,6 +105,30 @@ class Element {
         }
 
         return stroke;
+    }
+
+    disableInPinHelper(idx) {
+        this.inPins.disablePinHelper(idx);
+        this.pinToggleObservable.next(this.inPins.pins[idx]);
+        this.renderFlag.next();
+    }
+
+    disableOutPinHelper(idx) {
+        this.outPins.disablePinHelper(idx);
+        this.pinToggleObservable.next(this.outPins.pins[idx]);
+        this.renderFlag.next();
+    }
+
+    enableInPinHelper(idx) {
+        this.inPins.enablePinHelper(idx);
+        this.pinToggleObservable.next(this.outPins.pins[idx]);
+        this.renderFlag.next();
+    }
+
+    enableOutPinHelper(idx) {
+        this.outPins.enablePinHelper(idx);
+        this.pinToggleObservable.next(this.outPins.pins[idx]);
+        this.renderFlag.next();
     }
 
     updateState() {

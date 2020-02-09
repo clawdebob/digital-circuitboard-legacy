@@ -36,13 +36,13 @@ class App extends React.Component {
             name: 'Base',
             elements: [
                 new ElementBase('Or', (props) => new Or(props)),
+                new ElementBase('Nor', (props => new Nor(props))),
                 new ElementBase('And', (props) => new And(props)),
+                new ElementBase('Nand', (props => new Nand(props))),
                 new ElementBase('Xor', (props) => new Xor(props)),
+                new ElementBase('Nxor', (props => new Nxor(props))),
                 new ElementBase('Constant', (props => new Constant(props))),
                 new ElementBase('Button', (props => new Button(props))),
-                new ElementBase('Nor', (props => new Nor(props))),
-                new ElementBase('Nand', (props => new Nand(props))),
-                new ElementBase('Nxor', (props => new Nxor(props)))
             ],
         },
         {
