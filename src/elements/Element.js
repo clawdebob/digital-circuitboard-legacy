@@ -1,6 +1,7 @@
 import Pin from "./Pin/Pin";
 import _ from 'lodash';
 import {BehaviorSubject, Subject} from 'rxjs'
+import {ORIENTATION, DIRECTION} from "./Orientation.const";
 
 class Element {
     static elementCounter = 0;
@@ -24,6 +25,7 @@ class Element {
         this.y = null;
         this.modelGroup = null;
         this.pinToggleObservable = new Subject();
+        this.interactionModel = null;
     }
 
     setProps(props) {
@@ -58,7 +60,8 @@ class Element {
             return {
                 x1: this.x,
                 y1: this.y,
-                orientation: 'horizontal',
+                orientation: ORIENTATION.HORIZONTAL,
+                direction: DIRECTION.T2B
             };
         }
     }
@@ -145,8 +148,11 @@ class Element {
         }
         this.operation();
         this.errorCheck();
+        console.log(this.outPins);
         this.outPins.pins.forEach((pin, idx) => {
+            console.log(this.model);
             this.model.children[2].children[idx].stroke = this.getStateColor(pin.value);
+
             pin.valueUpdate.next(pin.value);
         });
         this.renderFlag.next();

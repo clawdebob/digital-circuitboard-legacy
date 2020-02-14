@@ -1,9 +1,9 @@
 import React from 'react';
 
 function SubList(props) {
-    const list = props.list.map((entry, idx) => {
+    const list = props.list.map((entry) => {
         return (
-            <li className="suboptions__option">
+            <li className="suboptions__option" onClick={entry.action}>
                 <div className='suboptions__name suboptions__entry'>{entry.name}</div>
                 <div className='suboptions__hotkey suboptions__entry'>{entry.hotkey ? entry.hotkey : null}</div>
             </li>
@@ -23,7 +23,7 @@ class Options extends React.Component {
             return (
                 <li className="main-menu__option-list">
                     <div className="main-menu__option">{option.name}</div>
-                    <SubList list={option.suboptions}></SubList>
+                    <SubList list={option.suboptions}/>
                 </li>
             );
         });
@@ -33,57 +33,6 @@ class Options extends React.Component {
 }
 
 class mainMenu extends React.Component {
-    options = [
-        {
-            name: 'File',
-            suboptions: [
-                {name: "Save", hotkey: "Ctrl+S"},
-                {name: "Open"},
-                {name: "Delete", hotkey: "Delete"}
-            ]
-        },
-        {
-            name: 'Edit',
-            suboptions: [
-                {name: "Save", hotkey: "Ctrl+S"},
-                {name: "Open"},
-                {name: "Delete", hotkey: "Delete"}
-            ]
-        },
-        {
-            name: 'View',
-            suboptions: [
-                {name: "Save", hotkey: "Ctrl+S"},
-                {name: "Open"},
-                {name: "Delete", hotkey: "Delete"}
-            ]
-        },
-        {
-            name: 'Arrange',
-            suboptions: [
-                {name: "Save", hotkey: "Ctrl+S"},
-                {name: "Open"},
-                {name: "Delete", hotkey: "Delete"}
-            ]
-        },
-        {
-            name: 'Extras',
-            suboptions: [
-                {name: "Save", hotkey: "Ctrl+S"},
-                {name: "Open"},
-                {name: "Delete", hotkey: "Delete"}
-            ]
-        },
-        {
-            name: 'Help',
-            suboptions: [
-                {name: "Save", hotkey: "Ctrl+S"},
-                {name: "Open"},
-                {name: "Delete", hotkey: "Delete"}
-            ]
-        },
-        ];
-
     render() {
         return (
             <div className="main-menu-wrapper">
@@ -91,8 +40,8 @@ class mainMenu extends React.Component {
                     <div className="logo"/>
                 </div>
                 <div className="menu-block">
-                    <h3 className="scheme-title" onClick={this.props.onClick}>SchemeName.dcb</h3>
-                    <Options className="main-menu" options={this.options} />
+                    <h3 className="scheme-title">SchemeName.dcb</h3>
+                    <Options className="main-menu" options={this.props.options} />
                 </div>
             </div>
         );

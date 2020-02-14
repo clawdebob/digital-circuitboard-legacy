@@ -294,8 +294,8 @@ class Board extends React.Component {
                             this.wires.push(wire);
                             if(!bend) {
                                 wire.wire();
+                                this.applyHelpers(wire);
                             }
-                            this.applyHelpers(wire);
                         }
                     }
                     if (bend) {
@@ -326,6 +326,7 @@ class Board extends React.Component {
                         this.renderer.renderWire(wireBend, bend.x1, bend.y1, bend.x2, bend.y2);
                         wireBend.wire();
                         wire.wire();
+                        this.applyHelpers(wire);
                         this.applyHelpers(wireBend);
                     }
                     if (this.junctionStartingFlag) {
@@ -361,6 +362,10 @@ class Board extends React.Component {
                     this.renderer.removeElement({className: 'bend'});
                 }
             }
+            this.props.updateData({
+                elements: this.elements,
+                wires: this.wires
+            });
         }
         this.down = false;
         this.board.removeEventListener('mousemove', this.ghostHelper);
@@ -385,6 +390,8 @@ class Board extends React.Component {
         const applySlice = (inConnectorCoords, outConnectorCoords) => {
             let start = {};
             let end = {};
+            const inConnectorName = _.get(inConnector, 'name', null);
+            const outConnectorName = _.get(outConnector, 'name', null);
 
             if(coords.orientation === 'horizontal') {
                 if(inConnectorCoords.x1 > outConnectorCoords.x1) {
@@ -443,32 +450,46 @@ class Board extends React.Component {
                     };
                 }
             }
-            this.deleteWire(wire);
+            const slength = Math.max(Math.abs(start.x1 - start.x2), Math.abs(start.y1 - start.y2));
+            const elength = Math.max(Math.abs(end.x1 - end.x2), Math.abs(end.y1 - end.y2));
 
-            firstWire.inConnector = wire.inConnector;
-            firstWire.outConnector = wire.inConnector ? {el: junction, pin: 0, type: 'in'} : null;
-            if(!wire.getCurrentSignalSource() && wire.inConnector) {
-                this.revertChain(firstWire, wire.inConnector.el, null);
-            }
-            secondWire.inConnector = {el: junction, pin: 0, type: 'out'};
-            secondWire.outConnector = wire.outConnector;
+            if((slength > 5 && elength > 5) || (inConnectorName !== 'Wire')) {
+                this.deleteWire(wire);
 
-            this.renderer.renderWire(firstWire, start.x1, start.y1, start.x2, start.y2);
-            this.renderer.renderWire(secondWire, end.x1, end.y1, end.x2, end.y2);
-            this.applyHelpers(firstWire);
-            this.applyHelpers(secondWire);
-            this.wires.splice(idx, 0, firstWire);
-            this.wires.splice(idx, 0, secondWire);
-            junction.pushWire(firstWire);
-            junction.pushWire(secondWire);
-            firstWire.wire();
-            secondWire.wire();
-            if(_.get(outConnector, 'name', null) === 'Junction') {
-                outConnector.removeWire(wire);
-                outConnector.pushWire(secondWire);
+                firstWire.inConnector = wire.inConnector;
+                firstWire.outConnector = wire.inConnector ? {el: junction, pin: 0, type: 'in'} : null;
+                if(!wire.getCurrentSignalSource() && wire.inConnector) {
+                    this.revertChain(firstWire, wire.inConnector.el, null);
+                }
+                secondWire.inConnector = {el: junction, pin: 0, type: 'out'};
+                secondWire.outConnector = wire.outConnector;
+
+                this.renderer.renderWire(firstWire, start.x1, start.y1, start.x2, start.y2);
+                this.renderer.renderWire(secondWire, end.x1, end.y1, end.x2, end.y2);
+                this.applyHelpers(firstWire);
+                this.applyHelpers(secondWire);
+                this.wires.splice(idx, 0, firstWire);
+                this.wires.splice(idx, 0, secondWire);
+                junction.pushWire(firstWire);
+                junction.pushWire(secondWire);
+                firstWire.wire();
+                secondWire.wire();
+                // if((inConnectorName !== 'Wire')) {
+                //
+                //     console.log(firstWire.junctionHelpers, secondWire.junctionHelpers);
+                //     firstWire.junctionHelpers.pop();
+                // }
+                if(_.get(outConnector, 'name', null) === 'Junction') {
+                    outConnector.removeWire(wire);
+                    outConnector.pushWire(secondWire);
+                }
+                junction.updateState();
+                return true;
             }
-            junction.updateState();
+            return false;
         };
+
+        let isSliced;
 
         firstWire.className = 'Wire';
         secondWire.className = 'Wire';
@@ -477,7 +498,16 @@ class Board extends React.Component {
             const inConnectorCoords = inConnector.getCoords();
             const outConnectorCoords = outConnector.getCoords();
 
-            applySlice(inConnectorCoords, outConnectorCoords);
+            isSliced = applySlice(inConnectorCoords, outConnectorCoords);
+            // if(!isSliced) {
+            //     wire.unsub();
+            //     inConnector.unsub();
+            //     junction.pushWire(wire);
+            //     junction.pushWire(inConnector);
+            //     wire.wire();
+            //     inConnector.wire();
+            //     junction.updateState();
+            // }
         } else if(inConnector) {
             const inConnectorCoords = inConnector.getCoords();
             const distanceX1 = Math.abs(inConnectorCoords.x1 - coords.x1);
@@ -489,7 +519,18 @@ class Board extends React.Component {
                 y1: Math.max(distanceY1, distanceY2) === distanceX1 ? coords.x1 : coords.x2,
             };
 
-            applySlice(inConnectorCoords, outCoords);
+            isSliced = applySlice(inConnectorCoords, outCoords);
+            // if(!isSliced) {
+            //     wire.junctionHelpers.pop();
+            //     this.renderer.removeElementById(wire.id + 'bend-helper');
+            //     wire.unsub();
+            //     inConnector.unsub();
+            //     junction.pushWire(wire);
+            //     junction.pushWire(inConnector);
+            //     wire.wire();
+            //     inConnector.wire();
+            //     junction.updateState();
+            // }
         } else if (outConnector) {
             const outConnectorCoords = outConnector.getCoords();
             const distanceX1 = Math.abs(outConnectorCoords.x1 - coords.x1);
@@ -515,6 +556,10 @@ class Board extends React.Component {
         el.setId();
         el.updateState();
         this.applyHelpers(el);
+        this.props.updateData({
+           elements: this.elements,
+           wires: this.wires
+        });
     }
 
     applyHelpers(el) {

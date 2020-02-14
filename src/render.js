@@ -36,13 +36,18 @@ class Renderer {
             });
         }
         if(wire.className === 'Wire') {
-            const inHelper = wire.inConnector ? this.renderHelpCircle(x1, y1) : this.renderHelpCircle(x2, y2);
-            const outHelper = wire.inConnector ? this.renderHelpCircle(x2, y2) : this.renderHelpCircle(x1, y1);
+            const [inX, inY] = wire.inConnector ? [x1, y1] : [x2, y2];
+            const [outX, outY] = wire.inConnector ? [x2, y2] : [x1, y1];
+            const inHelper = this.renderHelpCircle(inX, inY);
+            const outHelper = this.renderHelpCircle(outX, outY);
             const tempsForJunctions = [];
 
             this.foreground.add(inHelper);
             this.foreground.add(outHelper);
             if (x1 === x2) {
+                // if(wire.inConnector && _.get(wire, 'inConnector.name', null) !== 'Junction') {
+                //     tempsForJunctions.push(this.renderHelpCircle(inX + 1, inY));
+                // }
                 if (y1 < y2) {
                     for(let y = y1 + 13; y < y2 - 12; y += 12) {
                         tempsForJunctions.push(this.renderHelpCircle(x1, y));
@@ -53,6 +58,9 @@ class Renderer {
                     }
                 }
             } else {
+                // if(wire.inConnector && _.get(wire, 'inConnector.name', null) !== 'Junction') {
+                //     tempsForJunctions.push(this.renderHelpCircle(inX, inY));
+                // }
                 if (x1 < x2) {
                     for(let x = x1 + 13; x < x2 - 12; x += 12) {
                         tempsForJunctions.push(this.renderHelpCircle(x, y1));
@@ -207,6 +215,7 @@ class Renderer {
 
             signature.push(text);
         }
+        const bodyGroup = this.svg.makeGroup(rect);
         const inPinsGroup = this.svg.makeGroup(inPins);
         const outPinsGroup = this.svg.makeGroup(outPins);
         const inHelpersGroup = this.svg.makeGroup(inHelpers);
@@ -215,7 +224,7 @@ class Renderer {
         const invertOutCirclesGroup = this.svg.makeGroup(invertOutCircles);
         const signatureGroup = this.svg.makeGroup(signature);
         const group = this.svg.makeGroup(
-            rect,
+            bodyGroup,
             inPinsGroup,
             outPinsGroup,
             inHelpersGroup,
@@ -226,9 +235,13 @@ class Renderer {
         );
         if (element.id) {
             rect.classList.push(element.id);
+            group.classList.push(element.id);
         }
         if (element.className) {
-            rect.className = element.className;
+            const interactionGroup = this.svg.makeGroup(rect, signatureGroup);
+
+            interactionGroup.className = element.className;
+            element.interactionModel = interactionGroup;
         }
 
         element.model = group;

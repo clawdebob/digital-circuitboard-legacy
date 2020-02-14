@@ -27,8 +27,67 @@ class App extends React.Component {
             currentEl: null,
             boardState: null,
         };
+        this.save = this.save.bind(this);
+        this.options = [
+            {
+                name: 'File',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S", action: this.save},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+            {
+                name: 'Edit',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S"},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+            {
+                name: 'View',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S"},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+            {
+                name: 'Arrange',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S"},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+            {
+                name: 'Extras',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S"},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+            {
+                name: 'Help',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S"},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+        ];
+        this.data = null;
+
 
         this.handleChange = this.handleChange.bind(this);
+        this.updateData = this.updateData.bind(this);
+
+    }
+
+    save() {
+        console.log(this.data);
     }
 
     groups = [
@@ -71,12 +130,16 @@ class App extends React.Component {
         this.setState({boardState: state});
     }
 
+    updateData(data) {
+        this.data = data;
+    }
+
     render() {
         return (
             <div className="app">
-                <MainMenu onClick={() => {this.setBoardState('wire')}}>
-
-                </MainMenu>
+                <MainMenu
+                    options={this.options}
+                />
                 <ActionPanel setBoardState={(state) => this.setBoardState(state)}/>
                 <div className="drawing-area">
                     <SideMenu
@@ -90,6 +153,7 @@ class App extends React.Component {
                         currentEl={this.state.currentEl}
                         state={this.state.boardState}
                         setBoardState={(state) => this.setBoardState(state)}
+                        updateData={(data) => this.updateData(data)}
                     />
                 </div>
             </div>
