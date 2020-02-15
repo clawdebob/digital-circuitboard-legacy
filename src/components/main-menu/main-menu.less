@@ -8,8 +8,37 @@
 }
 
 .scheme-title {
-    margin: 5px 19px;
-    width: min-content;
+    border: none;
+    flex: 1;
+    background-color: @menu-color;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    padding: 2px 3px 1px;
+
+    &--visible {
+        display: block;
+    }
+
+    &--hidden {
+        display: none;
+    }
+
+    &__wrapper {
+        display: flex;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        margin: 10px 15px 0;
+    }
+
+    &__input {
+        background-color: white;
+        font-size: 16px;
+        font-weight: normal;
+        display: none;
+        width: 100%;
+    }
 
     &:hover {
         background-color: @menu-hover;
@@ -22,6 +51,11 @@
     width: 40px;
     height: 40px;
     margin: 10px;
+
+    &-block {
+        display: flex;
+        align-items: center;
+    }
 }
 
 .main-menu {

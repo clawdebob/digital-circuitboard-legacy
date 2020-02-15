@@ -1,4 +1,5 @@
 import React from 'react';
+import {fromEvent} from "rxjs";
 
 function SubList(props) {
     const list = props.list.map((entry) => {
@@ -33,14 +34,65 @@ class Options extends React.Component {
 }
 
 class mainMenu extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            schemeName: 'Scheme',
+            inputVisible: false
+        };
+        this.handleBlur = this.handleBlur.bind(this);
+        this.handleTitleClick = this.handleTitleClick.bind(this);
+    }
+
+    handleTitleClick() {
+        const input = document.getElementsByClassName('scheme-title__input')[0];
+
+        this.setState({
+            inputVisible: true
+        });
+
+        input.style.display = 'inline-block';
+        input.focus();
+    }
+
+    handleBlur(e) {
+        const input = e.target;
+        const name = input.value;
+
+        input.style.display = 'none';
+
+        this.setState({
+            schemeName: this.props.defaultSchemeName,
+            inputVisible: false
+        });
+
+        this.props.setSchemeName(name);
+    }
+
     render() {
+        const isVisible = this.state.inputVisible;
+        const defaultName = this.props.defaultSchemeName;
+
         return (
             <div className="main-menu-wrapper">
                 <div className="logo-block">
                     <div className="logo"/>
                 </div>
                 <div className="menu-block">
-                    <h3 className="scheme-title">SchemeName.dcb</h3>
+                    <div className={'scheme-title__wrapper'}>
+                        <h3
+                            className={`scheme-title scheme-title--${isVisible ? 'hidden' : 'visible'}`}
+                            onClick={this.handleTitleClick}
+                        >
+                            {this.state.schemeName}
+                        </h3>
+                        <input
+                            className={`scheme-title__input`}
+                            placeholder={'Scheme'}
+                            defaultValue={defaultName}
+                            onBlur={(e) => this.handleBlur(e)}
+                        />
+                    </div>
                     <Options className="main-menu" options={this.props.options} />
                 </div>
             </div>

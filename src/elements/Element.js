@@ -148,9 +148,7 @@ class Element {
         }
         this.operation();
         this.errorCheck();
-        console.log(this.outPins);
         this.outPins.pins.forEach((pin, idx) => {
-            console.log(this.model);
             this.model.children[2].children[idx].stroke = this.getStateColor(pin.value);
 
             pin.valueUpdate.next(pin.value);

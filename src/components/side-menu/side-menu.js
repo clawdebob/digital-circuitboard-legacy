@@ -59,6 +59,7 @@ class Group extends React.Component {
                     onClick={this.handleClick}
                 >
                     <span>{group.name}</span>
+                    <div className={'arrow'}/>
                 </div>
                 <GroupElements
                     elements={group.elements}
@@ -152,7 +153,6 @@ class sideMenu extends React.Component {
         slide.mouseMove = slide.mouseMove.bind(slide);
         slide.mouseUp = slide.mouseUp.bind(slide);
         this.handleMouseDown = this.handleMouseDown.bind(this);
-        // this.handleChange = this.handleChange.bind(this);
     }
 
 

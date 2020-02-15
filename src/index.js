@@ -13,6 +13,8 @@ import Nor from './elements/Nor/Nor';
 import Constant from './elements/Constant/Constant';
 import Button from './elements/Button/Button';
 import Nxor from "./elements/Nxor/Nxor";
+import _ from 'lodash';
+import * as DATA_CONSTS from './consts/Parse.consts';
 
 function ElementBase(name, create = () => 0) {
     this.name = name;
@@ -79,15 +81,80 @@ class App extends React.Component {
             },
         ];
         this.data = null;
-
+        this.schemeName = 'Scheme';
 
         this.handleChange = this.handleChange.bind(this);
         this.updateData = this.updateData.bind(this);
-
+        this.setSchemeName = this.setSchemeName.bind(this);
     }
 
     save() {
-        console.log(this.data);
+        const name = this.schemeName;
+        const data = this.data;
+        const elements = _.map(data.elements, (element) => {
+                let inPins = null;
+                let outPins = null;
+
+                if(element.inPins) {
+                    inPins = _.map(element.inPins.pins, (pin) => {
+                       return _.pick(pin, DATA_CONSTS.PIN_PROPS_TO_INCLUDE);
+                    });
+                }
+                if(element.outPins) {
+                    outPins = _.map(element.outPins.pins, (pin) => {
+                        return _.pick(pin, DATA_CONSTS.PIN_PROPS_TO_INCLUDE);
+                    });
+                }
+
+                return _.chain(element)
+                    .pick(DATA_CONSTS.PROPS_TO_INCLUDE)
+                    .extend({inPins, outPins})
+                    .value();
+            });
+        const wires = _.map(data.wires, (wire) => {
+            let inPins = null;
+            let outPins = null;
+            let inConnector = null;
+            let outConnector = null;
+            const coords = wire.getCoords();
+
+            if(wire.inPins) {
+                inPins = _.map(
+                    wire.inPins.pins,
+                    (pin) => _.pick(pin, DATA_CONSTS.PIN_PROPS_TO_INCLUDE)
+                );
+            }
+            if(wire.outPins) {
+                outPins = _.map(
+                    wire.outPins.pins,
+                    (pin) => _.pick(pin, DATA_CONSTS.PIN_PROPS_TO_INCLUDE)
+                );
+            }
+            if(wire.inConnector) {
+                inConnector = _.chain(wire.inConnector)
+                    .pick(DATA_CONSTS.CONNECTOR_PROPS_TO_INCLUDE)
+                    .extend({el: _.get(wire.inConnector, 'el.id', '')})
+                    .value();
+            }
+            if(wire.outConnector) {
+                outConnector = _.chain(wire.outConnector)
+                    .pick(DATA_CONSTS.CONNECTOR_PROPS_TO_INCLUDE)
+                    .extend({el: _.get(wire.outConnector, 'el.id', '')})
+                    .value();
+            }
+
+            return _.chain(wire)
+                .pick(DATA_CONSTS.PROPS_TO_INCLUDE)
+                .extend({inPins, outPins, inConnector, outConnector, coords})
+                .value();
+        });
+        const saveData = JSON.stringify({
+            name,
+            elements,
+            wires
+        });
+
+        console.log(saveData);
     }
 
     groups = [
@@ -130,6 +197,10 @@ class App extends React.Component {
         this.setState({boardState: state});
     }
 
+    setSchemeName(name) {
+        this.schemeName = name;
+    }
+
     updateData(data) {
         this.data = data;
     }
@@ -139,6 +210,8 @@ class App extends React.Component {
             <div className="app">
                 <MainMenu
                     options={this.options}
+                    setSchemeName={this.setSchemeName}
+                    defaultSchemeName={this.schemeName}
                 />
                 <ActionPanel setBoardState={(state) => this.setBoardState(state)}/>
                 <div className="drawing-area">
