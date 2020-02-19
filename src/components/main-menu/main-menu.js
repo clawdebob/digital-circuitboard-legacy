@@ -1,10 +1,9 @@
 import React from 'react';
-import {fromEvent} from "rxjs";
 
 function SubList(props) {
-    const list = props.list.map((entry) => {
+    const list = props.list.map((entry, idx) => {
         return (
-            <li className="suboptions__option" onClick={entry.action}>
+            <li className="suboptions__option" onClick={entry.action} key={idx}>
                 <div className='suboptions__name suboptions__entry'>{entry.name}</div>
                 <div className='suboptions__hotkey suboptions__entry'>{entry.hotkey ? entry.hotkey : null}</div>
             </li>
@@ -22,7 +21,7 @@ class Options extends React.Component {
     render() {
         const component = this.props.options.map((option, idx) => {
             return (
-                <li className="main-menu__option-list">
+                <li className="main-menu__option-list" key={idx}>
                     <div className="main-menu__option">{option.name}</div>
                     <SubList list={option.suboptions}/>
                 </li>
@@ -37,7 +36,6 @@ class mainMenu extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            schemeName: 'Scheme',
             inputVisible: false
         };
         this.handleBlur = this.handleBlur.bind(this);
@@ -62,16 +60,16 @@ class mainMenu extends React.Component {
         input.style.display = 'none';
 
         this.setState({
-            schemeName: this.props.defaultSchemeName,
             inputVisible: false
         });
 
-        this.props.setSchemeName(name);
+        if(name) {
+            this.props.setSchemeName(name);
+        }
     }
 
     render() {
         const isVisible = this.state.inputVisible;
-        const defaultName = this.props.defaultSchemeName;
 
         return (
             <div className="main-menu-wrapper">
@@ -84,12 +82,12 @@ class mainMenu extends React.Component {
                             className={`scheme-title scheme-title--${isVisible ? 'hidden' : 'visible'}`}
                             onClick={this.handleTitleClick}
                         >
-                            {this.state.schemeName}
+                            {this.props.schemeName}
                         </h3>
                         <input
                             className={`scheme-title__input`}
                             placeholder={'Scheme'}
-                            defaultValue={defaultName}
+                            defaultValue={this.props.schemeName}
                             onBlur={(e) => this.handleBlur(e)}
                         />
                     </div>

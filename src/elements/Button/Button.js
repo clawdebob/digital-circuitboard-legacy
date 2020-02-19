@@ -42,7 +42,6 @@ class Button extends Element {
         this.signatureModel.stroke = this.getStateColor(signal);
         this.signatureModel.fill = this.getStateColor(signal);
         this.signatureModel.value = String(signal);
-        console.log(this.signatureModel);
     }
 }
 

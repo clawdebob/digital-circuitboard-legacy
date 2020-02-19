@@ -16,10 +16,10 @@ class GroupElements extends React.Component {
         const elements = this.props.elements.map((el, idx) => {
             return (
                 <div
+                    key={idx}
                     className="element"
                     title={el.name || el}
                     onClick={() => this.handleClick(el.create())}
-                    key={el.name}
                 />
             );
         });
@@ -53,9 +53,7 @@ class Group extends React.Component {
         return (
             <div className={`${this.props.className}-${this.state.opened ? 'opened' : 'closed'} ${this.props.className}`}>
                 <div
-                    className={
-                        `details detail--${idx}`
-                    }
+                    className={`details detail--${idx}`}
                     onClick={this.handleClick}
                 >
                     <span>{group.name}</span>
@@ -94,6 +92,7 @@ class GroupDetails extends React.Component {
                     group={group}
                     className={`${this.props.className}__group`}
                     index={idx}
+                    key={group.name}
                     handleChange={(props) => this.props.handleChange(props)}
                     setBoardState={(state) => this.props.setBoardState(state)}
                     currentEl={this.props.currentEl}

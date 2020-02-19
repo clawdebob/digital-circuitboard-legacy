@@ -284,6 +284,15 @@ class Renderer {
         return this.render();
     }
 
+    clearScene() {
+        this.svg.clear();
+        this.render();
+        this.background = this.svg.makeGroup();
+        this.middleground = this.svg.makeGroup();
+        this.foreground = this.svg.makeGroup();
+        // console.log(this.svg.scene);
+    }
+
     render() {
         this.svg.update();
     }

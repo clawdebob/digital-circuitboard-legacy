@@ -6,6 +6,7 @@ import STATE from './board-states.consts';
 import _ from 'lodash';
 import Element from '../../elements/Element';
 import {fromEvent} from "rxjs";
+import elementBuilder from "../../modules/elementBuilder";
 
 class Board extends React.Component {
     constructor(props) {
@@ -362,10 +363,7 @@ class Board extends React.Component {
                     this.renderer.removeElement({className: 'bend'});
                 }
             }
-            this.props.updateData({
-                elements: this.elements,
-                wires: this.wires
-            });
+            this.updateGlobalData();
         }
         this.down = false;
         this.board.removeEventListener('mousemove', this.ghostHelper);
@@ -377,6 +375,14 @@ class Board extends React.Component {
         if(this.props.state === STATE.WIRE) {
             this.props.setBoardState(STATE.EDIT);
         }
+    }
+
+    updateGlobalData() {
+        this.props.updateData({
+            schemeName: this.props.data.schemeName,
+            elements: this.elements,
+            wires: this.wires
+        });
     }
 
     sliceWire(wire, junction) {
@@ -556,10 +562,7 @@ class Board extends React.Component {
         el.setId();
         el.updateState();
         this.applyHelpers(el);
-        this.props.updateData({
-           elements: this.elements,
-           wires: this.wires
-        });
+        this.updateGlobalData();
     }
 
     applyHelpers(el) {
@@ -749,6 +752,84 @@ class Board extends React.Component {
         }
     }
 
+    async loadData(data) {
+        const elements = [];
+
+        _.forEach(data.elements, (elementTemp) => {
+            const create = elementBuilder.getCreateFuncByName(elementTemp.name);
+            const element = create(elementTemp);
+
+            if(elementTemp.name === 'Junction') {
+                this.renderer.renderJunction(element, elementTemp.x, elementTemp.y);
+            } else {
+                elementTemp.y -= (element.height/2 - element.originY);
+                elementTemp.x -= element.width/2;
+                this.renderer.renderElement(element, elementTemp.x, elementTemp.y);
+            }
+            elements.push(element);
+            element.setId();
+            element.updateState();
+            this.applyHelpers(element);
+            this.elements.push(element);
+        });
+
+        const wires = _.map(data.wires, (data) => new Wire(data));
+
+        const findElementById = (id) => {
+            return _.find(_.union(wires, elements), {id});
+        };
+
+        _.forEach(wires, (wire, idx) => {
+            const props = data.wires[idx];
+            const coords = props.coords;
+            const inConnector = props.inConnector;
+            const outConnector = props.outConnector;
+            const inConnectorId = _.get(inConnector, 'el', null);
+            const outConnectorId = _.get(outConnector, 'el', null);
+
+            if(inConnectorId) {
+               inConnector.el = findElementById(inConnectorId);
+               wire.inConnector = inConnector;
+               if(inConnector.el.name === 'Junction') {
+                    inConnector.el.pushWire(wire);
+               }
+            }
+            if(outConnectorId) {
+                outConnector.el = findElementById(outConnectorId);
+                wire.outConnector = outConnector;
+                if(outConnector.el.name === 'Junction') {
+                    outConnector.el.pushWire(wire);
+                }
+            }
+            wire.className = wire.name;
+
+            this.renderer.renderWire(wire, coords.x1, coords.y1, coords.x2, coords.y2);
+        });
+
+        _.forEach(wires, (wire) => {
+            wire.wire();
+            this.applyHelpers(wire);
+            this.wires.push(wire);
+        });
+
+        const idStartNumber = _.chain(wires)
+            .union(elements)
+            .map((val) => Number(/\d+/.exec(val.id)[0]))
+            .reduce((res, val) => _.max([res, val]), -1)
+            .value();
+
+        Element.setIdCounter(idStartNumber);
+
+        window.wires = this.wires;
+        window.elements = this.elements;
+    }
+
+    resetData() {
+        this.renderer.clearScene();
+        this.wires = [];
+        this.elements = [];
+    }
+
     setBoardState() {
         this.resetComponent();
         Element.boardState = this.props.state;
@@ -781,6 +862,17 @@ class Board extends React.Component {
                 ghost.props.className = 'ghost';
                 ghost.props.opacity = 0.5;
                 this.ghost = ghost;
+                break;
+            case STATE.LOAD_DATA:
+                this.resetData();
+                this.loadData(this.props.data).then(() => {
+                    return new Promise((resolve) => {
+                        this.props.setBoardState(STATE.EDIT);
+                        resolve(this.props.state === STATE.EDIT);
+                    }).then(() => {
+                        this.updateGlobalData();
+                    });
+                });
                 break;
             default:
                 break;

@@ -7,13 +7,18 @@ class Element {
     static elementCounter = 0;
     static boardState;
 
+    static setIdCounter(num) {
+        Element.elementCounter = num;
+    }
+
     constructor(props) {
+        this.id = props.id;
         this.name = props.name;
         this.outContacts = props.outContacts;
         this.width = props.width;
         this.height = props.height;
         this.signature = props.signature || '';
-        this.className = props.className ? `element-${props.className}` : null;
+        this.className = props.className ? `element-${props.name}` : null;
         this.originY = props.originY || 0;
         this.signatureSize = props.signatureSize || 24;
         this.setProps(props.props);
@@ -45,8 +50,10 @@ class Element {
     }
 
     setId() {
-        this.id = this.name + Element.elementCounter;
-        Element.elementCounter++;
+        if(!this.id) {
+            this.id = this.name + Element.elementCounter;
+            Element.elementCounter++;
+        }
         if(this.model) {
             this.model.classList.push(this.id);
         }

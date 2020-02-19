@@ -5,7 +5,12 @@ export const PROPS_TO_INCLUDE = [
     'className',
     'x',
     'y',
-    'id'
+    'id',
+    'width',
+    'height',
+    'signature',
+    'signatureSize',
+    'originY'
 ];
 export const PIN_PROPS_TO_INCLUDE = [
     'invert',
