@@ -5,7 +5,7 @@ import Junction from '../../elements/Junction/Junction';
 import STATE from './board-states.consts';
 import _ from 'lodash';
 import Element from '../../elements/Element';
-import {fromEvent} from "rxjs";
+import {fromEvent, Subject} from "rxjs";
 import elementBuilder from "../../modules/elementBuilder";
 
 class Board extends React.Component {
@@ -366,7 +366,7 @@ class Board extends React.Component {
             this.updateGlobalData();
         }
         this.down = false;
-        this.board.removeEventListener('mousemove', this.ghostHelper);
+        // this.board.removeEventListener('mousemove', this.ghostHelper);
         this.startingEl = null;
         this.endingEl = null;
         this.junctionStartingFlag = false;
@@ -772,7 +772,6 @@ class Board extends React.Component {
             this.applyHelpers(element);
             this.elements.push(element);
         });
-
         const wires = _.map(data.wires, (data) => new Wire(data));
 
         const findElementById = (id) => {
@@ -859,20 +858,19 @@ class Board extends React.Component {
                 );
                 const ghost = _.cloneDeep(this.props.currentEl);
 
-                ghost.props.className = 'ghost';
+                ghost.className = 'ghost';
                 ghost.props.opacity = 0.5;
                 this.ghost = ghost;
                 break;
             case STATE.LOAD_DATA:
                 this.resetData();
                 this.loadData(this.props.data).then(() => {
-                    return new Promise((resolve) => {
                         this.props.setBoardState(STATE.EDIT);
-                        resolve(this.props.state === STATE.EDIT);
                     }).then(() => {
                         this.updateGlobalData();
+                    }).then(() => {
+                        this.props.toggleLoading(false);
                     });
-                });
                 break;
             default:
                 break;
@@ -881,7 +879,7 @@ class Board extends React.Component {
 
     componentDidMount() {
         this.board = document.getElementById('board');
-        this.renderer = new Renderer();
+        this.renderer = new Renderer(this.board);
         fromEvent(this.board, 'mousedown')
             .subscribe((e) => {
                 e.preventDefault();

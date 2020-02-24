@@ -77,7 +77,7 @@ class mainMenu extends React.Component {
                     <div className="logo"/>
                 </div>
                 <div className="menu-block">
-                    <div className={'scheme-title__wrapper'}>
+                    <div className={'scheme-title__wrapper'} key={this.props.schemeName}>
                         <h3
                             className={`scheme-title scheme-title--${isVisible ? 'hidden' : 'visible'}`}
                             onClick={this.handleTitleClick}

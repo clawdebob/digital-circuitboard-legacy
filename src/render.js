@@ -2,8 +2,8 @@ import Two from 'two.js';
 import _ from 'lodash';
 
 class Renderer {
-    constructor() {
-        const board = document.getElementById('board');
+    constructor(element) {
+        const board = element;
         const params = {width: 2000, height: 2000};
 
         this.svg = new Two(params).appendTo(board);
@@ -92,6 +92,7 @@ class Renderer {
 
     makeElement(element, x, y) {
         const props = element.props;
+        const className = props.className || element.className;
         const originY = y + element.height/2 - element.originY;
         const originX = x + element.width/2;
         const rect = this.svg.makeRectangle(originX, originY, element.width, element.height);
@@ -101,8 +102,8 @@ class Renderer {
         element.x = originX;
         element.y = originY;
 
-        if (props.className) {
-            rect.classList.push(props.className);
+        if (className) {
+            rect.classList.push(className);
         }
 
         return rect;

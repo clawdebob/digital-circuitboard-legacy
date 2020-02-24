@@ -1,0 +1,19 @@
+.progress {
+    width: 100%;
+    height: inherit;
+    background-color: gray;
+    border-radius: 12px;
+    overflow: hidden;
+
+    &__wrapper {
+        height: 24px;
+        min-width: 200px;
+        max-width: 500px;
+    }
+
+    &__bar {
+        height: inherit;
+        background-color: mediumseagreen;
+        transition: width ease-in-out .7s;
+    }
+}

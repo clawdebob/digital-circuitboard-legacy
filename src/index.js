@@ -8,6 +8,8 @@ import ActionPanel from "./components/action-panel/action-panel";
 import FileInput from './components/file-input/file-input';
 import fileManager from './modules/fileManager';
 import {GROUPS} from "./consts/groups.consts";
+import FadeCurtain from "./components/fade-curtain/fade-curtain";
+import LoadingPopup from "./components/loading-popup/loading-popup";
 
 class App extends React.Component {
     constructor(props) {
@@ -16,6 +18,8 @@ class App extends React.Component {
         this.state = {
             currentEl: null,
             boardState: null,
+            curtainVisible: false,
+            loadingProgress: 0,
             data: {
                 schemeName: 'Scheme',
                 elements: null,
@@ -77,6 +81,18 @@ class App extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.updateData = this.updateData.bind(this);
         this.setSchemeName = this.setSchemeName.bind(this);
+        this.toggleLoading = this.toggleLoading.bind(this);
+        this.setProgress = this.setProgress.bind(this);
+
+        // setTimeout(() => {
+        //     console.log('loading');
+        //     this.toggleLoading(true);
+        //     interval(1000).subscribe((val) => {
+        //         console.log(val);
+        //         this.setProgress(val);
+        //     });
+        //     // this.toggleLoading(false);
+        // }, 5000);
     }
 
     open() {
@@ -94,6 +110,17 @@ class App extends React.Component {
             currentEl: curEl,
         });
     };
+
+    toggleLoading(toggle) {
+        this.setState({curtainVisible: toggle});
+        if(!toggle) {
+            this.setState({loadingProgress: 0});
+        }
+    }
+
+    setProgress(value) {
+        this.setState({loadingProgress: value});
+    }
 
     setBoardState(state) {
         this.setState({boardState: state});
@@ -113,11 +140,21 @@ class App extends React.Component {
 
     updateData(data) {
         this.setState({data});
+        console.log(data);
     }
 
     render() {
         return (
             <div className="app">
+                <FadeCurtain
+                    visible={this.state.curtainVisible}
+                    innerContent={(
+                        <LoadingPopup
+                            progress={this.state.loadingProgress}
+                            status={'loading'}
+                        />
+                        )}
+                />
                 <MainMenu
                     options={this.options}
                     setSchemeName={this.setSchemeName}
@@ -138,11 +175,14 @@ class App extends React.Component {
                         data={this.state.data}
                         setBoardState={(state) => this.setBoardState(state)}
                         updateData={(data) => this.updateData(data)}
+                        toggleLoading={(val) => this.toggleLoading(val)}
+                        setProgress={(val) => this.setProgress(val)}
                     />
                 </div>
                 <FileInput
                     updateData={(data) => this.updateData(data)}
                     setBoardState={(state) => this.setBoardState(state)}
+                    toggleLoading={(val) => this.toggleLoading(val)}
                 />
             </div>
         );
