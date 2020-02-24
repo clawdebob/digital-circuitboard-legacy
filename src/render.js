@@ -11,9 +11,10 @@ class Renderer {
         this.background = this.svg.makeGroup();
         this.middleground = this.svg.makeGroup();
         this.foreground = this.svg.makeGroup();
+        this.ghostground = this.svg.makeGroup();
     }
 
-    renderWire(wire, x1,y1,x2,y2) {
+    renderWire(wire, x1,y1,x2,y2, instantRender = true) {
         const line = this.svg.makeLine(x1,y1,x2,y2);
         line.fill = wire.fill || '#000000';
         line.opacity = 1;
@@ -86,7 +87,9 @@ class Renderer {
         }
         this.background.add(line);
 
-        this.render();
+        if(instantRender) {
+            this.render();
+        }
         return line;
     }
 
@@ -282,7 +285,6 @@ class Renderer {
         _.forEach(els, (el) => {
             el.remove();
         });
-        return this.render();
     }
 
     clearScene() {
@@ -296,6 +298,7 @@ class Renderer {
 
     render() {
         this.svg.update();
+        // console.log('upd');
     }
 }
 

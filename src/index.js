@@ -20,6 +20,7 @@ class App extends React.Component {
             boardState: null,
             curtainVisible: false,
             loadingProgress: 0,
+            loadingStatus: '',
             data: {
                 schemeName: 'Scheme',
                 elements: null,
@@ -82,17 +83,9 @@ class App extends React.Component {
         this.updateData = this.updateData.bind(this);
         this.setSchemeName = this.setSchemeName.bind(this);
         this.toggleLoading = this.toggleLoading.bind(this);
-        this.setProgress = this.setProgress.bind(this);
-
         // setTimeout(() => {
-        //     console.log('loading');
         //     this.toggleLoading(true);
-        //     interval(1000).subscribe((val) => {
-        //         console.log(val);
-        //         this.setProgress(val);
-        //     });
-        //     // this.toggleLoading(false);
-        // }, 5000);
+        // }, 1000);
     }
 
     open() {
@@ -111,15 +104,14 @@ class App extends React.Component {
         });
     };
 
-    toggleLoading(toggle) {
-        this.setState({curtainVisible: toggle});
+    toggleLoading(toggle, status = 'Loading') {
+        this.setState({
+            curtainVisible: toggle,
+            loadingStatus: status
+        });
         if(!toggle) {
             this.setState({loadingProgress: 0});
         }
-    }
-
-    setProgress(value) {
-        this.setState({loadingProgress: value});
     }
 
     setBoardState(state) {
@@ -140,7 +132,6 @@ class App extends React.Component {
 
     updateData(data) {
         this.setState({data});
-        console.log(data);
     }
 
     render() {
@@ -151,9 +142,8 @@ class App extends React.Component {
                     innerContent={(
                         <LoadingPopup
                             progress={this.state.loadingProgress}
-                            status={'loading'}
-                        />
-                        )}
+                            status={this.state.loadingStatus}
+                        />)}
                 />
                 <MainMenu
                     options={this.options}
@@ -176,13 +166,12 @@ class App extends React.Component {
                         setBoardState={(state) => this.setBoardState(state)}
                         updateData={(data) => this.updateData(data)}
                         toggleLoading={(val) => this.toggleLoading(val)}
-                        setProgress={(val) => this.setProgress(val)}
                     />
                 </div>
                 <FileInput
                     updateData={(data) => this.updateData(data)}
                     setBoardState={(state) => this.setBoardState(state)}
-                    toggleLoading={(val) => this.toggleLoading(val)}
+                    toggleLoading={(val, status) => this.toggleLoading(val, status)}
                 />
             </div>
         );

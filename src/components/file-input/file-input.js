@@ -9,16 +9,13 @@ class FileInput extends React.Component {
         const file = files[0];
 
         if(file) {
+            this.props.toggleLoading(true, 'Loading scheme');
             fileManager.loadFile(file)
                 .subscribe((data) => {
                     this.props.updateData(data);
-                    this.props.toggleLoading(true);
                     setTimeout(() => {
                         this.props.setBoardState(STATE.LOAD_DATA);
                     }, 100);
-                    // setTimeout(() => {
-                    //     this.props.toggleLoading(false);
-                    // },2000);
                 });
         }
 
