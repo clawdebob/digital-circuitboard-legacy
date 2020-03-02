@@ -1,7 +1,7 @@
 import Or from '../Or/Or';
 
 const defaultProps = {
-    name: 'Invertor',
+    name: 'Buffer',
     props: {
         inContacts: 1,
         fill: '#ffffff',

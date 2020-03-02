@@ -2,6 +2,7 @@ import React from "react";
 import {fromEvent} from "rxjs";
 import DETAILS from './details.consts';
 import _ from 'lodash';
+import {UNEDITABLE_PROPS} from "../../consts/Parse.consts";
 
 class ElementDetails extends React.Component{
     constructor(props) {
@@ -88,7 +89,7 @@ class ElementDetails extends React.Component{
 
     getElementData() {
         const element = this.props.currentEl;
-        const propsKeys = Object.keys(element.props)
+        const propsKeys = Object.keys(element.props);
         const contactsNum = _.get(element, 'props.inContacts', null);
 
         if(contactsNum) {
@@ -110,7 +111,10 @@ class ElementDetails extends React.Component{
             }
 
             return (
-                <tr key={key}>
+                <tr
+                    key={key}
+                    hidden={_.indexOf(UNEDITABLE_PROPS[prop], element.name) >= 0}
+                >
                     <td key={prop}>
                         <span className={'prop-name'}>{name || prop}</span>
                     </td>

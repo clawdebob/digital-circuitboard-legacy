@@ -21,3 +21,8 @@ export const CONNECTOR_PROPS_TO_INCLUDE = [
     'pin',
     'type'
 ];
+
+export const UNEDITABLE_PROPS = {
+    inContacts: ['Buffer', 'Invertor'],
+    invert1: ['Buffer', 'Invertor'],
+};
