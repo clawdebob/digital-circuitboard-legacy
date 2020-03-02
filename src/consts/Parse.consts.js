@@ -10,6 +10,7 @@ export const PROPS_TO_INCLUDE = [
     'height',
     'signature',
     'signatureSize',
+    'interactable',
     'originY'
 ];
 export const PIN_PROPS_TO_INCLUDE = [

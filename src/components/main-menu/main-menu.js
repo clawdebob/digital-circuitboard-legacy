@@ -1,4 +1,5 @@
 import React from 'react';
+import { ReactComponent as Logo } from '../../assets/dcb-logo.svg';
 
 function SubList(props) {
     const list = props.list.map((entry, idx) => {
@@ -74,7 +75,7 @@ class mainMenu extends React.Component {
         return (
             <div className="main-menu-wrapper">
                 <div className="logo-block">
-                    <div className="logo"/>
+                    <Logo className="logo"/>
                 </div>
                 <div className="menu-block">
                     <div className={'scheme-title__wrapper'} key={this.props.schemeName}>

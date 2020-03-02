@@ -18,8 +18,9 @@ class Element {
         this.width = props.width;
         this.height = props.height;
         this.signature = props.signature || '';
-        this.className = props.className ? `element-${props.name}` : null;
+        this.className = `element-${props.name} element`;
         this.originY = props.originY || 0;
+        this.interactable = props.interactable || props.name === 'Button';
         this.signatureSize = props.signatureSize || 24;
         this.setProps(props.props);
         this.model = null;

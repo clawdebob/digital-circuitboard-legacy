@@ -10,19 +10,23 @@ import Junction from "../elements/Junction/Junction";
 
 class elementBuilder {
     static elementMap = new Map([
-        ['Or', (props) => new Or(props)],
-        ['And', (props) => new And(props)],
-        ['Nor', (props) => new Nor(props)],
-        ['Nand', (props) => new Nand(props)],
-        ['Xor', (props) => new Xor(props)],
-        ['Nxor', (props) => new Nxor(props)],
-        ['Constant', (props) => new Constant(props)],
-        ['Button', (props) => new Button(props)],
-        ['Junction', (props) => new Junction(props)]
+        ['Or', {create: (props) => new Or(props), icon: require('../assets/or.svg')}],
+        ['And', {create: (props) => new And(props), icon: require('../assets/and.svg')}],
+        ['Nor', {create: (props) => new Nor(props), icon: require('../assets/nor.svg')}],
+        ['Nand', {create: (props) => new Nand(props), icon: require('../assets/nand.svg')}],
+        ['Xor', {create: (props) => new Xor(props), icon: require('../assets/xor.svg')}],
+        ['Nxor', {create: (props) => new Nxor(props), icon: require('../assets/nxor.svg')}],
+        ['Constant', {create: (props) => new Constant(props), icon: require('../assets/const.svg')}],
+        ['Button', {create: (props) => new Button(props), icon: require('../assets/button.svg')}],
+        ['Junction', {create: (props) => new Junction(props), icon: null}]
     ]);
 
     static getCreateFuncByName(name){
-        return elementBuilder.elementMap.get(name);
+        return elementBuilder.elementMap.get(name).create;
+    }
+
+    static getIconByName(name) {
+        return elementBuilder.elementMap.get(name).icon;
     }
 }
 

@@ -126,7 +126,7 @@ class Renderer {
         circle.classList.push('help-circle');
         circle.opacity = 0;
         circle.className = 'help-circle';
-        this.render();
+        // this.render();
 
         return circle;
     }
@@ -139,7 +139,7 @@ class Renderer {
         circle.classList.push('invert-circle');
         circle.className = 'invert-circle';
         circle.linewidth = 1;
-        this.render();
+        // this.render();
 
         return circle;
     }
@@ -167,7 +167,7 @@ class Renderer {
             }
         });
         this.foreground.add(helper);
-        this.render();
+        // this.render();
 
         return circle;
     }
@@ -175,7 +175,7 @@ class Renderer {
     renderText(text, x, y, styles) {
         const result = this.svg.makeText(text, x, y, styles);
 
-        this.render();
+        // this.render();
 
         return result;
     }
@@ -241,11 +241,13 @@ class Renderer {
             rect.classList.push(element.id);
             group.classList.push(element.id);
         }
-        if (element.className) {
+        group.className = element.className;
+        if (element.interactable) {
             const interactionGroup = this.svg.makeGroup(rect, signatureGroup);
 
             interactionGroup.className = element.className;
             element.interactionModel = interactionGroup;
+            console.log(interactionGroup);
         }
 
         element.model = group;
@@ -263,7 +265,7 @@ class Renderer {
         });
         this.foreground.add(group);
 
-        return this.render();
+        // return this.render();
     }
 
     getElement(element) {

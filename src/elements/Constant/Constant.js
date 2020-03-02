@@ -25,9 +25,12 @@ class Constant extends Element {
     }
 
     operation() {
+        const color = this.getStateColor(this.props.signal);
+
         this.outPins.pins[0].value = Number(this.props.signal);
-        this.signatureModel.stroke = this.getStateColor(this.props.signal);
-        this.signatureModel.fill = this.getStateColor(this.props.signal);
+        this.signatureModel.stroke = color;
+        this.signatureModel.fill = color;
+        this.model._children[0].stroke = color;
     }
 }
 

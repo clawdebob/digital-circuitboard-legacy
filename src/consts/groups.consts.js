@@ -3,6 +3,7 @@ import elementBuilder from "../modules/elementBuilder";
 function ElementBase(name) {
     this.name = name;
     this.create = elementBuilder.getCreateFuncByName(name);
+    this.icon = elementBuilder.getIconByName(name);
 }
 
 export const GROUPS = [

@@ -6,10 +6,10 @@ const defaultProps = {
     name: 'Button',
     props: {
         initialSignal: 0,
-        fill: '#ffffff',
+        fill: '#fff6fc',
     },
     outContacts: 1,
-    className: 'button',
+    interactable: true,
     originY: 0,
     width: 26,
     height: 26,
@@ -27,7 +27,7 @@ class Button extends Element {
         const body = this.interactionModel._renderer.elem;
 
         fromEvent(body, 'click').subscribe(() => {
-            if(Element.boardState === STATE.EDIT){
+            if(Element.boardState === STATE.INTERACT){
                 this.props.initialSignal = Number(!this.props.initialSignal);
                 super.updateState();
             }

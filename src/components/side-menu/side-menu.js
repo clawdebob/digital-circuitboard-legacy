@@ -20,7 +20,9 @@ class GroupElements extends React.Component {
                     className="element"
                     title={el.name || el}
                     onClick={() => this.handleClick(el.create())}
-                />
+                >
+                    <img src={el.icon} alt={el.name}/>
+                </div>
             );
         });
 
