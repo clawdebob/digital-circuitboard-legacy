@@ -101,10 +101,15 @@
                     background-color: white;
                     width: 40px;
                     height: 40px;
-                    border: 1px solid;
+                    border: 1px solid rgba(0,0,0,0.5);
+                    border-radius: 5px;
                     margin: 5px;
                     display: inline-block;
                     cursor: pointer;
+
+                    &:hover {
+                        background-color: @menu-hover;
+                    }
                 }
             }
         }

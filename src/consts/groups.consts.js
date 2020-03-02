@@ -22,7 +22,10 @@ export const GROUPS = [
     },
     {
         name: 'Gates',
-        elements: ['Invertor', 'Bus'],
+        elements: [
+            new ElementBase('Invertor'),
+            new ElementBase('Buffer')
+        ],
     },
     {
         name: 'Plexers',

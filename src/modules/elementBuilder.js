@@ -7,6 +7,8 @@ import Nxor from "../elements/Nxor/Nxor";
 import Constant from "../elements/Constant/Constant";
 import Button from "../elements/Button/Button";
 import Junction from "../elements/Junction/Junction";
+import Invertor from "../elements/Invertor/Invertor";
+import Buffer from "../elements/Buffer/Buffer";
 
 class elementBuilder {
     static elementMap = new Map([
@@ -18,7 +20,9 @@ class elementBuilder {
         ['Nxor', {create: (props) => new Nxor(props), icon: require('../assets/nxor.svg')}],
         ['Constant', {create: (props) => new Constant(props), icon: require('../assets/const.svg')}],
         ['Button', {create: (props) => new Button(props), icon: require('../assets/button.svg')}],
-        ['Junction', {create: (props) => new Junction(props), icon: null}]
+        ['Junction', {create: (props) => new Junction(props), icon: null}],
+        ['Invertor', {create: (props) => new Invertor(props), icon: require('../assets/invertor.svg')}],
+        ['Buffer', {create: (props) => new Buffer(props), icon: require('../assets/buffer.svg')}]
     ]);
 
     static getCreateFuncByName(name){
