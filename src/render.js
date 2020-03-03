@@ -4,6 +4,7 @@ import _ from 'lodash';
 class Renderer {
     constructor(element) {
         const board = element;
+        // const {width, height} = board.getBoundingClientRect();
         const params = {width: 2000, height: 2000};
 
         this.svg = new Two(params).appendTo(board);
@@ -11,7 +12,17 @@ class Renderer {
         this.background = this.svg.makeGroup();
         this.middleground = this.svg.makeGroup();
         this.foreground = this.svg.makeGroup();
-        this.ghostground = this.svg.makeGroup();
+    }
+
+    getFieldData() {
+        return this.svg;
+    }
+
+    setFieldData(width, height) {
+        this.svg.width = width;
+        this.svg.height = height;
+
+        return this.render();
     }
 
     renderWire(wire, x1,y1,x2,y2, instantRender = true) {
@@ -247,7 +258,6 @@ class Renderer {
 
             interactionGroup.className = element.className;
             element.interactionModel = interactionGroup;
-            console.log(interactionGroup);
         }
 
         element.model = group;

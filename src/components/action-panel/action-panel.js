@@ -7,7 +7,7 @@ class ActionPanel extends React.Component {
         this.actions = [
             {name: STATE.EDIT, icon: 'vaadin:cursor'},
             {name: STATE.INTERACT, icon: 'fa:hand-pointer-o'},
-            {name: 'default', icon: 'fa:home'},
+            {name: 'default', icon: null},
             {name: 'ac1', icon: null},
             {name: 'ac2', icon: null}
         ];

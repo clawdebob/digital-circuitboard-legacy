@@ -149,7 +149,7 @@ class fileManager {
                 }
                 wire.className = wire.name;
 
-                this.renderer.renderWire(wire, coords.x1, coords.y1, coords.x2, coords.y2);
+                this.renderer.renderWire(wire, coords.x1, coords.y1, coords.x2, coords.y2, false);
             });
 
             _.forEach(wires, (wire) => {

@@ -495,7 +495,7 @@ class Board extends React.Component {
             return false;
         };
 
-        let isSliced;
+        // let isSliced;
 
         firstWire.className = 'Wire';
         secondWire.className = 'Wire';
@@ -504,7 +504,8 @@ class Board extends React.Component {
             const inConnectorCoords = inConnector.getCoords();
             const outConnectorCoords = outConnector.getCoords();
 
-            isSliced = applySlice(inConnectorCoords, outConnectorCoords);
+            applySlice(inConnectorCoords, outConnectorCoords);
+            // isSliced =
             // if(!isSliced) {
             //     wire.unsub();
             //     inConnector.unsub();
@@ -525,7 +526,8 @@ class Board extends React.Component {
                 y1: Math.max(distanceY1, distanceY2) === distanceX1 ? coords.x1 : coords.x2,
             };
 
-            isSliced = applySlice(inConnectorCoords, outCoords);
+            applySlice(inConnectorCoords, outCoords);
+            // isSliced =
             // if(!isSliced) {
             //     wire.junctionHelpers.pop();
             //     this.renderer.removeElementById(wire.id + 'bend-helper');
@@ -825,6 +827,7 @@ class Board extends React.Component {
         this.board = document.getElementById('board');
         this.renderer = new Renderer(this.board);
         fileManager.renderer = this.renderer;
+        window.renderer = this.renderer;
         fromEvent(this.board, 'mousedown')
             .subscribe((e) => {
                 e.preventDefault();
