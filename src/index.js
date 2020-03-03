@@ -3,60 +3,176 @@ import ReactDOM from 'react-dom';
 import './index.less';
 import MainMenu from './components/main-menu/main-menu.js';
 import Board from './components/board/board.js';
-import Renderer from './render.js';
 import SideMenu from "./components/side-menu/side-menu";
-import And from './elements/And/And'
-
-function ElementBase(name, create = () => 0) {
-    this.name = name;
-    this.create = create;
-}
+import ActionPanel from "./components/action-panel/action-panel";
+import FileInput from './components/file-input/file-input';
+import fileManager from './modules/fileManager';
+import {GROUPS} from "./consts/groups.consts";
+import FadeCurtain from "./components/fade-curtain/fade-curtain";
+import LoadingPopup from "./components/loading-popup/loading-popup";
 
 class App extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            renderer: null,
+            currentEl: null,
+            boardState: null,
+            curtainVisible: false,
+            loadingProgress: 0,
+            loadingStatus: '',
+            data: {
+                schemeName: 'Scheme',
+                elements: null,
+                wires: null
+            }
         };
+        this.save = this.save.bind(this);
+        this.options = [
+            {
+                name: 'File',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S", action: this.save},
+                    {name: "Open", action: this.open},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+            {
+                name: 'Edit',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S"},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+            {
+                name: 'View',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S"},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+            {
+                name: 'Arrange',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S"},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+            {
+                name: 'Extras',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S"},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+            {
+                name: 'Help',
+                suboptions: [
+                    {name: "Save", hotkey: "Ctrl+S"},
+                    {name: "Open"},
+                    {name: "Delete", hotkey: "Delete"}
+                ]
+            },
+        ];
+
+        this.handleChange = this.handleChange.bind(this);
+        this.updateData = this.updateData.bind(this);
+        this.setSchemeName = this.setSchemeName.bind(this);
+        this.toggleLoading = this.toggleLoading.bind(this);
+        // setTimeout(() => {
+        //     this.toggleLoading(true);
+        // }, 1000);
     }
 
-    componentDidMount() {
-        this.setState({renderer: new Renderer()});
+    open() {
+        fileManager.openFile();
     }
 
-    groups = [
-        {
-            name: 'Base',
-            elements: [
-                new ElementBase('Or'),
-                new ElementBase('And', (props) => new And(props)),
-                new ElementBase('Xor'), 'Nand', 'Nor'],
-        },
-        {
-            name: 'Gates',
-            elements: ['Invertor', 'Bus'],
-        },
-        {
-            name: 'Plexers',
-            elements: ['Multiplexor', 'Demultiplexor', 'Decoder', 'Coder'],
-        },
-        {
-            name: 'Arithmetic',
-            elements: ['Summator']
-        },
-        {name: 'Memory', elements: ['ROM', 'RAM']},
-        {name: 'Input/Output', elements: ['Bulb', 'Button', 'Contact']},
-    ];
+    save() {
+        const data = this.state.data;
+
+        fileManager.saveFile(data);
+    }
+
+    handleChange(curEl) {
+        this.setState({
+            currentEl: curEl,
+        });
+    };
+
+    toggleLoading(toggle, status = 'Loading') {
+        this.setState({
+            curtainVisible: toggle,
+            loadingStatus: status
+        });
+        if(!toggle) {
+            this.setState({loadingProgress: 0});
+        }
+    }
+
+    setBoardState(state) {
+        this.setState({boardState: state});
+    }
+
+    setSchemeName(schemeName) {
+        const {wires, elements} = this.state.data;
+
+        this.setState({
+            data: {
+                schemeName,
+                elements,
+                wires
+            }
+        });
+    }
+
+    updateData(data) {
+        this.setState({data});
+    }
 
     render() {
         return (
             <div className="app">
-                <MainMenu renderer={this.state.renderer} number={this.number}/>
+                <FadeCurtain
+                    visible={this.state.curtainVisible}
+                    innerContent={(
+                        <LoadingPopup
+                            progress={this.state.loadingProgress}
+                            status={this.state.loadingStatus}
+                        />)}
+                />
+                <MainMenu
+                    options={this.options}
+                    setSchemeName={this.setSchemeName}
+                    schemeName={this.state.data.schemeName}
+                />
+                <ActionPanel setBoardState={(state) => this.setBoardState(state)}/>
                 <div className="drawing-area">
-                    <SideMenu className="side-menu" groups={this.groups} renderer={this.state.renderer}/>
-                    <Board renderer={this.state.renderer} />
+                    <SideMenu
+                        className="side-menu"
+                        groups={GROUPS}
+                        currentEl={this.state.currentEl}
+                        handleChange={(props) => this.handleChange(props)}
+                        setBoardState={(state) => this.setBoardState(state)}
+                    />
+                    <Board
+                        currentEl={this.state.currentEl}
+                        state={this.state.boardState}
+                        data={this.state.data}
+                        setBoardState={(state) => this.setBoardState(state)}
+                        updateData={(data) => this.updateData(data)}
+                        toggleLoading={(val) => this.toggleLoading(val)}
+                    />
                 </div>
+                <FileInput
+                    updateData={(data) => this.updateData(data)}
+                    setBoardState={(state) => this.setBoardState(state)}
+                    toggleLoading={(val, status) => this.toggleLoading(val, status)}
+                />
             </div>
         );
     }

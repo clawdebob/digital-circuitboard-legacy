@@ -1,13 +1,13 @@
 .element-details {
     border-collapse: collapse;
-    width: max-content;
+    width: 80%;
     background-color: white;
 
     margin: 0 auto;
 
     &__wrapper {
         width: 100%;
-        background-color: white;
+        background-color: @menu-color;
         flex: 1 0;
         padding: 20px 0;
     }
@@ -24,33 +24,37 @@
 
     tr {
         td {
-            width: 100px;
+            max-width: 50px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
 
-            &:first-child {
+            .prop-name {
                 padding: 0 5px;
                 box-sizing: border-box;
             }
 
-            &:last-child {
+            .prop-input {
+                border: none;
+                width: 100%;
                 text-align: right;
-                cursor: text;
+                padding: 2px 0 1px;
+                background-color: white;
+
+                &:focus {
+                    outline: none;
+                    text-align: left;
+                    background-color: white;
+
+                    &:hover {
+                        background-color: white;
+                    }
+                }
 
                 &:hover {
                     background-color: @menu-hover;
                 }
             }
-        }
-    }
-
-    input {
-        border: none;
-        width: 100px;
-        text-align: left;
-        padding: 2px 0 1px;
-        display: none;
-
-        &:focus {
-            outline: none;
         }
     }
 }

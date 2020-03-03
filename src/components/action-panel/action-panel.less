@@ -1,0 +1,21 @@
+.action-panel {
+    border-bottom: 1px solid;
+    background-color: @menu-color;
+    padding: 2px 5px;
+    display: flex;
+    align-items: center;
+
+    &__action {
+        display: inline-block;
+        height: 15px;
+        width: 15px;
+        border-radius: 2px;
+        padding: 5px;
+        text-align: center;
+
+        &:hover {
+            background-color: @menu-hover;
+            cursor: pointer;
+        }
+    }
+}

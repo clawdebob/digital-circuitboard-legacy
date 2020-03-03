@@ -1,19 +1,32 @@
-import Element from '../Element'
+import Element from '../Element';
+import _ from 'lodash';
 
 const defaultProps = {
     name: 'And',
-    inContacts: 2,
+    props: {
+        inContacts: 3,
+        fill: '#ffffff',
+    },
     outContacts: 1,
-    signals: 'true/false',
-    color: 'white'
+    originY: 5,
+    width: 50,
+    height: 60,
+    signature: '&'
 };
 
 class And extends Element {
     constructor(props) {
         props ? super(props) : super(defaultProps);
+    }
 
-        this.out = false;
+    operation() {
+        this.outPins.pins[0].value = Number(_.reduce(this.inPins.pins,(result, pin) => {
+            return Boolean(result && pin.value);
+        }, 1));
     }
 }
+
+
+
 
 export default And;

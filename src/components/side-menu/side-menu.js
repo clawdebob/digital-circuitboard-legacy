@@ -2,14 +2,27 @@ import React from 'react';
 import ElementDetails from '../element-details/element-details';
 
 class GroupElements extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    handleClick = (el) => {
+        this.props.setBoardState('create');
+        return this.props.handleChange(el);
+    };
+
     render() {
         const elements = this.props.elements.map((el, idx) => {
             return (
                 <div
+                    key={idx}
                     className="element"
                     title={el.name || el}
-                    onClick={() => this.props.handleChange(el.create().props)}
-                />
+                    onClick={() => this.handleClick(el.create())}
+                >
+                    <img src={el.icon} alt={el.name}/>
+                </div>
             );
         });
 
@@ -42,17 +55,18 @@ class Group extends React.Component {
         return (
             <div className={`${this.props.className}-${this.state.opened ? 'opened' : 'closed'} ${this.props.className}`}>
                 <div
-                    className={
-                        `details detail--${idx}`
-                    }
+                    className={`details detail--${idx}`}
                     onClick={this.handleClick}
                 >
                     <span>{group.name}</span>
+                    <div className={'arrow'}/>
                 </div>
                 <GroupElements
                     elements={group.elements}
                     className={`elements-list`}
                     handleChange={(props) => this.props.handleChange(props)}
+                    setBoardState={(state) => this.props.setBoardState(state)}
+                    currentEl={this.props.currentEl}
                 />
             </div>
         );
@@ -80,7 +94,10 @@ class GroupDetails extends React.Component {
                     group={group}
                     className={`${this.props.className}__group`}
                     index={idx}
+                    key={group.name}
                     handleChange={(props) => this.props.handleChange(props)}
+                    setBoardState={(state) => this.props.setBoardState(state)}
+                    currentEl={this.props.currentEl}
                 />
             );
         });
@@ -129,7 +146,7 @@ class sideMenu extends React.Component {
         };
         this.state = {
             currentEl: null,
-            originalData: null
+            originalData: null,
         };
 
         let slide = this.slide;
@@ -137,7 +154,6 @@ class sideMenu extends React.Component {
         slide.mouseMove = slide.mouseMove.bind(slide);
         slide.mouseUp = slide.mouseUp.bind(slide);
         this.handleMouseDown = this.handleMouseDown.bind(this);
-        this.handleChange = this.handleChange.bind(this);
     }
 
 
@@ -154,13 +170,6 @@ class sideMenu extends React.Component {
         document.addEventListener('mouseup', slide.mouseUp);
     }
 
-    handleChange(curEl) {
-        this.setState({
-            currentEl: curEl,
-        });
-        this.props.renderer.render();
-    };
-
     render() {
         return (
             <div className="side-menu">
@@ -168,12 +177,14 @@ class sideMenu extends React.Component {
                     <div className="side-menu__section">
                         <GroupDetails
                             groups={this.props.groups}
-                            handleChange={(props) => this.handleChange(props)}
+                            handleChange={(props) => this.props.handleChange(props)}
                             className="side-menu__section__list"
+                            currentEl={this.props.currentEl}
+                            setBoardState={(state) => this.props.setBoardState(state)}
                         />
                         <ElementDetails
-                            currentEl={this.state.currentEl}
-                            handleChange={(props) => this.handleChange(props)}
+                            currentEl={this.props.currentEl}
+                            handleChange={(props) => this.props.handleChange(props)}
                         />
                     </div>
                 </div>
