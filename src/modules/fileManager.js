@@ -177,6 +177,13 @@ class fileManager {
 
         return observable;
     }
+
+    static newFile() {
+        const fileInput = document.getElementById('file-input');
+
+        fileInput.value = '';
+        this.renderer.clearScene();
+    }
 }
 
 export default fileManager;

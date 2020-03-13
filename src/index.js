@@ -28,12 +28,14 @@ class App extends React.Component {
             }
         };
         this.save = this.save.bind(this);
+        this.newFile = this.newFile.bind(this);
         this.options = [
             {
                 name: 'File',
                 suboptions: [
-                    {name: "Save", hotkey: "Ctrl+S", action: this.save},
-                    {name: "Open", action: this.open},
+                    {name: 'New', action: this.newFile},
+                    {name: 'Save', hotkey: "Ctrl+S", action: this.save},
+                    {name: 'Open', action: this.open},
                     {name: "Delete", hotkey: "Delete"}
                 ]
             },
@@ -83,13 +85,21 @@ class App extends React.Component {
         this.updateData = this.updateData.bind(this);
         this.setSchemeName = this.setSchemeName.bind(this);
         this.toggleLoading = this.toggleLoading.bind(this);
-        // setTimeout(() => {
-        //     this.toggleLoading(true);
-        // }, 1000);
     }
 
     open() {
         fileManager.openFile();
+    }
+
+    newFile() {
+        this.setState({
+            data: {
+                schemeName: 'Scheme',
+                elements: null,
+                wires: null
+            }
+        });
+        fileManager.newFile();
     }
 
     save() {
