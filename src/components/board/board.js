@@ -6,7 +6,7 @@ import STATE from './board-states.consts';
 import _ from 'lodash';
 import Element from '../../elements/Element';
 import {fromEvent} from "rxjs";
-import fileManager from "../../modules/fileManager";
+import fileManager from "../../services/fileManager";
 
 class Board extends React.Component {
     constructor(props) {

@@ -1,14 +1,14 @@
-import elementBuilder from "../modules/elementBuilder";
+import elementBuilder from "../services/elementBuilder";
 
 function ElementBase(name) {
-    this.name = name;
+    this.name = 'elements.' + name.toLowerCase();
     this.create = elementBuilder.getCreateFuncByName(name);
     this.icon = elementBuilder.getIconByName(name);
 }
 
 export const GROUPS = [
     {
-        name: 'Base',
+        name: 'groups.base',
         elements: [
             new ElementBase('Or'),
             new ElementBase('Nor'),
@@ -21,7 +21,7 @@ export const GROUPS = [
         ],
     },
     {
-        name: 'Gates',
+        name: 'groups.gates',
         elements: [
             new ElementBase('Invertor'),
             new ElementBase('Buffer')
@@ -36,5 +36,5 @@ export const GROUPS = [
         elements: ['Summator']
     },
     {name: 'Memory', elements: ['ROM', 'RAM']},
-    {name: 'Input/Output', elements: ['Bulb', 'Button', 'Contact']},
+    {name: 'groups.io', elements: ['Bulb', 'Button', 'Contact']},
 ];

@@ -1,0 +1,29 @@
+{
+  "main-menu": {
+    "file": "File",
+    "options": {
+      "file": {
+        "new": "New",
+        "save": "Save",
+        "open": "Open"
+      }
+    }
+  },
+  "elements": {
+    "and": "AND",
+    "or": "OR",
+    "xor": "XOR",
+    "nor": "NOR",
+    "nand": "NAND",
+    "nxor": "NXOR",
+    "buffer": "Buffer",
+    "invertor": "Invertor",
+    "button": "Button",
+    "constant": "Constant"
+  },
+  "groups": {
+    "base": "Base",
+    "gates": "Gates",
+    "io": "Input/Output"
+  }
+}

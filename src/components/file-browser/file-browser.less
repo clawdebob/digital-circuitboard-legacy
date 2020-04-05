@@ -1,0 +1,114 @@
+@back-button-width: 20px;
+
+.fs {
+    &__popup {
+        .__mixin__popup();
+    }
+
+    &__top {
+        width: 100%;
+        border-bottom: 1px solid;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+
+        &--path {
+            width: ~"calc(100% - @{back-button-width})";
+            max-width: 380px;
+            display: inline-block;
+            height: @back-button-width;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            direction: rtl;
+            text-align: left;
+        }
+
+        &--back {
+            font-size: 20px;
+            width: @back-button-width;
+            display: inline-block;
+
+            &--enabled {
+                cursor: pointer;
+
+                &:hover {
+                    color: @menu-hover;
+                }
+            }
+
+            &--disabled {
+                opacity: 0.3;
+
+                &:hover {
+                    color: initial;
+                }
+            }
+        }
+
+    }
+
+    &__content {
+        min-width: 400px;
+        min-height: 350px;
+        max-height: 350px;
+        overflow: auto;
+        display: flex;
+
+        &--center {
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+    }
+
+    &--table {
+        width: 100%;
+        background-color: aliceblue;
+        border-collapse: collapse;
+
+        &--icon {
+            font-size: 20px;
+            text-align: center;
+            width: 30px;
+        }
+
+        &--entry {
+            &::selection {
+                color: none;
+                background: none;
+            }
+        }
+
+        &--row {
+            cursor: pointer;
+            height: 30px;
+
+            &:hover {
+                background-color: steelblue;
+                color: aliceblue;
+            }
+
+            &--selected {
+                background-color: royalblue;
+                color: aliceblue;
+
+                &:hover {
+                    background-color: royalblue;
+                    color: aliceblue;
+                }
+            }
+        }
+    }
+
+    &__bottom {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+
+        &--open {
+
+        }
+    }
+}

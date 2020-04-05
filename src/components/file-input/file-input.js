@@ -1,5 +1,5 @@
 import * as React from 'react';
-import fileManager from "../../modules/fileManager";
+import fileManager from "../../services/fileManager";
 import STATE from "../board/board-states.consts";
 
 class FileInput extends React.Component {
@@ -18,22 +18,6 @@ class FileInput extends React.Component {
                     }, 100);
                 });
         }
-
-        //
-        // if(file) {
-        //     const observable = ajax({
-        //         url: 'http://localhost:3040/upload',
-        //         method: 'POST',
-        //         body: {file},
-        //         headers: {
-        //             'Content-Type': file.type,
-        //         },
-        //     });
-        //     observable.subscribe(
-        //         (data) => console.log(data),
-        //         (err) => console.log(err)
-        //     )
-        // }
     }
 
     render() {

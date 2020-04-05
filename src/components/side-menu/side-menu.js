@@ -1,5 +1,8 @@
 import React from 'react';
 import ElementDetails from '../element-details/element-details';
+import i18next from 'i18next';
+
+const t = (str) => i18next.t(str);
 
 class GroupElements extends React.Component {
     constructor(props) {
@@ -9,6 +12,7 @@ class GroupElements extends React.Component {
 
     handleClick = (el) => {
         this.props.setBoardState('create');
+
         return this.props.handleChange(el);
     };
 
@@ -18,10 +22,10 @@ class GroupElements extends React.Component {
                 <div
                     key={idx}
                     className="element"
-                    title={el.name || el}
+                    title={t(el.name) || el}
                     onClick={() => this.handleClick(el.create())}
                 >
-                    <img src={el.icon} alt={el.name}/>
+                    <img src={el.icon} alt={t(el.name)}/>
                 </div>
             );
         });
@@ -49,16 +53,15 @@ class Group extends React.Component {
     }
 
     render() {
-        const group = this.props.group;
-        const idx = this.props.index;
+        const {group, index} = this.props;
 
         return (
             <div className={`${this.props.className}-${this.state.opened ? 'opened' : 'closed'} ${this.props.className}`}>
                 <div
-                    className={`details detail--${idx}`}
+                    className={`details detail--${index}`}
                     onClick={this.handleClick}
                 >
-                    <span>{group.name}</span>
+                    <span>{t(group.name)}</span>
                     <div className={'arrow'}/>
                 </div>
                 <GroupElements

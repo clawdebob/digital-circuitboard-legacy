@@ -1,0 +1,41 @@
+.drive-popup {
+    .__mixin__popup();
+    text-align: center;
+    align-items: center;
+
+    &--main {
+        flex: 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        &--buttons {
+            width: 50%;
+
+            .button {
+                width: 100%;
+            }
+
+            #authorize-button {
+                margin: 5px 0 25px;
+            }
+        }
+    }
+
+    &--auth {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        #submit-button {
+            margin-top: 25px;
+        }
+
+        #code {
+            width: 400px;
+            height: 250px;
+            resize: none;
+            overflow: auto;
+        }
+    }
+}
