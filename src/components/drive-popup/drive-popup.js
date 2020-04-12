@@ -1,6 +1,8 @@
 import React from 'react';
 import Button from '../button/button';
 import driveManager from "../../services/driveManager";
+import PubSub from "../../services/pubSub";
+import {EVENT} from "../../consts/events.consts";
 
 class DrivePopup extends React.Component{
     constructor(props) {
@@ -21,7 +23,7 @@ class DrivePopup extends React.Component{
                 const status = data.response.status;
 
                 if(status === 'success') {
-                    this.props.showNotice({
+                    PubSub.publish(EVENT.SHOW_NOTICE,{
                         description: 'Successfully Logged in Google Account',
                         type: 'success'
                     });
@@ -29,27 +31,28 @@ class DrivePopup extends React.Component{
                         needAuth: false
                     });
                 } else {
-                    this.props.showNotice({
+                    PubSub.publish(EVENT.SHOW_NOTICE,{
                         title: 'Error',
                         description: 'Invalid Code',
                         type: 'error'
                     });
                 }
-                this.props.close();
+                this.closePopup();
+                this.setState({needAuth: true});
             },() => {
-                this.props.showNotice({
+                PubSub.publish(EVENT.SHOW_NOTICE,{
                     title: 'Error',
                     description: 'Google Drive Service Unavailable',
                     type: 'error'
                 });
-                this.props.close();
+                this.closePopup();
             });
     }
     closePopup() {
         this.setState({
             needAuth: false,
         });
-        this.props.close();
+        PubSub.publish(EVENT.TOGGLE_GDRIVE_POPUP, false);
     }
 
     authToGdrive() {
@@ -60,28 +63,28 @@ class DrivePopup extends React.Component{
                 const {status} = response;
 
                 if(status === 'success') {
-                    this.props.showNotice({
+                    PubSub.publish(EVENT.SHOW_NOTICE,{
                         description: 'Successfully Logged in Google Account',
                         type: 'success'
                     });
-                    this.props.close();
+                    this.closePopup()();
                 } else if (status === 'needAuth') {
                     window.open(response.link, '_blank');
-                    this.setState({needAuth: true})
+                    this.setState({needAuth: true});
                 } else {
-                    this.props.showNotice({
+                    PubSub.publish(EVENT.SHOW_NOTICE,{
                         title: 'Error',
                         description: 'Auth failed',
                         type: 'error'
                     });
                 }
             }, () => {
-                this.props.showNotice({
+                PubSub.publish(EVENT.SHOW_NOTICE,{
                     title: 'Error',
                     description: 'Google Drive Service Unavailable',
                     type: 'error'
                 });
-                this.props.close();
+                this.closePopup();
             });
     }
 
@@ -93,25 +96,25 @@ class DrivePopup extends React.Component{
                 const {status} = response;
 
                 if(status === 'success') {
-                    this.props.showNotice({
+                    PubSub.publish(EVENT.SHOW_NOTICE,{
                         description: 'Log out successful',
                         type: 'success'
                     });
-                    this.props.close();
+                    this.closePopup();
                 } else {
-                    this.props.showNotice({
+                    PubSub.publish(EVENT.SHOW_NOTICE,{
                         title: 'Error',
                         description: 'Logout failed',
                         type: 'error'
                     });
                 }
             }, () => {
-                this.props.showNotice({
+                PubSub.publish(EVENT.SHOW_NOTICE,{
                     title: 'Error',
                     description: 'Google Drive Service Unavailable',
                     type: 'error'
                 });
-                this.props.close();
+                this.closePopup();
             });
     }
 
@@ -149,6 +152,17 @@ class DrivePopup extends React.Component{
                         ) : (
                             <div className="drive-popup--main">
                                 <h3>Google Account Management</h3>
+                                {driveManager.isLoggedIn ? (
+                                    <div className="drive-popup--user">
+                                        <img
+                                            className="drive-popup--user--photo"
+                                            src={driveManager.user.photo}
+                                            alt=""
+                                        />
+                                        <p className="drive-popup--user--name">{driveManager.user.name}</p>
+                                        <p className="drive-popup--user--email">{driveManager.user.email}</p>
+                                    </div>
+                                ) : null}
                                 <div className="drive-popup--main--buttons">
                                     <Button
                                         id="authorize-button"

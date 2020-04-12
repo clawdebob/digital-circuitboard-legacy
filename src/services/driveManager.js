@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
 import { v4 as uuidv4 } from 'uuid';
 import {ajax} from "rxjs/ajax";
-import {map} from 'rxjs/operators';
+import {tap} from 'rxjs/operators';
 import _ from 'lodash';
 import fileManager from "./fileManager";
 
@@ -17,6 +17,7 @@ const post = (location, body, timeout = 10000) => {
 class driveManager {
     static sessionId = null;
     static isLoggedIn = false;
+    static user = null;
 
     static checkSession() {
         let sessionId = Cookies.get('session_id');
@@ -36,10 +37,9 @@ class driveManager {
             code,
             sessionId: this.sessionId
         }).pipe(
-            map((data) => {
+            tap((data) => {
                 this.isLoggedIn = _.get(data, 'response.status', false) === 'success';
-
-                return data;
+                this.user = _.get(data, 'response.user', null);
             })
         );
     }
@@ -51,10 +51,9 @@ class driveManager {
             sessionId,
             folderId
         }).pipe(
-            map((data) => {
+            tap((data) => {
                 this.isLoggedIn = !(_.get(data, 'response.status', false) === 'auth');
-
-                return data;
+                this.user = this.isLoggedIn ? this.user : null;
             })
         );
     }
@@ -66,10 +65,9 @@ class driveManager {
             sessionId,
             fileId
         }, 20000).pipe(
-            map((data) => {
+            tap((data) => {
                 this.isLoggedIn = !(_.get(data, 'response.status', false) === 'auth');
-
-                return data;
+                this.user = this.isLoggedIn ? this.user : null;
             })
         );
     }
@@ -83,10 +81,9 @@ class driveManager {
             schemeData,
             folderId
         }, 20000).pipe(
-            map((data) => {
+            tap((data) => {
                 this.isLoggedIn = !(_.get(data, 'response.status', false) === 'auth');
-
-                return data;
+                this.user = this.isLoggedIn ? this.user : null;
             })
         );
     }
@@ -96,10 +93,9 @@ class driveManager {
 
         return post('logout', {sessionId})
             .pipe(
-                map((data) => {
+                tap((data) => {
                     this.isLoggedIn = !(_.get(data, 'response.status', false) === 'success');
-
-                    return data;
+                    this.user = this.isLoggedIn ? this.user : null;
                 })
             );
     }
@@ -109,10 +105,9 @@ class driveManager {
 
         return post('auth', {sessionId})
             .pipe(
-                map((data) => {
+                tap((data) => {
                     this.isLoggedIn = _.get(data, 'response.status', false) === 'success';
-
-                    return data;
+                    this.user = _.get(data, 'response.user', null);
                 })
             );
     }

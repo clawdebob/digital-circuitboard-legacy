@@ -3,6 +3,8 @@ import {fromEvent} from "rxjs";
 import DETAILS from './details.consts';
 import _ from 'lodash';
 import {UNEDITABLE_PROPS} from "../../consts/Parse.consts";
+import PubSub from "../../services/pubSub";
+import {EVENT} from "../../consts/events.consts";
 
 class ElementDetails extends React.Component{
     constructor(props) {
@@ -32,7 +34,7 @@ class ElementDetails extends React.Component{
             }
             curEl.setProps(curEl.props);
         }
-        this.props.handleChange(curEl);
+        PubSub.publish(EVENT.SET_CURRENT_ELEMENT, curEl);
         if(this.blurSubscription) {
             this.blurSubscription.unsubscribe();
         }

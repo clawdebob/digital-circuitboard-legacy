@@ -1,5 +1,7 @@
 import React from 'react';
 import STATE from '../board/board-states.consts';
+import PubSub from "../../services/pubSub";
+import {EVENT} from "../../consts/events.consts";
 
 class ActionPanel extends React.Component {
     constructor(props) {
@@ -18,7 +20,7 @@ class ActionPanel extends React.Component {
                 className={`action-panel__action ${action.name}`}
                 key={action.name}
                 title={action.name}
-                onClick={() => this.props.setBoardState(action.name)}
+                onClick={() => PubSub.publish(EVENT.SET_BOARD_STATE, action.name)}
             >
                 <div
                     className="iconify"

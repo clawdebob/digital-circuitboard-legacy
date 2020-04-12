@@ -61,6 +61,18 @@
             justify-content: center;
             height: 100%;
         }
+
+        .false-link {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+            color: #0000EE;
+
+            &:hover, &:focus {
+                text-decoration: none;
+            }
+        }
     }
 
     &--table {
@@ -106,9 +118,5 @@
         display: flex;
         justify-content: flex-end;
         margin-top: 20px;
-
-        &--open {
-
-        }
     }
 }

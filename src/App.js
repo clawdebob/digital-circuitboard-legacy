@@ -11,11 +11,15 @@ import {GROUPS} from "./consts/groups.consts";
 import Board from "./components/board/board";
 import FileInput from "./components/file-input/file-input";
 import FileBrowser from './components/file-browser/file-browser';
+import PubSub from "./services/pubSub";
+import {EVENT} from "./consts/events.consts";
+import _ from 'lodash';
 
 class App extends React.Component {
     constructor(props) {
         super(props);
 
+        _.forEach(_.values(EVENT), (val) => PubSub.createEvent(val));
         this.state = {
             currentEl: null,
             boardState: null,
@@ -98,6 +102,21 @@ class App extends React.Component {
         this.setSchemeName = this.setSchemeName.bind(this);
         this.toggleLoading = this.toggleLoading.bind(this);
         this.showNotice = this.showNotice.bind(this);
+        PubSub.subscribe(EVENT.SET_BOARD_STATE, this.setBoardState.bind(this));
+        PubSub.subscribe(EVENT.UPDATE_DATA, this.updateData.bind(this));
+        PubSub.subscribe(EVENT.TOGGLE_LOADING, (data) => {
+           const {toggle, status} = data;
+
+           this.toggleLoading(toggle, status);
+        });
+        PubSub.subscribe(EVENT.SHOW_NOTICE, this.showNotice.bind(this));
+        PubSub.subscribe(EVENT.TOGGLE_GDRIVE_POPUP, this.manageGdrive);
+        PubSub.subscribe(EVENT.TOGGLE_FILE_BROWSER, (data) => {
+            const {state, mode} = data;
+
+            this.toggleFs(state, mode);
+        });
+        PubSub.subscribe(EVENT.SET_CURRENT_ELEMENT, this.handleChange.bind(this));
     }
 
     manageGdrive(val = true) {
@@ -165,7 +184,7 @@ class App extends React.Component {
     toggleLoading(toggle, status = 'Loading') {
         this.setState({
             isLoading: toggle,
-            loadingStatus: status
+            loadingStatus: status || 'Loading'
         });
     }
 
@@ -219,11 +238,6 @@ class App extends React.Component {
                     <FileBrowser
                         mode={this.state.fsMode}
                         schemeData={this.state.data}
-                        close={() => this.toggleFs(false, '')}
-                        updateData={(data) => this.updateData(data)}
-                        setBoardState={(state) => this.setBoardState(state)}
-                        toggleLoading={(val, status) => this.toggleLoading(val, status)}
-                        showNotice={(params) => this.showNotice(params)}
                     />
                     : null
                 }
@@ -233,38 +247,26 @@ class App extends React.Component {
                 />
                 <DrivePopup
                     isVisible={this.state.isDrivePopupVisible}
-                    showNotice={(params) => this.showNotice(params)}
-                    close={() => this.manageGdrive(false)}
                 />
                 <MainMenu
                     options={this.options}
                     setSchemeName={this.setSchemeName}
-                    setBoardState={(state) => this.setBoardState(state)}
                     schemeName={this.state.data.schemeName}
                 />
-                <ActionPanel setBoardState={(state) => this.setBoardState(state)}/>
+                <ActionPanel/>
                 <div className="drawing-area">
                     <SideMenu
                         className="side-menu"
                         groups={GROUPS}
                         currentEl={this.state.currentEl}
-                        handleChange={(props) => this.handleChange(props)}
-                        setBoardState={(state) => this.setBoardState(state)}
                     />
                     <Board
                         currentEl={this.state.currentEl}
                         state={this.state.boardState}
                         data={this.state.data}
-                        setBoardState={(state) => this.setBoardState(state)}
-                        updateData={(data) => this.updateData(data)}
-                        toggleLoading={(val) => this.toggleLoading(val)}
                     />
                 </div>
-                <FileInput
-                    updateData={(data) => this.updateData(data)}
-                    setBoardState={(state) => this.setBoardState(state)}
-                    toggleLoading={(val, status) => this.toggleLoading(val, status)}
-                />
+                <FileInput/>
             </div>
         );
     }

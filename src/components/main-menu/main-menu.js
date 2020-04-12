@@ -101,7 +101,7 @@ class mainMenu extends React.Component {
                     </div>
                 </div>
                 <div className="extras__section">
-                    <LanguageSelector setBoardState={(state) => this.props.setBoardState(state)}/>
+                    <LanguageSelector/>
                 </div>
             </div>
         );

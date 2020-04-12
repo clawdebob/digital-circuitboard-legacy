@@ -7,6 +7,8 @@ import _ from 'lodash';
 import Element from '../../elements/Element';
 import {fromEvent} from "rxjs";
 import fileManager from "../../services/fileManager";
+import PubSub from "../../services/pubSub";
+import {EVENT} from "../../consts/events.consts";
 
 class Board extends React.Component {
     constructor(props) {
@@ -373,12 +375,12 @@ class Board extends React.Component {
         this.junctionEndingFlag = false;
 
         if(this.props.state === STATE.WIRE) {
-            this.props.setBoardState(STATE.EDIT);
+            PubSub.publish(EVENT.SET_BOARD_STATE, STATE.EDIT);
         }
     }
 
     updateGlobalData() {
-        this.props.updateData({
+        PubSub.publish(EVENT.UPDATE_DATA, {
             schemeName: this.props.data.schemeName,
             elements: this.elements,
             wires: this.wires
@@ -585,7 +587,7 @@ class Board extends React.Component {
                     fromEvent(domEl, 'mousedown')
                         .subscribe(() => {
                             if(this.props.state === STATE.EDIT && pin.helperEnabled) {
-                                this.props.setBoardState(STATE.WIRE);
+                                PubSub.publish(EVENT.SET_BOARD_STATE, STATE.WIRE);
                                 startFunction(el, idx);
                             }
                         });
@@ -641,7 +643,7 @@ class Board extends React.Component {
             });
             fromEvent(domModel, 'mousedown').subscribe(() => {
                     if(this.props.state === STATE.EDIT) {
-                        this.props.setBoardState(STATE.WIRE);
+                        PubSub.publish(EVENT.SET_BOARD_STATE, STATE.WIRE);
                         this.startingEl = {el: el, pin: 0, type: null};
                         this.junctionStartingFlag = true;
                     }
@@ -813,9 +815,10 @@ class Board extends React.Component {
                 break;
             case STATE.LOAD_DATA:
                 this.resetData();
-                this.loadData(this.props.data).then(() => {
-                        this.props.setBoardState(STATE.EDIT);
-                        this.props.toggleLoading(false);
+                this.loadData(this.props.data)
+                    .then(() => {
+                        PubSub.publish(EVENT.SET_BOARD_STATE, STATE.EDIT);
+                        PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: false});
                     });
                 break;
             default:

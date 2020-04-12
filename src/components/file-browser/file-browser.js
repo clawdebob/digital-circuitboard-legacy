@@ -5,12 +5,15 @@ import Spinner from '../spinner/spinner';
 import Button from '../button/button';
 import STATE from "../board/board-states.consts";
 import fileManager from "../../services/fileManager";
+import PubSub from "../../services/pubSub";
+import {EVENT} from "../../consts/events.consts";
 
 const rootPath = 'drive://';
 
 class FileTree extends React.Component {
     render() {
         const currentEntry = this.props.currentEntry;
+        const warning = this.props.warning;
         const files = _.map(this.props.files, (file) => {
             return (
                 <tr
@@ -31,6 +34,10 @@ class FileTree extends React.Component {
         });
 
         if(this.props.files.length === 0) {
+            if(warning){
+                return warning;
+            }
+
             return (
                 <p>Current folder is empty</p>
             );
@@ -63,14 +70,32 @@ class FileBrowser extends React.Component {
                 id: 'root'
             },
             files: [],
+            warningMsg: null
         };
+
+        this.navigateToLoginPopup = this.navigateToLoginPopup.bind(this);
+    }
+
+    navigateToLoginPopup() {
+        this.close();
+        PubSub.publish(EVENT.TOGGLE_GDRIVE_POPUP, true);
+    }
+
+    close() {
+        PubSub.publish(EVENT.TOGGLE_FILE_BROWSER, {
+            state: false,
+            mode: ''
+        });
     }
 
     openFile() {
         const file = this.state.currentEntry;
 
-        this.props.close();
-        this.props.toggleLoading(true, `Loading ${file.name}`);
+        this.close();
+        PubSub.publish(EVENT.TOGGLE_LOADING, {
+            toggle: true,
+            status: `Loading ${file.name}`
+        });
         driveManager.getFile(file.id).subscribe((data) => {
             const {status, fileData} = data.response;
 
@@ -78,27 +103,27 @@ class FileBrowser extends React.Component {
                 const scheme = JSON.parse(fileData);
 
                 fileManager.loadData(scheme, file.name).then((data) => {
-                    this.props.updateData(data);
+                    PubSub.publish(EVENT.UPDATE_DATA, data);
                     setTimeout(() => {
-                        this.props.setBoardState(STATE.LOAD_DATA);
+                        PubSub.publish(EVENT.SET_BOARD_STATE, STATE.LOAD_DATA);
                     }, 100);
                 });
             } else if (status === 'auth') {
-                this.props.toggleLoading(false);
-                this.props.showNotice({
+                PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: false});
+                PubSub.publish(EVENT.SHOW_NOTICE,{
                     description: 'Please sign in to Google Drive',
                     type: 'warning'
                 });
             } else {
-                this.props.toggleLoading(false);
-                this.props.showNotice({
+                PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: false});
+                PubSub.publish(EVENT.SHOW_NOTICE,{
                     description: 'Error loading file',
                     type: 'error'
                 });
             }
         }, () => {
-            this.props.toggleLoading(false);
-            this.props.showNotice({
+            PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: false});
+            PubSub.publish(EVENT.SHOW_NOTICE,{
                 description: 'Error loading file',
                 type: 'error'
             });
@@ -109,29 +134,29 @@ class FileBrowser extends React.Component {
         const data = this.props.schemeData;
         const folder = this.state.currentEntry;
 
-        this.props.close();
+        this.close();
         driveManager.saveFile(data, folder.id)
             .subscribe((data) => {
                 const {status} = data.response;
 
                 if(status === 'success') {
-                    this.props.showNotice({
+                    PubSub.publish(EVENT.SHOW_NOTICE, {
                         description: 'File saved to Google Drive',
                         type: 'success'
                     });
                 } else if (status === 'auth') {
-                    this.props.showNotice({
+                    PubSub.publish(EVENT.SHOW_NOTICE,{
                         description: 'Please sign in to Google Drive',
                         type: 'warning'
                     });
                 } else {
-                    this.props.showNotice({
+                    PubSub.publish(EVENT.SHOW_NOTICE,{
                         description: 'Error saving file to Google Drive',
                         type: 'error'
                     });
                 }
             }, () => {
-                this.props.showNotice({
+                PubSub.publish(EVENT.SHOW_NOTICE,{
                     description: 'Error saving file to Google Drive',
                     type: 'error'
                 });
@@ -207,6 +232,12 @@ class FileBrowser extends React.Component {
     componentDidMount() {
         if(driveManager.isLoggedIn) {
             this.setFolder(_.last(this.state.path).id);
+        } else {
+            this.setState({
+                warningMsg: (<p>
+                    You should <span className="false-link" onClick={this.navigateToLoginPopup}>log in to Google</span> to access drive
+                </p>)
+            });
         }
     }
 
@@ -223,7 +254,7 @@ class FileBrowser extends React.Component {
                 <div className="fs__popup">
                     <span
                         className="close"
-                        onClick={() => this.props.close()}
+                        onClick={() => this.close()}
                     >
                         ✕
                     </span>
@@ -254,6 +285,7 @@ class FileBrowser extends React.Component {
                                     currentEntry={currentEntry}
                                     setCurrentEntry={(entry) => this.setCurrentEntry(entry)}
                                     goDeep={(folder) => this.goDeep(folder)}
+                                    warning={this.state.warningMsg}
                                 />
                             )}
                         </div>
@@ -277,7 +309,6 @@ class FileBrowser extends React.Component {
                                     />
                                 )
                             }
-
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,8 @@
 import * as React from 'react';
 import fileManager from "../../services/fileManager";
 import STATE from "../board/board-states.consts";
+import PubSub from "../../services/pubSub";
+import {EVENT} from "../../consts/events.consts";
 
 class FileInput extends React.Component {
 
@@ -9,12 +11,15 @@ class FileInput extends React.Component {
         const file = files[0];
 
         if(file) {
-            this.props.toggleLoading(true, 'Loading scheme');
+            PubSub.publish(EVENT.TOGGLE_LOADING, {
+               toggle: true,
+               status: 'Loading scheme'
+            });
             fileManager.loadFile(file)
                 .subscribe((data) => {
-                    this.props.updateData(data);
+                    PubSub.publish(EVENT.UPDATE_DATA, data);
                     setTimeout(() => {
-                        this.props.setBoardState(STATE.LOAD_DATA);
+                        PubSub.publish(EVENT.SET_BOARD_STATE, STATE.LOAD_DATA);
                     }, 100);
                 });
         }

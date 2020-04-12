@@ -1,6 +1,9 @@
 import React from 'react';
 import ElementDetails from '../element-details/element-details';
 import i18next from 'i18next';
+import PubSub from "../../services/pubSub";
+import {EVENT} from "../../consts/events.consts";
+import STATE from "../board/board-states.consts";
 
 const t = (str) => i18next.t(str);
 
@@ -11,9 +14,8 @@ class GroupElements extends React.Component {
     }
 
     handleClick = (el) => {
-        this.props.setBoardState('create');
-
-        return this.props.handleChange(el);
+        PubSub.publish(EVENT.SET_BOARD_STATE, STATE.CREATE);
+        PubSub.publish(EVENT.SET_CURRENT_ELEMENT, el);
     };
 
     render() {
@@ -67,8 +69,6 @@ class Group extends React.Component {
                 <GroupElements
                     elements={group.elements}
                     className={`elements-list`}
-                    handleChange={(props) => this.props.handleChange(props)}
-                    setBoardState={(state) => this.props.setBoardState(state)}
                     currentEl={this.props.currentEl}
                 />
             </div>
@@ -98,8 +98,6 @@ class GroupDetails extends React.Component {
                     className={`${this.props.className}__group`}
                     index={idx}
                     key={group.name}
-                    handleChange={(props) => this.props.handleChange(props)}
-                    setBoardState={(state) => this.props.setBoardState(state)}
                     currentEl={this.props.currentEl}
                 />
             );
@@ -180,14 +178,11 @@ class sideMenu extends React.Component {
                     <div className="side-menu__section">
                         <GroupDetails
                             groups={this.props.groups}
-                            handleChange={(props) => this.props.handleChange(props)}
                             className="side-menu__section__list"
                             currentEl={this.props.currentEl}
-                            setBoardState={(state) => this.props.setBoardState(state)}
                         />
                         <ElementDetails
                             currentEl={this.props.currentEl}
-                            handleChange={(props) => this.props.handleChange(props)}
                         />
                     </div>
                 </div>

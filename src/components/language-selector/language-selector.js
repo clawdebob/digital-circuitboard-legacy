@@ -2,6 +2,9 @@ import React from 'react';
 import Cookies from 'js-cookie';
 import i18n from '../../services/i18n';
 import {fromEvent} from "rxjs";
+import PubSub from "../../services/pubSub";
+import {EVENT} from "../../consts/events.consts";
+import STATE from "../board/board-states.consts";
 
 class LanguageSelector extends React.Component {
     constructor(props){
@@ -17,7 +20,7 @@ class LanguageSelector extends React.Component {
     changeLanguage(language) {
         i18n.changeLanguage(language);
         Cookies.set('lang', language, {path: '/', expires: 7});
-        this.props.setBoardState('edit');
+        PubSub.publish(EVENT.SET_BOARD_STATE, STATE.EDIT);
         this.setState({language});
         if(this.state.visible) {
             this.toggleSelector();
