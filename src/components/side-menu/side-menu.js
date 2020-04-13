@@ -4,6 +4,7 @@ import i18next from 'i18next';
 import PubSub from "../../services/pubSub";
 import {EVENT} from "../../consts/events.consts";
 import STATE from "../board/board-states.consts";
+import {fromEvent} from "rxjs";
 
 const t = (str) => i18next.t(str);
 
@@ -117,58 +118,51 @@ class sideMenu extends React.Component {
     constructor(props) {
         super(props);
 
-        this.slide = {
-            column: null,
-            curColumnWidth: null,
-            pageX: null,
-            width: null,
-            mouseMove(e) {
-                e.preventDefault();
-                if (this.column) {
-                    let diffX = e.pageX - this.pageX;
+        this.sliderMoveObservable = fromEvent(document, 'mousemove');
+        this.mouseUpSliderObservable = fromEvent(document, 'mouseup');
+        this.sliderMoveSubscription = null;
+        this.mouseUpSliderSubscription = null;
 
-                    if (this.column.getBoundingClientRect().width > this.width
-                        || (this.column.getBoundingClientRect().width === this.width && diffX > 0)) {
-                        this.column.style.width = `${diffX + this.curColumnWidth}px`;
-                    } else {
-                        this.column.style.width = `${this.width}px`;
-                    }
-                }
-            },
-            mouseUp(e) {
-                e.preventDefault();
-                this.column = undefined;
-                this.pageX = undefined;
-                this.curColumnWidth = undefined;
-                this.width = undefined;
-                document.removeEventListener('mouseup', this.mouseUp);
-                document.removeEventListener('mousemove', this.mouseMove);
-            },
-        };
         this.state = {
             currentEl: null,
             originalData: null,
         };
 
-        let slide = this.slide;
-
-        slide.mouseMove = slide.mouseMove.bind(slide);
-        slide.mouseUp = slide.mouseUp.bind(slide);
         this.handleMouseDown = this.handleMouseDown.bind(this);
+        this.mouseUp = this.mouseUp.bind(this);
     }
 
+    mouseMove(e, slider) {
+        e.preventDefault();
+        const diffX = e.pageX - slider.pageX;
+
+        if (e.pageX > slider.width && slider.column.getBoundingClientRect().width > slider.width) {
+            slider.column.style.width = `${diffX + slider.curColumnWidth}px`;
+        } else {
+            slider.column.style.width = `${slider.width}px`;
+        }
+    }
+
+    mouseUp(e) {
+        e.preventDefault();
+        this.sliderMoveSubscription.unsubscribe();
+        this.mouseUpSliderSubscription.unsubscribe();
+    }
 
     handleMouseDown(e) {
-        const slide = this.slide;
-
         e.preventDefault();
-        slide.column = e.target.parentElement;
-        slide.pageX = e.pageX;
-        slide.curColumnWidth = slide.column.offsetWidth;
-        slide.width = e.target.offsetWidth + 2;
 
-        document.addEventListener('mousemove', slide.mouseMove);
-        document.addEventListener('mouseup', slide.mouseUp);
+        const slider = {
+            column: e.target.parentElement,
+            curColumnWidth: e.target.parentElement.offsetWidth,
+            pageX: e.pageX,
+            width: e.target.offsetWidth + 2,
+        };
+
+        this.sliderMoveSubscription = this.sliderMoveObservable
+            .subscribe((e) => this.mouseMove(e, slider));
+        this.mouseUpSliderSubscription = this.mouseUpSliderObservable
+            .subscribe(this.mouseUp);
     }
 
     render() {

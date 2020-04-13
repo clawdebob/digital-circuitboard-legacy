@@ -4,7 +4,7 @@ import _ from 'lodash';
 class Renderer {
     constructor(element) {
         const board = element;
-        // const {width, height} = board.getBoundingClientRect();
+        const {width, height} = board.getBoundingClientRect();
         const params = {width: 2000, height: 2000};
 
         this.svg = new Two(params).appendTo(board);
@@ -18,7 +18,7 @@ class Renderer {
         return this.svg;
     }
 
-    setFieldData(width, height) {
+    setFieldSize(width, height) {
         this.svg.width = width;
         this.svg.height = height;
 
