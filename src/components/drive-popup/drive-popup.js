@@ -27,9 +27,6 @@ class DrivePopup extends React.Component{
                         description: 'Successfully Logged in Google Account',
                         type: 'success'
                     });
-                    this.setState({
-                        needAuth: false
-                    });
                 } else {
                     PubSub.publish(EVENT.SHOW_NOTICE,{
                         title: 'Error',
@@ -38,7 +35,7 @@ class DrivePopup extends React.Component{
                     });
                 }
                 this.closePopup();
-                this.setState({needAuth: true});
+                this.setState({needAuth: false});
             },() => {
                 PubSub.publish(EVENT.SHOW_NOTICE,{
                     title: 'Error',
@@ -46,12 +43,10 @@ class DrivePopup extends React.Component{
                     type: 'error'
                 });
                 this.closePopup();
+                this.setState({needAuth: false});
             });
     }
     closePopup() {
-        this.setState({
-            needAuth: false,
-        });
         PubSub.publish(EVENT.TOGGLE_GDRIVE_POPUP, false);
     }
 
@@ -67,7 +62,7 @@ class DrivePopup extends React.Component{
                         description: 'Successfully Logged in Google Account',
                         type: 'success'
                     });
-                    this.closePopup()();
+                    this.closePopup();
                 } else if (status === 'needAuth') {
                     window.open(response.link, '_blank');
                     this.setState({needAuth: true});
@@ -77,6 +72,7 @@ class DrivePopup extends React.Component{
                         description: 'Auth failed',
                         type: 'error'
                     });
+                    this.closePopup();
                 }
             }, () => {
                 PubSub.publish(EVENT.SHOW_NOTICE,{
@@ -100,7 +96,6 @@ class DrivePopup extends React.Component{
                         description: 'Log out successful',
                         type: 'success'
                     });
-                    this.closePopup();
                 } else {
                     PubSub.publish(EVENT.SHOW_NOTICE,{
                         title: 'Error',
@@ -108,6 +103,7 @@ class DrivePopup extends React.Component{
                         type: 'error'
                     });
                 }
+                this.closePopup();
             }, () => {
                 PubSub.publish(EVENT.SHOW_NOTICE,{
                     title: 'Error',

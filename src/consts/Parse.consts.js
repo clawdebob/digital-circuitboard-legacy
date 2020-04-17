@@ -23,6 +23,6 @@ export const CONNECTOR_PROPS_TO_INCLUDE = [
 ];
 
 export const UNEDITABLE_PROPS = {
-    inContacts: ['Buffer', 'Invertor'],
+    inContacts: ['Buffer', 'Invertor', 'OutContact'],
     invert1: ['Buffer', 'Invertor'],
 };

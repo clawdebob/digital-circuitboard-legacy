@@ -15,9 +15,7 @@ export const GROUPS = [
             new ElementBase('And'),
             new ElementBase('Nand'),
             new ElementBase('Xor'),
-            new ElementBase('Nxor'),
-            new ElementBase('Constant'),
-            new ElementBase('Button'),
+            new ElementBase('Nxor')
         ],
     },
     {
@@ -36,5 +34,12 @@ export const GROUPS = [
         elements: ['Summator']
     },
     {name: 'Memory', elements: ['ROM', 'RAM']},
-    {name: 'groups.io', elements: ['Bulb', 'Button', 'Contact']},
+    {
+        name: 'groups.io',
+        elements: [
+            new ElementBase('Constant'),
+            new ElementBase('Button'),
+            new ElementBase('OutContact')
+        ]
+    },
 ];

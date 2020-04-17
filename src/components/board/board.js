@@ -603,13 +603,20 @@ class Board extends React.Component {
             };
         };
         const vm = this;
-        _.forEach(
-            el.outPins.pins,
-            iterFunc(
-                (el, idx) => {vm.startingEl = {el: el, pin: idx, type: 'out'}},
-                (el, idx) => {vm.endingEl = {el: el, pin: idx, type: 'out'}}
-            )
-        );
+
+        if(el.outPins) {
+            _.forEach(
+                el.outPins.pins,
+                iterFunc(
+                    (el, idx) => {
+                        vm.startingEl = {el: el, pin: idx, type: 'out'}
+                    },
+                    (el, idx) => {
+                        vm.endingEl = {el: el, pin: idx, type: 'out'}
+                    }
+                )
+            );
+        }
         if(el.inPins) {
             _.forEach(
                 el.inPins.pins,
