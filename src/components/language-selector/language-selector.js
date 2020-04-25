@@ -5,6 +5,9 @@ import {fromEvent} from "rxjs";
 import PubSub from "../../services/pubSub";
 import {EVENT} from "../../consts/events.consts";
 import STATE from "../board/board-states.consts";
+import i18next from 'i18next';
+
+const t = (str) => i18next.t(str);
 
 class LanguageSelector extends React.Component {
     constructor(props){
@@ -61,7 +64,7 @@ class LanguageSelector extends React.Component {
         return (
             <div
                 className="language"
-                title='Select Language'
+                title={t('select-language')}
             >
                 <div
                     className="language--icon"

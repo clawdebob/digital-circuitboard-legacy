@@ -1,6 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
+import i18next from 'i18next';
 
+const t = (str) => i18next.t(str);
 const TYPES = ['success', 'error', 'warning', 'default'];
 
 function Notification(props) {
@@ -8,8 +10,8 @@ function Notification(props) {
 
     return (
         <div className={`notification ${className}`} key={props.id}>
-            <div className={`notification--title`}>{props.title || 'Notice'}</div>
-            <p className={`notification--description`}>{props.description}</p>
+            <div className={`notification--title`}>{t(props.title || 'notice') }</div>
+            <p className={`notification--description`}>{t(props.description)}</p>
         </div>
     );
 }

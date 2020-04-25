@@ -7,7 +7,9 @@ import STATE from "../board/board-states.consts";
 import fileManager from "../../services/fileManager";
 import PubSub from "../../services/pubSub";
 import {EVENT} from "../../consts/events.consts";
+import i18next from 'i18next';
 
+const t = (str) => i18next.t(str);
 const rootPath = 'drive://';
 
 class FileTree extends React.Component {
@@ -35,11 +37,11 @@ class FileTree extends React.Component {
 
         if(this.props.files.length === 0) {
             if(warning){
-                return warning;
+                return (<p>{warning}</p>);
             }
 
             return (
-                <p>Current folder is empty</p>
+                <p>{t('gdrive.fs.empty')}</p>
             );
         }
 
@@ -94,7 +96,7 @@ class FileBrowser extends React.Component {
         this.close();
         PubSub.publish(EVENT.TOGGLE_LOADING, {
             toggle: true,
-            status: `Loading ${file.name}`
+            status: i18next.t('loading-file', {file: file.name})
         });
         driveManager.getFile(file.id).subscribe((data) => {
             const {status, fileData} = data.response;
@@ -234,9 +236,7 @@ class FileBrowser extends React.Component {
             this.setFolder(_.last(this.state.path).id);
         } else {
             this.setState({
-                warningMsg: (<p>
-                    You should <span className="false-link" onClick={this.navigateToLoginPopup}>log in to Google</span> to access drive
-                </p>)
+                warningMsg: (<span className="false-link" onClick={this.navigateToLoginPopup}>{t('gdrive.fs.login-message')}</span>)
             });
         }
     }
@@ -265,7 +265,7 @@ class FileBrowser extends React.Component {
                             </div>
                             <div
                                 className={`fs__top--back fs__top--back${isRoot || isLoading ? '--disabled' : '--enabled'}`}
-                                title="To upper level"
+                                title={t('gdrive.fs.upper')}
                                 onClick={isRoot ? _.noop : () => this.goUp()}
                             >
                                 <span
@@ -293,7 +293,7 @@ class FileBrowser extends React.Component {
                             {this.props.mode === 'open' ?
                                 (
                                     <Button
-                                        text={'Open'}
+                                        text={'main-menu.options.file.open'}
                                         type="primary"
                                         className={'fs__bottom--close'}
                                         onClick={() => this.openFile()}
@@ -301,11 +301,11 @@ class FileBrowser extends React.Component {
                                     />
                                 ) : (
                                     <Button
-                                        text={'Save'}
+                                        text={'main-menu.options.file.save'}
                                         type="primary"
                                         className={'fs__bottom--close'}
                                         onClick={() => this.saveFile()}
-                                        disabled={currentEntry.type !== entryRestriction}
+                                        disabled={currentEntry.type !== entryRestriction || !driveManager.isLoggedIn}
                                     />
                                 )
                             }

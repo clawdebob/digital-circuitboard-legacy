@@ -3,6 +3,9 @@ import Button from '../button/button';
 import driveManager from "../../services/driveManager";
 import PubSub from "../../services/pubSub";
 import {EVENT} from "../../consts/events.consts";
+import i18next from 'i18next';
+
+const t = (str) => i18next.t(str);
 
 class DrivePopup extends React.Component{
     constructor(props) {
@@ -24,13 +27,13 @@ class DrivePopup extends React.Component{
 
                 if(status === 'success') {
                     PubSub.publish(EVENT.SHOW_NOTICE,{
-                        description: 'Successfully Logged in Google Account',
+                        description: 'gdrive.success.login',
                         type: 'success'
                     });
                 } else {
                     PubSub.publish(EVENT.SHOW_NOTICE,{
-                        title: 'Error',
-                        description: 'Invalid Code',
+                        title: 'error',
+                        description: 'gdrive.error.code',
                         type: 'error'
                     });
                 }
@@ -38,8 +41,8 @@ class DrivePopup extends React.Component{
                 this.setState({needAuth: false});
             },() => {
                 PubSub.publish(EVENT.SHOW_NOTICE,{
-                    title: 'Error',
-                    description: 'Google Drive Service Unavailable',
+                    title: 'error',
+                    description: 'gdrive.error.unknown',
                     type: 'error'
                 });
                 this.closePopup();
@@ -59,7 +62,7 @@ class DrivePopup extends React.Component{
 
                 if(status === 'success') {
                     PubSub.publish(EVENT.SHOW_NOTICE,{
-                        description: 'Successfully Logged in Google Account',
+                        description: 'gdrive.success.login',
                         type: 'success'
                     });
                     this.closePopup();
@@ -68,16 +71,16 @@ class DrivePopup extends React.Component{
                     this.setState({needAuth: true});
                 } else {
                     PubSub.publish(EVENT.SHOW_NOTICE,{
-                        title: 'Error',
-                        description: 'Auth failed',
+                        title: 'error',
+                        description: 'gdrive.error.login',
                         type: 'error'
                     });
                     this.closePopup();
                 }
             }, () => {
                 PubSub.publish(EVENT.SHOW_NOTICE,{
-                    title: 'Error',
-                    description: 'Google Drive Service Unavailable',
+                    title: 'error',
+                    description: 'gdrive.error.unknown',
                     type: 'error'
                 });
                 this.closePopup();
@@ -93,21 +96,21 @@ class DrivePopup extends React.Component{
 
                 if(status === 'success') {
                     PubSub.publish(EVENT.SHOW_NOTICE,{
-                        description: 'Log out successful',
+                        description: 'gdrive.success.logout',
                         type: 'success'
                     });
                 } else {
                     PubSub.publish(EVENT.SHOW_NOTICE,{
-                        title: 'Error',
-                        description: 'Logout failed',
+                        title: 'error',
+                        description: 'gdrive.error.logout',
                         type: 'error'
                     });
                 }
                 this.closePopup();
             }, () => {
                 PubSub.publish(EVENT.SHOW_NOTICE,{
-                    title: 'Error',
-                    description: 'Google Drive Service Unavailable',
+                    title: 'error',
+                    description: 'gdrive.error.unknown',
                     type: 'error'
                 });
                 this.closePopup();
@@ -129,7 +132,7 @@ class DrivePopup extends React.Component{
                     {
                         this.state.needAuth ? (
                             <div className="drive-popup--auth">
-                                <h3>Paste your code here:</h3>
+                                <h3>{t('gdrive.paste')}</h3>
                                 <form name="auth">
                                     <textarea
                                         id="code"
@@ -140,14 +143,14 @@ class DrivePopup extends React.Component{
                                     <Button
                                         id="submit-button"
                                         type="primary"
-                                        text="Submit"
+                                        text={t('gdrive.submit')}
                                         onClick={() => this.sendCode()}
                                     />
                                 </div>
                             </div>
                         ) : (
                             <div className="drive-popup--main">
-                                <h3>Google Account Management</h3>
+                                <h3>{t('gdrive.title')}</h3>
                                 {driveManager.isLoggedIn ? (
                                     <div className="drive-popup--user">
                                         <img
@@ -162,7 +165,7 @@ class DrivePopup extends React.Component{
                                 <div className="drive-popup--main--buttons">
                                     <Button
                                         id="authorize-button"
-                                        text="Sign in"
+                                        text={t('gdrive.login')}
                                         type="primary"
                                         disabled={driveManager.isLoggedIn}
                                         onClick={() => this.authToGdrive()}
@@ -171,7 +174,7 @@ class DrivePopup extends React.Component{
                                         id="signout-button"
                                         disabled={!driveManager.isLoggedIn}
                                         onClick={() => this.logoutFromGdrive()}
-                                        text="Sign out"
+                                        text={t('gdrive.logout')}
                                     />
                                 </div>
                             </div>

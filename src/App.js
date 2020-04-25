@@ -14,6 +14,9 @@ import FileBrowser from './components/file-browser/file-browser';
 import PubSub from "./services/pubSub";
 import {EVENT} from "./consts/events.consts";
 import _ from 'lodash';
+import i18next from 'i18next';
+
+const t = (str) => i18next.t(str);
 
 class App extends React.Component {
     constructor(props) {
@@ -58,7 +61,7 @@ class App extends React.Component {
             {
                 name: 'Google Drive',
                 suboptions: [
-                    {name: "Manage account", action: this.manageGdrive},
+                    {name: "gdrive.manage", action: this.manageGdrive},
                     {name: "main-menu.options.file.open", action: () => this.toggleFs(true, 'open')},
                     {name: "main-menu.options.file.save", action: () => this.toggleFs(true, 'save')}
                 ]
@@ -143,15 +146,15 @@ class App extends React.Component {
                 (data) => {
                     if(data.response.status === 'success') {
                         this.showNotice({
-                            description: 'Successfully Logged in Google Account',
+                            description: 'gdrive.success.login',
                             type: 'success'
                         });
                     }
                 },
                 () => {
                     this.showNotice({
-                        title: 'Warning!',
-                        description: 'Google Drive Service is Unavailable',
+                        title: 'warning',
+                        description: 'gdrive.error.unknown',
                         type: 'warning'
                     });
                 }
@@ -181,10 +184,10 @@ class App extends React.Component {
         });
     };
 
-    toggleLoading(toggle, status = 'Loading') {
+    toggleLoading(toggle, status = 'loading') {
         this.setState({
             isLoading: toggle,
-            loadingStatus: status || 'Loading'
+            loadingStatus: t(status || 'loading')
         });
     }
 

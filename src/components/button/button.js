@@ -1,4 +1,7 @@
 import * as React from "react";
+import i18next from 'i18next';
+
+const t = (str) => i18next.t(str);
 
 function Button(props) {
     const type = props.type || 'regular';
@@ -11,7 +14,7 @@ function Button(props) {
             onClick={disabled ? null : props.onClick}
             disabled={disabled}
         >
-            {props.text}
+            {t(props.text)}
         </button>
     );
 }
