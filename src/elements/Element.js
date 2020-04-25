@@ -144,6 +144,7 @@ class Element {
 
     updateState() {
         const hasIn = Boolean(this.props.inContacts);
+        const hasOut = Boolean(this.outContacts);
 
         if(hasIn) {
             this.inPins.pins.forEach((pin, idx) => {
@@ -156,11 +157,13 @@ class Element {
         }
         this.operation();
         this.errorCheck();
-        this.outPins.pins.forEach((pin, idx) => {
-            this.model.children[2].children[idx].stroke = this.getStateColor(pin.value);
+        if(hasOut) {
+            this.outPins.pins.forEach((pin, idx) => {
+                this.model.children[2].children[idx].stroke = this.getStateColor(pin.value);
 
-            pin.valueUpdate.next(pin.value);
-        });
+                pin.valueUpdate.next(pin.value);
+            });
+        }
         this.renderFlag.next();
     }
 }

@@ -1,0 +1,53 @@
+.drive-popup {
+    .__mixin__popup();
+    text-align: center;
+    align-items: center;
+
+    &--main {
+        flex: 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        &--buttons {
+            width: 50%;
+
+            .button {
+                width: 100%;
+            }
+
+            #authorize-button {
+                margin: 5px 0 25px;
+            }
+        }
+    }
+
+    &--user {
+        background-color: aliceblue;
+        padding: 10px 26px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+
+        &--photo {
+            margin-top: 16px;
+            border-radius: 50%;
+        }
+    }
+
+    &--auth {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        #submit-button {
+            margin-top: 25px;
+        }
+
+        #code {
+            width: 400px;
+            height: 250px;
+            resize: none;
+            overflow: auto;
+        }
+    }
+}

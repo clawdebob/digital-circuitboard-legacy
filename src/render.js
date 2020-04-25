@@ -18,7 +18,7 @@ class Renderer {
         return this.svg;
     }
 
-    setFieldData(width, height) {
+    setFieldSize(width, height) {
         this.svg.width = width;
         this.svg.height = height;
 
@@ -109,18 +109,24 @@ class Renderer {
         const className = props.className || element.className;
         const originY = y + element.height/2 - element.originY;
         const originX = x + element.width/2;
-        const rect = this.svg.makeRectangle(originX, originY, element.width, element.height);
+        let model = null;
 
-        rect.fill = props.fill;
-        rect.opacity = props.opacity || 1;
+        if (element.name === 'OutContact') {
+            model = this.svg.makeCircle(originX, originY, element.width/2);
+        } else {
+            model = this.svg.makeRectangle(originX, originY, element.width, element.height);
+        }
+
+        model.fill = props.fill;
+        model.opacity = props.opacity || 1;
         element.x = originX;
         element.y = originY;
 
         if (className) {
-            rect.classList.push(className);
+            model.classList.push(className);
         }
 
-        return rect;
+        return model;
     }
 
     renderGhost(element, x, y) {
@@ -137,7 +143,6 @@ class Renderer {
         circle.classList.push('help-circle');
         circle.opacity = 0;
         circle.className = 'help-circle';
-        // this.render();
 
         return circle;
     }

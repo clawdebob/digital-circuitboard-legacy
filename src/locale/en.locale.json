@@ -1,0 +1,79 @@
+{
+  "no": "No",
+  "yes": "Yes",
+  "name": "Name",
+  "value": "Value",
+  "properties": "{{element}} properties",
+  "props": {
+    "initial-value": "Initial value",
+    "current-value": "Current value",
+    "in": "Number of In contacts",
+    "color": "Color",
+    "invert": "Invert"
+  },
+  "select-language": "Select language",
+  "action": {
+    "interact": "Interact",
+    "edit": "Edit"
+  },
+  "elements": {
+    "and": "AND",
+    "buffer": "Buffer",
+    "button": "Button",
+    "constant": "Constant",
+    "invertor": "Invertor",
+    "nand": "NAND",
+    "nor": "NOR",
+    "nxor": "NXOR",
+    "or": "OR",
+    "outcontact": "Out contact",
+    "xor": "XOR"
+  },
+  "error": "Error",
+  "gdrive": {
+    "error": {
+      "code": "Invalid Code",
+      "file-loading": "Error loading file",
+      "file-save": "Error saving file to Google Drive",
+      "login": "Auth failed",
+      "logout": "Logout failed",
+      "unknown": "Google Drive Service Unavailable"
+    },
+    "fs": {
+      "empty": "Current folder is empty",
+      "login-message": "You should log in to Google to access drive",
+      "success-save": "File saved to Google Drive",
+      "upper": "To upper level",
+      "warning": "Please sign in to Google Drive"
+    },
+    "login": "Sign in",
+    "logout": "Sign out",
+    "manage": "Manage account",
+    "paste": "Paste your code here:",
+    "submit": "Submit",
+    "success": {
+      "login": "Successfully Logged in to Google Account",
+      "logout": "Log out successful"
+    },
+    "title": "Google account management"
+  },
+  "groups": {
+    "base": "Base",
+    "gates": "Gates",
+    "io": "Input/Output"
+  },
+  "loading": "Loading",
+  "loading-file": "Loading {{file}}",
+  "main-menu": {
+    "file": "File",
+    "options": {
+      "file": {
+        "new": "New",
+        "open": "Open",
+        "save": "Save"
+      }
+    }
+  },
+  "notice": "Notice",
+  "warning": "Warning!"
+}

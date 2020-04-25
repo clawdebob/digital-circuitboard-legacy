@@ -3,6 +3,11 @@ import {fromEvent} from "rxjs";
 import DETAILS from './details.consts';
 import _ from 'lodash';
 import {UNEDITABLE_PROPS} from "../../consts/Parse.consts";
+import PubSub from "../../services/pubSub";
+import {EVENT} from "../../consts/events.consts";
+import i18next from 'i18next';
+
+const t = (str) => i18next.t(str);
 
 class ElementDetails extends React.Component{
     constructor(props) {
@@ -32,7 +37,7 @@ class ElementDetails extends React.Component{
             }
             curEl.setProps(curEl.props);
         }
-        this.props.handleChange(curEl);
+        PubSub.publish(EVENT.SET_CURRENT_ELEMENT, curEl);
         if(this.blurSubscription) {
             this.blurSubscription.unsubscribe();
         }
@@ -71,11 +76,11 @@ class ElementDetails extends React.Component{
                 break;
             case 'answer':
                 optionsList = _.map(
-                    ['No', 'Yes'],
+                    ['no', 'yes'],
                     (val) => {
-                        const mean = val === 'Yes';
+                        const mean = val === 'yes';
 
-                        return (<option value={mean} key={val}>{val}</option>)
+                        return (<option value={mean} key={val}>{t(val)}</option>)
                     }
                 );
                 break;
@@ -100,12 +105,13 @@ class ElementDetails extends React.Component{
 
         return propsKeys.map((prop) => {
             const key = `${element.name}_${prop}`;
+            const translation = _.get(DETAILS[prop], 'name', null);
             let type = _.get(DETAILS[prop], 'inputType', null);
-            let name = _.get(DETAILS[prop], 'name', null);
             let valueType = _.get(DETAILS[prop], 'valueType', null);
+            let name = translation ? t(`props.${translation}`) : null;
 
             if((/invert\d+/).test(prop)) {
-                name = DETAILS['invert'].name + prop.match(/\d+/)[0];
+                name = t(`props.${DETAILS['invert'].name}`) + ' ' + prop.match(/\d+/)[0];
                 type = DETAILS['invert'].inputType;
                 valueType = DETAILS['invert'].valueType;
             }
@@ -153,17 +159,18 @@ class ElementDetails extends React.Component{
     render() {
         if (this.props.currentEl) {
             const elementData = this.getElementData();
+            const currentEl = t(`elements.${this.props.currentEl.name.toLowerCase()}`);
 
             return (
                 <div className={`${this.className}__wrapper`}>
                     <table className={this.className}>
                         <caption className={`${this.className}__title`}>
-                            {`${this.props.currentEl.name} Properties`}
+                            {i18next.t('properties', {element: currentEl})}
                         </caption>
                         <tbody>
                         <tr>
-                            <th>Name</th>
-                            <th>Value</th>
+                            <th>{t('name')}</th>
+                            <th>{t('value')}</th>
                         </tr>
                         {elementData}
                         </tbody>

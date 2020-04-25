@@ -1,0 +1,44 @@
+@keyframes appearing {
+    from {
+        top: -100%;
+        opacity: 0;
+    }
+    to {
+        top: 115px;
+        opacity: 1;
+    }
+}
+
+.notification {
+    border-radius: 15px;
+    padding: 10px;
+    position: fixed;
+    right: 20px;
+    z-index: 2;
+    max-width: 200px;
+    text-align: center;
+    animation: appearing linear 1s forwards, appearing linear 1s alternate-reverse forwards 3.5s;
+
+    &--default {
+        background-color: @menu-hover;
+    }
+
+    &--success {
+        background-color: limegreen;
+        color: aliceblue;
+    }
+
+    &--error {
+        background-color: red;
+        color: aliceblue;
+    }
+
+    &--warning {
+        background-color: #edbe12;
+        color: aliceblue;
+    }
+
+    &--title {
+        font-weight: bold;
+    }
+}

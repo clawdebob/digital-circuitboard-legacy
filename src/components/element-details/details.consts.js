@@ -1,10 +1,10 @@
 const DETAILS = {
     fill: {
-        name: 'Color',
+        name: 'color',
         inputType: 'color'
     },
     inContacts: {
-        name: 'Number of In contacts',
+        name: 'in',
         inputType: 'select',
         valueType: 'range'
     },
@@ -14,17 +14,17 @@ const DETAILS = {
         valueType: 'range'
     },
     initialSignal: {
-        name: 'Initial value',
+        name: 'initial-value',
         inputType: 'select',
         valueType: 'signal'
     },
     signal: {
-        name: 'Current value',
+        name: 'current-value',
         inputType: 'select',
         valueType: 'signal'
     },
     invert: {
-        name: 'Invert ',
+        name: 'invert',
         inputType: 'select',
         valueType: 'answer'
     }
