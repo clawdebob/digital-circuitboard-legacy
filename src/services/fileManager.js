@@ -4,10 +4,9 @@ import {Subject} from "rxjs";
 import elementBuilder from "./elementBuilder";
 import Wire from "../elements/Wire/Wire";
 import Element from "../elements/Element";
+import Renderer from '../utils/render';
 
 class fileManager {
-    static renderer = null;
-
     static makeFile(data) {
         const schemeName = data.schemeName;
         const elements = _.map(data.elements, (element) => {
@@ -101,18 +100,18 @@ class fileManager {
         const schemeName = /(.+)\.dcb/.exec(fileName)[1];
         const elements = [];
 
-        this.renderer.clearScene();
+        Renderer.clearScene();
 
         _.forEach(data.elements, (elementTemp) => {
             const create = elementBuilder.getCreateFuncByName(elementTemp.name);
             const element = create(elementTemp);
 
             if(elementTemp.name === 'Junction') {
-                this.renderer.renderJunction(element, elementTemp.x, elementTemp.y);
+                Renderer.renderJunction(element, elementTemp.x, elementTemp.y);
             } else {
                 elementTemp.y -= (element.height/2 - element.originY);
                 elementTemp.x -= element.width/2;
-                this.renderer.renderElement(element, elementTemp.x, elementTemp.y);
+                Renderer.renderElement(element, elementTemp.x, elementTemp.y);
             }
             elements.push(element);
             element.setId();
@@ -148,7 +147,7 @@ class fileManager {
             }
             wire.className = wire.name;
 
-            this.renderer.renderWire(wire, coords.x1, coords.y1, coords.x2, coords.y2, false);
+            Renderer.renderWire(wire, coords.x1, coords.y1, coords.x2, coords.y2, false);
 
             return {
                 schemeName,
@@ -200,7 +199,7 @@ class fileManager {
         const fileInput = document.getElementById('file-input');
 
         fileInput.value = '';
-        this.renderer.clearScene();
+        Renderer.clearScene();
     }
 }
 

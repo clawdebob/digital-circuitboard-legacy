@@ -1,12 +1,11 @@
 import React from 'react';
-import Renderer from '../../render';
+import Renderer from '../../utils/render';
 import Wire from '../../elements/Wire/Wire';
 import Junction from '../../elements/Junction/Junction';
 import STATE from './board-states.consts';
 import _ from 'lodash';
 import Element from '../../elements/Element';
 import {fromEvent} from "rxjs";
-import fileManager from "../../services/fileManager";
 import PubSub from "../../services/pubSub";
 import {EVENT} from "../../consts/events.consts";
 
@@ -37,7 +36,7 @@ class Board extends React.Component {
             _.forEach (this.wires, (wire) => {
                 wire.model.stroke = '#00000000';
             });
-            this.renderer.render();
+            Renderer.render();
         };
 
         window.getAllWireModels = () => {
@@ -89,7 +88,7 @@ class Board extends React.Component {
         const idx = _.findIndex(this.wires, wire);
 
         wire.unsub();
-        this.renderer.removeElementById(wire.id);
+        Renderer.removeElementById(wire.id);
         this.wires.splice(idx,1);
     }
 
@@ -195,7 +194,7 @@ class Board extends React.Component {
                 replacement.outConnector = {el: replacementWires[c + 1], pin: 0, type: 'in'};
             }
             this.deleteWire(wiresToReplace[c]);
-            this.renderer.renderWire(replacement, coords.x1, coords.y1, coords.x2, coords.y2);
+            Renderer.renderWire(replacement, coords.x1, coords.y1, coords.x2, coords.y2);
             this.wires.push(replacement);
             this.applyHelpers(replacement);
         }
@@ -293,7 +292,7 @@ class Board extends React.Component {
                         if ((main.x1 !== main.x2 && (Math.abs(main.y1 - main.y2) !== 2))
                             || (main.x1 === main.x2 && (main.y1 !== main.y2))) {
                             this.tryProlongWire(wire);
-                            this.renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
+                            Renderer.renderWire(wire, main.x1, main.y1, main.x2, main.y2);
                             this.wires.push(wire);
                             if(!bend) {
                                 wire.wire();
@@ -326,7 +325,7 @@ class Board extends React.Component {
                             endJunction.pushWire(wireBend);
                         }
                         this.wires.push(wireBend);
-                        this.renderer.renderWire(wireBend, bend.x1, bend.y1, bend.x2, bend.y2);
+                        Renderer.renderWire(wireBend, bend.x1, bend.y1, bend.x2, bend.y2);
                         wireBend.wire();
                         wire.wire();
                         this.applyHelpers(wire);
@@ -335,7 +334,7 @@ class Board extends React.Component {
                     if (this.junctionStartingFlag) {
                         const coords = this.startingEl.el.getCoords();
 
-                        this.renderer.renderJunction(
+                        Renderer.renderJunction(
                             startJunction,
                             coords.orientation === 'horizontal' ? main.x1 : coords.x1,
                             coords.orientation === 'horizontal' ? coords.y1 : main.y1,
@@ -343,14 +342,14 @@ class Board extends React.Component {
                         this.elements.push(startJunction);
                         this.sliceWire(this.startingEl.el, startJunction);
                         startJunction.enableOutPinHelper(0);
-                        this.renderer.render();
+                        Renderer.render();
                         this.applyHelpers(startJunction);
                     }
                     if(this.junctionEndingFlag) {
                         const coords = this.endingEl.el.getCoords();
                         const wireCoords = bend ? wireBend.getCoords() : wire.getCoords();
 
-                        this.renderer.renderJunction(
+                        Renderer.renderJunction(
                             endJunction,
                             coords.orientation === 'horizontal' ? wireCoords.x1 : coords.x1,
                             coords.orientation === 'horizontal' ? coords.y1 : wireCoords.y2,
@@ -358,11 +357,11 @@ class Board extends React.Component {
                         this.elements.push(endJunction);
                         this.sliceWire(this.endingEl.el, endJunction);
                         endJunction.enableOutPinHelper(0);
-                        this.renderer.render();
+                        Renderer.render();
                         this.applyHelpers(endJunction);
                     }
-                    this.renderer.removeElement({className: 'main'});
-                    this.renderer.removeElement({className: 'bend'});
+                    Renderer.removeElement({className: 'main'});
+                    Renderer.removeElement({className: 'bend'});
                 }
             }
             this.updateGlobalData();
@@ -472,8 +471,8 @@ class Board extends React.Component {
                 secondWire.inConnector = {el: junction, pin: 0, type: 'out'};
                 secondWire.outConnector = wire.outConnector;
 
-                this.renderer.renderWire(firstWire, start.x1, start.y1, start.x2, start.y2);
-                this.renderer.renderWire(secondWire, end.x1, end.y1, end.x2, end.y2);
+                Renderer.renderWire(firstWire, start.x1, start.y1, start.x2, start.y2);
+                Renderer.renderWire(secondWire, end.x1, end.y1, end.x2, end.y2);
                 this.applyHelpers(firstWire);
                 this.applyHelpers(secondWire);
                 this.wires.splice(idx, 0, firstWire);
@@ -532,7 +531,7 @@ class Board extends React.Component {
             // isSliced =
             // if(!isSliced) {
             //     wire.junctionHelpers.pop();
-            //     this.renderer.removeElementById(wire.id + 'bend-helper');
+            //     Renderer.removeElementById(wire.id + 'bend-helper');
             //     wire.unsub();
             //     inConnector.unsub();
             //     junction.pushWire(wire);
@@ -560,13 +559,24 @@ class Board extends React.Component {
     dragHandler(e) {
         e.preventDefault();
         const el = _.cloneDeep(this.props.currentEl);
+        const boardWidth = Renderer.getFieldData().width;
+        const boardHeight = Renderer.getFieldData().height;
 
-        this.renderer.renderElement(el, this.state.x, this.state.y);
+        Renderer.renderElement(el, this.state.x, this.state.y);
         this.elements.push(el);
         el.setId();
         el.updateState();
         this.applyHelpers(el);
         this.updateGlobalData();
+
+        PubSub.publish(EVENT.BOARD_RESIZE, {
+            width: el.x + el.width > boardWidth ? boardWidth + el.width * 2 : boardWidth,
+            height: el.y + el.height > boardHeight ? boardHeight + el.height * 2 : boardHeight
+        });
+
+        console.log(el);
+
+        el.model._renderer.elem.scrollIntoView();
     }
 
     applyHelpers(el) {
@@ -575,12 +585,12 @@ class Board extends React.Component {
                 const domEl = _.get(pin, 'helper._renderer.elem', null);
 
                 if (domEl) {
-                    // this.renderer.foreground.add(pin.helper);
+                    // Renderer.foreground.add(pin.helper);
                     fromEvent(domEl, 'mousemove')
                         .subscribe(() => {
                             if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
                                 pin.helper.opacity = 1;
-                                this.renderer.render();
+                                Renderer.render();
                                 endFunction(el, idx);
                             }
                         });
@@ -595,7 +605,7 @@ class Board extends React.Component {
                         .subscribe(() => {
                             if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
                                 pin.helper.opacity = 0;
-                                this.renderer.render();
+                                Renderer.render();
                                 this.endingEl = this.startingEl;
                             }
                         });
@@ -635,7 +645,7 @@ class Board extends React.Component {
                     const endId = _.get(this.endingEl, 'el.id', null);
 
                     model.opacity = 1;
-                    this.renderer.render();
+                    Renderer.render();
                     this.endingEl = {el: el, pin: 0, type: null};
                     this.junctionEndingFlag = stId && endId && (stId !== endId) ;
                 }
@@ -643,7 +653,7 @@ class Board extends React.Component {
             fromEvent(domModel, 'mouseout').subscribe(() => {
                 if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
                     model.opacity = 0;
-                    this.renderer.render();
+                    Renderer.render();
                     this.junctionEndingFlag = false;
                     this.endingEl = this.startingEl;
                 }
@@ -687,8 +697,8 @@ class Board extends React.Component {
 
         if(ghost && this.props.state === STATE.CREATE) {
             this.calcCoords(coords);
-            this.renderer.removeElement(ghost);
-            this.renderer.renderGhost(ghost, coords.x, coords.y);
+            Renderer.removeElement(ghost);
+            Renderer.renderGhost(ghost, coords.x, coords.y);
         }
 
         if(this.props.state === STATE.WIRE && this.down) {
@@ -696,10 +706,10 @@ class Board extends React.Component {
             const bend = new Wire();
             wire.className = 'main';
             bend.className = 'bend';
-            const prev = this.renderer.getElement(wire);
+            const prev = Renderer.getElement(wire);
             this.calcWireCoords(coords);
-            this.renderer.removeElement(wire);
-            this.renderer.removeElement(bend);
+            Renderer.removeElement(wire);
+            Renderer.removeElement(bend);
 
             let x1 = this.state.x1;
             let y1 = this.state.y1;
@@ -718,8 +728,8 @@ class Board extends React.Component {
                 }
                 [x1m, y1m, x2m, y2m] = this.orientationCorrection(x1m, y1m, x2m, y2m);
                 [x1b, y1b, x2b, y2b] = this.orientationCorrection(x1b, y1b, x2b, y2b);
-                this.renderer.renderWire(wire, x1m, y1m, x2m, y2m, false);
-                this.renderer.renderWire(bend, x1b, y1b, x2b, y2b);
+                Renderer.renderWire(wire, x1m, y1m, x2m, y2m, false);
+                Renderer.renderWire(bend, x1b, y1b, x2b, y2b);
                 this.wiresToBuild = {
                     main: {
                         x1: x1m,
@@ -737,7 +747,7 @@ class Board extends React.Component {
             } else {
                 [x1, y1, x2, y2] = this.orientationCorrection(x1,y1,x2,y2);
 
-                this.renderer.renderWire(wire, x1, y1, x2, y2);
+                Renderer.renderWire(wire, x1, y1, x2, y2);
                 this.wiresToBuild = {
                     main: {
                         x1: x1,
@@ -753,8 +763,8 @@ class Board extends React.Component {
     resetComponent() {
         if(this.board){
             if(this.ghost) {
-                this.renderer.removeElement(this.ghost);
-                this.renderer.render();
+                Renderer.removeElement(this.ghost);
+                Renderer.render();
             }
             this.ghost = null;
             _.forEach(this.eventSubscriptions, (subscription) => {
@@ -835,9 +845,8 @@ class Board extends React.Component {
 
     componentDidMount() {
         this.board = document.getElementById('board');
-        this.renderer = new Renderer(this.board);
-        fileManager.renderer = this.renderer;
-        window.renderer = this.renderer;
+        Renderer.init(this.board);
+        window.renderer = Renderer;
         fromEvent(this.board, 'mousedown')
             .subscribe((e) => {
                 e.preventDefault();

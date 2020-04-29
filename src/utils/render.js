@@ -1,32 +1,42 @@
 import Two from 'two.js';
 import _ from 'lodash';
+import PubSub from '../services/pubSub';
+import {EVENT} from "../consts/events.consts";
 
 class Renderer {
-    constructor(element) {
-        const board = element;
-        // const {width, height} = board.getBoundingClientRect();
-        const params = {width: 2000, height: 2000};
+    static init(element) {
+        this.board = element;
+        const {width, height} = this.board.parentElement.getBoundingClientRect();
 
-        this.svg = new Two(params).appendTo(board);
+        this.svg = new Two({width, height}).appendTo(this.board);
         this.render = this.render.bind(this);
         this.background = this.svg.makeGroup();
         this.middleground = this.svg.makeGroup();
         this.foreground = this.svg.makeGroup();
+        PubSub.subscribe(EVENT.BOARD_RESIZE, (data) => {
+            const {width, height} = data;
+
+            this.setFieldSize(width, height);
+        });
     }
 
-    getFieldData() {
-        return this.svg;
+    static getFieldData() {
+        const {width, height} = this.board.getBoundingClientRect();
+
+        return {width, height};
     }
 
-    setFieldSize(width, height) {
+    static setFieldSize(width, height) {
         this.svg.width = width;
         this.svg.height = height;
-
-        return this.render();
+        this.board.style.width = `${width}px`;
+        this.board.style.height = `${height}px`;
+        this.render();
     }
 
-    renderWire(wire, x1,y1,x2,y2, instantRender = true) {
+    static renderWire(wire, x1,y1,x2,y2, instantRender = true) {
         const line = this.svg.makeLine(x1,y1,x2,y2);
+
         line.fill = wire.fill || '#000000';
         line.opacity = 1;
         line.linewidth = 2;
@@ -104,7 +114,7 @@ class Renderer {
         return line;
     }
 
-    makeElement(element, x, y) {
+    static makeElement(element, x, y) {
         const props = element.props;
         const className = props.className || element.className;
         const originY = y + element.height/2 - element.originY;
@@ -129,13 +139,13 @@ class Renderer {
         return model;
     }
 
-    renderGhost(element, x, y) {
+    static renderGhost(element, x, y) {
         this.makeElement(element, x, y);
 
         return this.render();
     }
 
-    renderHelpCircle (x, y) {
+    static renderHelpCircle (x, y) {
         const circle = this.svg.makeCircle(x, y, 5);
 
         circle.fill = '#00000000';
@@ -147,7 +157,7 @@ class Renderer {
         return circle;
     }
 
-    renderInvertCircle(x, y) {
+    static renderInvertCircle(x, y) {
         const circle = this.svg.makeCircle(x, y, 3.5);
 
         circle.fill = '#ffffff';
@@ -155,12 +165,11 @@ class Renderer {
         circle.classList.push('invert-circle');
         circle.className = 'invert-circle';
         circle.linewidth = 1;
-        // this.render();
 
         return circle;
     }
 
-    renderJunction(junction, x, y) {
+    static renderJunction(junction, x, y) {
         const circle = this.svg.makeCircle(x, y, 3);
         const helper = this.renderHelpCircle(x, y);
 
@@ -183,20 +192,15 @@ class Renderer {
             }
         });
         this.foreground.add(helper);
-        // this.render();
 
         return circle;
     }
 
-    renderText(text, x, y, styles) {
-        const result = this.svg.makeText(text, x, y, styles);
-
-        // this.render();
-
-        return result;
+    static renderText(text, x, y, styles) {
+        return this.svg.makeText(text, x, y, styles);
     }
 
-    renderElement(element, x, y) {
+    static renderElement(element, x, y) {
         const rect = this.makeElement(element, x, y);
         const inPins = [];
         const outPins = [];
@@ -262,6 +266,7 @@ class Renderer {
             const interactionGroup = this.svg.makeGroup(rect, signatureGroup);
 
             interactionGroup.className = element.className;
+            group.add(interactionGroup);
             element.interactionModel = interactionGroup;
         }
 
@@ -279,15 +284,13 @@ class Renderer {
             this.render();
         });
         this.foreground.add(group);
-
-        // return this.render();
     }
 
-    getElement(element) {
+    static getElement(element) {
         return this.svg.scene.getByClassName(element.props.className || element.className);
     }
 
-    removeElementById(id) {
+    static removeElementById(id) {
         const els = this.svg.scene.getByClassName(id);
 
         _.forEach(els, (el) => {
@@ -296,7 +299,7 @@ class Renderer {
         return this.render();
     }
 
-    removeElement(element) {
+    static removeElement(element) {
         const els = this.svg.scene.getByClassName(_.get(element, 'props.className', false) || element.className);
 
         _.forEach(els, (el) => {
@@ -304,18 +307,16 @@ class Renderer {
         });
     }
 
-    clearScene() {
+    static clearScene() {
         this.svg.clear();
         this.render();
         this.background = this.svg.makeGroup();
         this.middleground = this.svg.makeGroup();
         this.foreground = this.svg.makeGroup();
-        // console.log(this.svg.scene);
     }
 
-    render() {
+    static render() {
         this.svg.update();
-        // console.log('upd');
     }
 }
 
