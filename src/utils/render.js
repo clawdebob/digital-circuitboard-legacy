@@ -2,6 +2,7 @@ import Two from 'two.js';
 import _ from 'lodash';
 import PubSub from '../services/pubSub';
 import {EVENT} from "../consts/events.consts";
+import {DIRECTION, ORIENTATION} from "../elements/Orientation.const";
 
 class Renderer {
     static init(element) {
@@ -198,6 +199,50 @@ class Renderer {
 
     static renderText(text, x, y, styles) {
         return this.svg.makeText(text, x, y, styles);
+    }
+
+    static renderActiveWireZone(wire) {
+        const coords = wire.getCoords();
+        const {x1, y1, x2, y2, orientation, direction} = coords;
+        let xShift = 0;
+        let yShift = 0;
+
+        if(orientation === ORIENTATION.HORIZONTAL) {
+            xShift = direction === DIRECTION.L2R ? 3 : -3;
+        }
+        if(orientation === ORIENTATION.VERTICAL) {
+            yShift = direction === DIRECTION.T2B ? 3 : -3;
+        }
+        const size = 7;
+        const rect1 = this.svg.makeRectangle(x1 - xShift, y1 - yShift, size, size);
+        const rect2 = this.svg.makeRectangle(x2 + xShift, y2 + yShift, size, size);
+        const activeZone = this.svg.makeGroup(rect1, rect2);
+
+        activeZone.classList.push('active-zone');
+        this.render();
+    }
+
+    static renderActiveZone(element) {
+        if(element.width && element.height) {
+            const {width, height} = element;
+            const x = element.x - element.width/2;
+            const y = element.y + element.height/2;
+            const [x1, y1, x2, y2, x3, y3, x4, y4] = [x, y, x + width, y, x, y - height, x + width, y - height];
+            const shift = 3;
+            const size = 7;
+            const rect1 = this.svg.makeRectangle(x1 - shift, y1 + shift, size, size);
+            const rect2 = this.svg.makeRectangle(x2 + shift, y2 + shift, size, size);
+            const rect3 = this.svg.makeRectangle(x3 - shift, y3 - shift, size, size);
+            const rect4 = this.svg.makeRectangle(x4 + shift, y4 - shift, size, size);
+            const activeZone = this.svg.makeGroup(rect1, rect2, rect3, rect4);
+
+            activeZone.classList.push('active-zone');
+            this.render();
+        }
+    }
+
+    static eraseActiveZone() {
+        this.removeElementById('active-zone');
     }
 
     static renderElement(element, x, y) {

@@ -18,38 +18,38 @@ class Junction extends Element {
         this.outPins = new Pin(this);
         this.inPins = new Pin(this);
         this.junctionHelpers = [];
-        this.inSub = [];
-        this.outSub = [];
+        this.inWires = [];
+        this.outWires = [];
         this.errorRegistred = false;
     }
 
     getTotalWired() {
-        return _.union(this.inSub, this.outSub).length;
+        return _.union(this.inWires, this.outWires).length;
     }
 
     pushWire(wire) {
         const signalSource = wire.getCurrentSignalSource();
 
         if(signalSource && signalSource.el.id !== this.id) {
-            this.inSub.push(wire);
+            this.inWires.push(wire);
             wire.outConnector = {el: this, pin: 0, type: 'in'};
         } else {
-            this.outSub.push(wire);
+            this.outWires.push(wire);
             wire.inConnector = {el: this, pin: 0, type: 'out'};
         }
     }
 
     removeWire(wire) {
-        if(_.find(this.inSub, wire)) {
-            _.remove(this.inSub, val => val.id === wire.id);
+        if(_.find(this.inWires, wire)) {
+            _.remove(this.inWires, val => val.id === wire.id);
         }
-        if(_.find(this.outSub, wire)) {
-            _.remove(this.outSub, val => val.id === wire.id);
+        if(_.find(this.outWires, wire)) {
+            _.remove(this.outWires, val => val.id === wire.id);
         }
     }
 
     setErrorState() {
-        _.forEach(this.inSub, (sub) => {
+        _.forEach(this.inWires, (sub) => {
             const globalElObj = sub.getCurrentSignalSource();
 
             if(globalElObj && this.model) {
@@ -73,7 +73,7 @@ class Junction extends Element {
     }
 
     unsetErrorState() {
-        _.forEach(this.inSub, (sub) => {
+        _.forEach(this.inWires, (sub) => {
             const globalElObj = sub.getCurrentSignalSource();
 
             if(globalElObj && this.model) {
@@ -97,11 +97,11 @@ class Junction extends Element {
     }
 
     operation() {
-        const value = _.get(this.inSub[0],'outPins.pins[0].value', undefined);
+        const value = _.get(this.inWires[0],'outPins.pins[0].value', undefined);
         let isError = false;
         let signal = value;
 
-        _.forEach(this.inSub, (sub) => {
+        _.forEach(this.inWires, (sub) => {
             const val = _.get(sub, 'outPins.pins[0].value');
 
             if(val !== value) {
@@ -116,7 +116,7 @@ class Junction extends Element {
         }
         this.outPins.pins[0].value = signal;
         if(this.model) {
-            _.forEach(this.outSub, (sub) => {
+            _.forEach(this.outWires, (sub) => {
                 let lastWire = sub;
 
                 for (let el = lastWire; el.outConnector && _.get(el, 'outConnector.el.name', null) === 'Wire'; el = el.outConnector.el) {
@@ -130,6 +130,24 @@ class Junction extends Element {
             this.model.fill = this.getStateColor(signal);
             this.model.stroke = this.getStateColor(signal);
         }
+    }
+
+    destroy() {
+        if(this.inWires.length === 1 && this.outWires.length === 1) {
+            const inWire = this.inWires[0];
+            const outWire = this.outWires[0];
+
+            inWire.unsub();
+            outWire.unsub();
+            inWire.outConnector = {el: outWire, pin: 0, type: 'in'};
+            outWire.inConnector = {el: inWire, pin: 0, type: 'out'};
+            inWire.wire();
+            outWire.wire();
+            this.inWires = [];
+            this.outWires = [];
+            this.model.remove();
+        }
+        this.subscriptions.unsubscribe();
     }
 
     updateState() {

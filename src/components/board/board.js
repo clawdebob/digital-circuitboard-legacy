@@ -12,12 +12,11 @@ import {EVENT} from "../../consts/events.consts";
 class Board extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
+        this.coords = {
             x: null,
             y: null,
             x1: null,
             y1: null,
-            wiresToBuild: null,
         };
         this.ghost = null;
         this.down = false;
@@ -28,6 +27,7 @@ class Board extends React.Component {
         this.endingEl = null;
         this.elements = [];
         this.wires = [];
+        this.isAnyElementActive = false;
         this.eventSubscriptions = [];
 
         window.wires = this.wires;
@@ -63,7 +63,8 @@ class Board extends React.Component {
     calcCoords(coords) {
         coords.x = Math.floor(coords.x/12)*12 + 5;
         coords.y = Math.floor(coords.y/12)*12 + 5;
-        this.setState(coords);
+        this.coords.x = coords.x;
+        this.coords.y = coords.y;
     }
 
     calcWireCoords(coords, isWireStart = false) {
@@ -71,9 +72,11 @@ class Board extends React.Component {
         coords.y = Math.floor(coords.y/12)*12 + 5;
 
         if(isWireStart) {
-            this.setState({x1: coords.x, y1: coords.y});
+            this.coords.x1 = coords.x;
+            this.coords.y1 = coords.y;
         } else {
-            this.setState(coords);
+            this.coords.x = coords.x;
+            this.coords.y = coords.y;
         }
     }
 
@@ -87,7 +90,7 @@ class Board extends React.Component {
     deleteWire(wire) {
         const idx = _.findIndex(this.wires, wire);
 
-        wire.unsub();
+        wire.destroy();
         Renderer.removeElementById(wire.id);
         this.wires.splice(idx,1);
     }
@@ -302,9 +305,7 @@ class Board extends React.Component {
                     }
                     if (bend) {
                         if (wire.outConnector && wire.inConnector) {
-                            const onlyStart = this.junctionStartingFlag && !this.junctionEndingFlag;
-
-                            if (startingEl.type === 'in' || onlyStart) {
+                            if (startingEl.type === 'in') {
                                 wireBend.inConnector = wire.inConnector;
                                 wireBend.outConnector = _.clone({el: wire, pin: 0, type: 'in'});
                                 wire.inConnector = _.clone({el: wireBend, pin: 0, type: 'out'});
@@ -562,7 +563,7 @@ class Board extends React.Component {
         const boardWidth = Renderer.getFieldData().width;
         const boardHeight = Renderer.getFieldData().height;
 
-        Renderer.renderElement(el, this.state.x, this.state.y);
+        Renderer.renderElement(el, this.coords.x, this.coords.y);
         this.elements.push(el);
         el.setId();
         el.updateState();
@@ -574,8 +575,6 @@ class Board extends React.Component {
             height: el.y + el.height > boardHeight ? boardHeight + el.height * 2 : boardHeight
         });
 
-        console.log(el);
-
         el.model._renderer.elem.scrollIntoView();
     }
 
@@ -585,8 +584,7 @@ class Board extends React.Component {
                 const domEl = _.get(pin, 'helper._renderer.elem', null);
 
                 if (domEl) {
-                    // Renderer.foreground.add(pin.helper);
-                    fromEvent(domEl, 'mousemove')
+                    const pinMousemove = fromEvent(domEl, 'mousemove')
                         .subscribe(() => {
                             if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
                                 pin.helper.opacity = 1;
@@ -594,14 +592,14 @@ class Board extends React.Component {
                                 endFunction(el, idx);
                             }
                         });
-                    fromEvent(domEl, 'mousedown')
+                    const pinMousedown = fromEvent(domEl, 'mousedown')
                         .subscribe(() => {
                             if(this.props.state === STATE.EDIT && pin.helperEnabled) {
                                 PubSub.publish(EVENT.SET_BOARD_STATE, STATE.WIRE);
                                 startFunction(el, idx);
                             }
                         });
-                    fromEvent(domEl, 'mouseout')
+                    const pinMouseout = fromEvent(domEl, 'mouseout')
                         .subscribe(() => {
                             if((this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) && pin.helperEnabled) {
                                 pin.helper.opacity = 0;
@@ -609,6 +607,8 @@ class Board extends React.Component {
                                 this.endingEl = this.startingEl;
                             }
                         });
+
+                    el.addSubscription(pinMousemove, pinMousedown, pinMouseout);
                 }
             };
         };
@@ -639,7 +639,7 @@ class Board extends React.Component {
         _.forEach(el.junctionHelpers, (model) => {
             const domModel = model._renderer.elem;
 
-            fromEvent(domModel, 'mousemove').subscribe(() => {
+            const junctionMousemove = fromEvent(domModel, 'mousemove').subscribe(() => {
                 if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
                     const stId = _.get(this.startingEl, 'el.id', null);
                     const endId = _.get(this.endingEl, 'el.id', null);
@@ -647,10 +647,10 @@ class Board extends React.Component {
                     model.opacity = 1;
                     Renderer.render();
                     this.endingEl = {el: el, pin: 0, type: null};
-                    this.junctionEndingFlag = stId && endId && (stId !== endId) ;
+                    this.junctionEndingFlag = stId && endId && (stId !== endId);
                 }
             });
-            fromEvent(domModel, 'mouseout').subscribe(() => {
+            const junctionMouseout = fromEvent(domModel, 'mouseout').subscribe(() => {
                 if(this.props.state === STATE.EDIT || this.props.state === STATE.WIRE) {
                     model.opacity = 0;
                     Renderer.render();
@@ -658,14 +658,144 @@ class Board extends React.Component {
                     this.endingEl = this.startingEl;
                 }
             });
-            fromEvent(domModel, 'mousedown').subscribe(() => {
+            const junctionMousedown = fromEvent(domModel, 'mousedown').subscribe(() => {
                     if(this.props.state === STATE.EDIT) {
                         PubSub.publish(EVENT.SET_BOARD_STATE, STATE.WIRE);
                         this.startingEl = {el: el, pin: 0, type: null};
                         this.junctionStartingFlag = true;
+
+                        const junctionMouseup = fromEvent(domModel, 'mouseup')
+                            .subscribe(() => {
+                                this.junctionStartingFlag = false;
+                                this.startingEl = null;
+                                this.endingEl = null;
+                                junctionMouseup.unsubscribe();
+                            });
                     }
                 });
+
+            el.addSubscription(junctionMousedown, junctionMousemove, junctionMouseout);
         });
+
+        if(el.name === 'Wire') {
+            const wireBounds = el.modelGroup._renderer.elem;
+
+            const wireClick = fromEvent(wireBounds, 'click')
+                .subscribe((e) => {
+                    e.preventDefault();
+                    if(this.props.state === STATE.EDIT) {
+                        el.model.className += ' element-active';
+
+                        const handleDelete = fromEvent(document, 'keydown')
+                            .subscribe((e) => {
+                                if(e.keyCode === 46) {
+                                    this.deleteWire(el);
+                                    Renderer.eraseActiveZone();
+                                    handleDelete.unsubscribe();
+                                }
+                            });
+
+                        const clickElsewhere = fromEvent(document, 'mousedown')
+                            .subscribe((e) => {
+                                const parts = '.element-active, .element-active *';
+
+                                if(!e.target.matches(parts)) {
+                                    el.model.className = el.model.className.replace(' element-active', '');
+                                    el.active = false;
+                                    this.isAnyElementActive = false;
+                                    Renderer.eraseActiveZone();
+                                    clickElsewhere.unsubscribe();
+                                    handleDelete.unsubscribe();
+                                }
+                            });
+                        Renderer.renderActiveWireZone(el);
+                    }
+                });
+
+            el.addSubscription(wireClick);
+        }
+
+        if(el.name !== 'Junction' && el.name !== 'Wire') {
+            const elementBounds = el.model._renderer.elem;
+
+            const elementClick = fromEvent(elementBounds, 'click')
+                .subscribe((e) => {
+                    e.preventDefault();
+                    if(this.props.state === STATE.EDIT) {
+                        el.model.className += ' element-active';
+                        el.active = true;
+                        this.isAnyElementActive = true;
+                        PubSub.publish(EVENT.SET_CURRENT_ELEMENT, el);
+
+                        const handleDelete = fromEvent(document, 'keydown')
+                            .subscribe((e) => {
+                                if(e.keyCode === 46) {
+                                    this.deleteElement(el);
+                                    Renderer.eraseActiveZone();
+                                    handleDelete.unsubscribe();
+                                }
+                            });
+
+                        const clickElsewhere = fromEvent(document, 'mousedown')
+                            .subscribe((e) => {
+                                const parts = '.element-active, .element-active *';
+
+                                if(!e.target.matches(parts)) {
+                                    el.model.className = el.model.className.replace(' element-active', '');
+                                    elementBounds.style.cursor = 'default';
+                                    el.active = false;
+                                    this.isAnyElementActive = false;
+                                    Renderer.eraseActiveZone();
+                                    clickElsewhere.unsubscribe();
+                                    handleDelete.unsubscribe();
+                                }
+                            });
+                        Renderer.renderActiveZone(el);
+                    }
+                });
+
+            const elementMousedown = fromEvent(elementBounds, 'mousedown')
+                .subscribe(() => {
+                    if(el.active && this.props.state === STATE.EDIT) {
+                        const ghost = _.cloneDeep(this.props.currentEl);
+                        let move = false;
+
+                        ghost.className = 'ghost';
+                        ghost.props.opacity = 0.5;
+                        this.ghost = ghost;
+                        elementBounds.style.cursor = 'grabbing';
+
+                        const mouseMove = fromEvent(document, 'mousemove')
+                            .subscribe((e) => {
+                                move = true;
+                                this.ghostHelper(e);
+                                this.deleteElement(el);
+                                Renderer.eraseActiveZone();
+                            });
+
+                        const mouseUp = fromEvent(document, 'mouseup')
+                            .subscribe((e) => {
+                                if(move) {
+                                    this.dragHandler(e);
+                                } else {
+                                    elementBounds.style.cursor = 'grab';
+                                }
+                                mouseUp.unsubscribe();
+                                mouseMove.unsubscribe();
+                            });
+                    }
+                });
+
+            el.addSubscription(elementClick, elementMousedown);
+        }
+    }
+
+    deleteElement(element) {
+        const idx = _.findIndex(this.elements, element);
+
+        element.destroy();
+        Renderer.removeElementById(element.id);
+        this.elements.splice(idx, 1);
     }
 
     orientationCorrection(x1, y1, x2, y2) {
@@ -695,7 +825,7 @@ class Board extends React.Component {
         const ghost = this.ghost;
         let coords = this.getCoords(e);
 
-        if(ghost && this.props.state === STATE.CREATE) {
+        if(ghost && (this.props.state === STATE.CREATE || this.isAnyElementActive)) {
             this.calcCoords(coords);
             Renderer.removeElement(ghost);
             Renderer.renderGhost(ghost, coords.x, coords.y);
@@ -711,10 +841,10 @@ class Board extends React.Component {
             Renderer.removeElement(wire);
             Renderer.removeElement(bend);
 
-            let x1 = this.state.x1;
-            let y1 = this.state.y1;
-            let x2 = this.state.x;
-            let y2 = this.state.y;
+            let x1 = this.coords.x1;
+            let y1 = this.coords.y1;
+            let x2 = this.coords.x;
+            let y2 = this.coords.y;
 
             if(y1 !== y2 && x1 !== x2) {
                 let x1m, y1m, x2m, y2m;
@@ -812,10 +942,6 @@ class Board extends React.Component {
                 );
                 break;
             case STATE.EDIT:
-                this.eventSubscriptions.push(
-                    fromEvent(this.board, 'mousemove')
-                        .subscribe(this.ghostHelper)
-                );
                 break;
             case STATE.CREATE:
                 this.eventSubscriptions.push(

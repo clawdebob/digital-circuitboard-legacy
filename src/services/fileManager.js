@@ -89,6 +89,13 @@ class fileManager {
 
         document.body.removeChild(element);
     }
+    //
+    // static saveAsSVG(name) {
+    //     const scene = document.getElementById('board');
+    //     const svg = scene.innerHTML;
+    //
+    //     console.log(svg);
+    // }
 
     static openFile() {
         const fileInput = document.getElementById('file-input');

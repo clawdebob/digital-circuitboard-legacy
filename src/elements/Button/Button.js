@@ -22,17 +22,23 @@ class Button extends Element {
         props ? super(props) : super(defaultProps);
     }
 
+    setInteractions() {
+        const body = this.interactionModel._renderer.elem;
+        const onClick = fromEvent(body, 'click')
+            .subscribe(() => {
+                if(Element.boardState === STATE.INTERACT){
+                    this.props.initialSignal = Number(!this.props.initialSignal);
+                    super.updateState();
+                }
+            });
+
+        this.addSubscription(onClick);
+    }
+
     updateState() {
         super.updateState();
-        const body = this.interactionModel._renderer.elem;
-
-        fromEvent(body, 'click').subscribe(() => {
-            if(Element.boardState === STATE.INTERACT){
-                this.props.initialSignal = Number(!this.props.initialSignal);
-                super.updateState();
-            }
-        });
-        this.updateState = super.updateState();
+        this.setInteractions();
+        this.updateState = super.updateState;
     }
 
     operation() {
