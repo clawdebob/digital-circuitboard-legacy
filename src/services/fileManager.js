@@ -13,6 +13,7 @@ import STATE from "../components/board/board-states.consts";
 class fileManager {
     static makeFile(data) {
         const schemeName = data.schemeName;
+        const {width, height} = Renderer.getFieldData();
         const elements = _.map(data.elements, (element) => {
             let inPins = null;
             let outPins = null;
@@ -73,6 +74,8 @@ class fileManager {
 
         return JSON.stringify({
             schemeName,
+            width,
+            height,
             elements,
             wires
         }, null, '\t');
@@ -141,8 +144,11 @@ class fileManager {
     static async loadData(data, fileName) {
         const schemeName = /(.+)\.dcb/.exec(fileName)[1];
         const elements = [];
+        const width = data.width || 2000;
+        const height = data.height || 2000;
 
         Renderer.clearScene();
+        Renderer.setFieldSize(width, height);
 
         _.forEach(data.elements, (elementTemp) => {
             const create = elementBuilder.getCreateFuncByName(elementTemp.name);
