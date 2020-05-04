@@ -1,21 +1,28 @@
 {
-  "no": "No",
-  "yes": "Yes",
-  "name": "Name",
-  "value": "Value",
-  "properties": "{{element}} properties",
-  "props": {
-    "initial-value": "Initial value",
-    "current-value": "Current value",
-    "in": "Number of In contacts",
-    "color": "Color",
-    "invert": "Invert"
+  "main-menu": {
+    "options": {
+      "save-as-svg": "Save as SVG",
+      "save-as-png": "Save as PNG",
+      "file": {
+        "new": "New",
+        "open": "Open",
+        "save": "Save"
+      }
+    },
+    "export": "Export",
+    "file": "File"
   },
-  "select-language": "Select language",
   "action": {
-    "interact": "Interact",
-    "edit": "Edit"
+    "create-out-contact": "Create out contact",
+    "create-button": "Create button",
+    "edit": "Edit",
+    "interact": "Interact"
   },
+  "properties": "{{element}} properties",
+  "value": "Value",
+  "name": "Name",
+  "yes": "Yes",
+  "no": "No",
   "elements": {
     "and": "AND",
     "buffer": "Buffer",
@@ -64,16 +71,14 @@
   },
   "loading": "Loading",
   "loading-file": "Loading {{file}}",
-  "main-menu": {
-    "file": "File",
-    "options": {
-      "file": {
-        "new": "New",
-        "open": "Open",
-        "save": "Save"
-      }
-    }
-  },
   "notice": "Notice",
+  "props": {
+    "color": "Color",
+    "current-value": "Current value",
+    "in": "Number of In contacts",
+    "initial-value": "Initial value",
+    "invert": "Invert"
+  },
+  "select-language": "Select language",
   "warning": "Warning!"
 }

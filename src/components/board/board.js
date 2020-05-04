@@ -956,6 +956,63 @@ class Board extends React.Component {
                 ghost.props.opacity = 0.5;
                 this.ghost = ghost;
                 break;
+            case STATE.DISABLE_MODELING:
+                const text = document.getElementsByTagName('text');
+                const junctions = document.getElementsByClassName('junction-circle');
+                const shapes = document.querySelectorAll('#board svg *');
+                const shapesColors = [];
+                const textColors = [];
+                const junctionsColors = [];
+                const BLACK_COLOR = '#000';
+
+                _.forEach(text, (shape) => {
+                    const fill = window
+                        .getComputedStyle(shape)
+                        .getPropertyValue('fill');
+
+                    textColors.push(fill);
+                    shape.setAttribute('fill', BLACK_COLOR);
+                });
+
+                _.forEach(junctions, (junction) => {
+                    const fill = window
+                        .getComputedStyle(junction)
+                        .getPropertyValue('fill');
+
+                    junctionsColors.push(fill);
+                    junction.setAttribute('fill', BLACK_COLOR);
+                });
+
+                _.forEach(shapes, (shape) => {
+                    const stroke = window
+                        .getComputedStyle(shape)
+                        .getPropertyValue('stroke');
+
+                    shapesColors.push(stroke);
+
+                    if(stroke !== 'none') {
+                        shape.setAttribute('stroke', BLACK_COLOR);
+                    }
+                });
+                PubSub.publish(EVENT.MODELING_OFF, true);
+                _.forEach(text, (shape, idx) => {
+                    shape.setAttribute('fill', textColors[idx]);
+                });
+
+                _.forEach(junctions, (junction, idx) => {
+                    junction.setAttribute('fill', junctionsColors[idx]);
+                });
+
+                _.forEach(shapes, (shape, idx) => {
+                    const stroke = window
+                        .getComputedStyle(shape)
+                        .getPropertyValue('stroke');
+
+                    if(stroke !== 'none') {
+                        shape.setAttribute('stroke', shapesColors[idx]);
+                    }
+                });
+                break;
             case STATE.LOAD_DATA:
                 this.resetData();
                 this.loadData(this.props.data)

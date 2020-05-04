@@ -17,6 +17,7 @@ class PubSub {
 
     static unsubscribe(name) {
         this.subsBuffer[name].unsubscribe();
+        this.createEvent(name);
     }
 }
 

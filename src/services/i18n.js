@@ -14,11 +14,14 @@ const resources = {
     }
 };
 
+const browserLanguage = navigator.language;
+const language = browserLanguage.match(/ru/gmi) ? 'ru' : 'en';
+
 i18n
     .use(initReactI18next) // passes i18n down to react-i18next
     .init({
         resources,
-        lng: "en",
+        lng: language,
 
         interpolation: {
             escapeValue: false // react already safes from xss

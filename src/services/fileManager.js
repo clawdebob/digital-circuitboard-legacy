@@ -5,6 +5,10 @@ import elementBuilder from "./elementBuilder";
 import Wire from "../elements/Wire/Wire";
 import Element from "../elements/Element";
 import Renderer from '../utils/render';
+import html2canvas from 'html2canvas';
+import PubSub from "./pubSub";
+import {EVENT} from "../consts/events.consts";
+import STATE from "../components/board/board-states.consts";
 
 class fileManager {
     static makeFile(data) {
@@ -89,13 +93,44 @@ class fileManager {
 
         document.body.removeChild(element);
     }
-    //
-    // static saveAsSVG(name) {
-    //     const scene = document.getElementById('board');
-    //     const svg = scene.innerHTML;
-    //
-    //     console.log(svg);
-    // }
+
+    static saveAsPNG(name) {
+        const scene = document.querySelectorAll('#board svg')[0];
+
+        PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: true});
+        PubSub.publish(EVENT.SET_BOARD_STATE, STATE.DISABLE_MODELING);
+        PubSub.subscribe(EVENT.MODELING_OFF, () => {
+            html2canvas(scene, {logging: false}).then((canvas) => {
+                const element = document.createElement('a');
+
+                element.download = `${name}.png`;
+                element.href = canvas.toDataURL();
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+                PubSub.publish(EVENT.SET_BOARD_STATE, STATE.EDIT);
+                PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: false});
+                PubSub.unsubscribe(EVENT.MODELING_OFF);
+            });
+        });
+    }
+
+    static saveAsSVG(name) {
+        const scene = document.getElementById('board');
+        const style = '<style>.junction-circle {fill: #000000} .ghost {display: none} text {fill: #000000}</style>';
+        const svg = scene.innerHTML
+            .replace(/stroke=".+?"/gmi, 'stroke="#000000"')
+            .replace(/(<svg.*?>)/gmi, `$1${style}`);
+        const element = document.createElement('a');
+
+        element.setAttribute('href', 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+        element.setAttribute('download', name + '.svg');
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
 
     static openFile() {
         const fileInput = document.getElementById('file-input');

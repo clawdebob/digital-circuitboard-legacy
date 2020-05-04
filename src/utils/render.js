@@ -141,7 +141,9 @@ class Renderer {
     }
 
     static renderGhost(element, x, y) {
-        this.makeElement(element, x, y);
+        const ghost = this.makeElement(element, x, y);
+
+        ghost.className = 'ghost';
 
         return this.render();
     }
@@ -151,7 +153,6 @@ class Renderer {
 
         circle.fill = '#00000000';
         circle.stroke = '#14ff53';
-        circle.classList.push('help-circle');
         circle.opacity = 0;
         circle.className = 'help-circle';
 
@@ -174,7 +175,6 @@ class Renderer {
         const circle = this.svg.makeCircle(x, y, 3);
         const helper = this.renderHelpCircle(x, y);
 
-        circle.classList.push('junction-circle');
         circle.className = 'junction-circle';
         circle.fill = '#000000';
         this.background.add(circle);
@@ -279,6 +279,7 @@ class Renderer {
         }
         if(element.signature) {
             const text = this.renderText(element.signature, x + element.width/2, y + 15);
+
             text.size = element.signatureSize;
             element.signatureModel = text;
 
