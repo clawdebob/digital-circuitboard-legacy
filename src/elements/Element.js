@@ -24,6 +24,8 @@ class Element {
         this.signatureSize = props.signatureSize || 24;
         this.setProps(props.props);
         this.model = null;
+        this.active = false;
+        this.subscriptions = null;
         this.signatureModel = null;
         this.helpers = null;
         this.renderFlag = new BehaviorSubject(null);
@@ -140,6 +142,61 @@ class Element {
         this.outPins.enablePinHelper(idx);
         this.pinToggleObservable.next(this.outPins.pins[idx]);
         this.renderFlag.next();
+    }
+
+    addSubscription() {
+        _.forEach(arguments, (subscription) => {
+            if(!this.subscriptions || _.get(this.subscriptions, 'closed', false)) {
+                this.subscriptions = subscription;
+            } else {
+                this.subscriptions.add(subscription);
+            }
+        });
+    }
+
+    destroy() {
+        if(this.outPins){
+            _.forEach(this.outPins.pins, (pin) => {
+                const wire = pin.wiredTo;
+
+                pin.helperEnabled = true;
+
+                if(wire) {
+                    const wirePin = wire.inPins.pins[0];
+
+                    console.log(wire);
+
+                    wire.inSub.unsubscribe();
+                    wire.enableInPinHelper(0);
+                    wirePin.wiredTo = null;
+                    wire.inConnector = null;
+                    wirePin.value = undefined;
+                    wire.updateState();
+                    pin.wiredTo = null;
+                }
+            });
+        }
+
+        if(this.inPins) {
+            _.forEach(this.inPins.pins, (pin) => {
+                const wire = pin.wiredTo;
+
+                pin.helperEnabled = true;
+
+                if(wire) {
+                    const wirePin = wire.outPins.pins[0];
+
+                    wire.outSub.unsubscribe();
+                    wirePin.wiredTo = null;
+                    wire.outConnector = null;
+                    wire.enableOutPinHelper(0);
+                    pin.wiredTo = null;
+                    wire.updateState();
+                }
+            });
+        }
+
+        this.subscriptions.unsubscribe();
     }
 
     updateState() {

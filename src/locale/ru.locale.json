@@ -1,21 +1,28 @@
 {
-  "no": "Нет",
-  "yes": "Да",
-  "name": "Имя",
-  "value": "Значение",
-  "properties": "Свойства: {{element}}",
-  "props": {
-    "initial-value": "Начальное значение",
-    "current-value": "Текущее значение",
-    "in": "Количество входящих контактов",
-    "color": "Цвет",
-    "invert": "Инвертировать"
+  "main-menu": {
+    "options": {
+      "save-as-svg": "Сохранить как SVG",
+      "save-as-png": "Сохранить как PNG",
+      "file": {
+        "new": "Создать",
+        "open": "Открыть",
+        "save": "Сохранить"
+      }
+    },
+    "export": "Экспорт",
+    "file": "Файл"
   },
-  "select-language": "Выберите язык",
   "action": {
-    "interact": "Взаимодействовать",
-    "edit": "Редактировать"
+    "create-out-contact": "Создать выходящий контакт",
+    "create-button": "Создать кнопку",
+    "edit": "Редактировать",
+    "interact": "Взаимодействовать"
   },
+  "properties": "Свойства: {{element}}",
+  "value": "Значение",
+  "name": "Имя",
+  "yes": "Да",
+  "no": "Нет",
   "elements": {
     "and": "И",
     "buffer": "Шина",
@@ -64,16 +71,14 @@
   },
   "loading": "Загрузка",
   "loading-file": "Загрузка {{file}}",
-  "main-menu": {
-    "file": "Файл",
-    "options": {
-      "file": {
-        "new": "Создать",
-        "open": "Открыть",
-        "save": "Сохранить"
-      }
-    }
-  },
   "notice": "Уведомление",
+  "props": {
+    "color": "Цвет",
+    "current-value": "Текущее значение",
+    "in": "Количество входящих контактов",
+    "initial-value": "Начальное значение",
+    "invert": "Инвертировать"
+  },
+  "select-language": "Выберите язык",
   "warning": "Внимание!"
 }

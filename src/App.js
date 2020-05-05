@@ -55,47 +55,22 @@ class App extends React.Component {
                 suboptions: [
                     {name: 'main-menu.options.file.new', action: this.newFile},
                     {name: 'main-menu.options.file.open', action: this.open},
-                    {name: 'main-menu.options.file.save', hotkey: "Ctrl+S", action: this.save},
+                    {name: 'main-menu.options.file.save', action: this.save},
                 ]
             },
             {
                 name: 'Google Drive',
                 suboptions: [
                     {name: "gdrive.manage", action: this.manageGdrive},
-                    {name: "main-menu.options.file.open", action: () => this.toggleFs(true, 'open')},
-                    {name: "main-menu.options.file.save", action: () => this.toggleFs(true, 'save')}
+                    {name: 'main-menu.options.file.open', action: () => this.toggleFs(true, 'open')},
+                    {name: 'main-menu.options.file.save', action: () => this.toggleFs(true, 'save')}
                 ]
             },
             {
-                name: 'View',
+                name: 'main-menu.export',
                 suboptions: [
-                    {name: "Save", hotkey: "Ctrl+S"},
-                    {name: "Open"},
-                    {name: "Delete", hotkey: "Delete"}
-                ]
-            },
-            {
-                name: 'Arrange',
-                suboptions: [
-                    {name: "Sign in google", hotkey: "Ctrl+S"},
-                    {name: "Open"},
-                    {name: "Delete", hotkey: "Delete"}
-                ]
-            },
-            {
-                name: 'Extras',
-                suboptions: [
-                    {name: "Save", hotkey: "Ctrl+S"},
-                    {name: "Open"},
-                    {name: "Delete", hotkey: "Delete"}
-                ]
-            },
-            {
-                name: 'Help',
-                suboptions: [
-                    {name: "Save", hotkey: "Ctrl+S"},
-                    {name: "Open"},
-                    {name: "Delete", hotkey: "Delete"}
+                    {name: 'main-menu.options.save-as-svg', action: () => fileManager.saveAsSVG(this.state.data.schemeName)},
+                    {name: 'main-menu.options.save-as-png', action: () => fileManager.saveAsPNG(this.state.data.schemeName)},
                 ]
             },
         ];

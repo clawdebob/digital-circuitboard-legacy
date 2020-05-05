@@ -157,7 +157,7 @@ class ElementDetails extends React.Component{
     }
 
     render() {
-        if (this.props.currentEl) {
+        if (this.props.currentEl && !this.props.currentEl.id) {
             const elementData = this.getElementData();
             const currentEl = t(`elements.${this.props.currentEl.name.toLowerCase()}`);
 

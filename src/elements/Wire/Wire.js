@@ -25,34 +25,30 @@ class Wire extends Element {
     }
 
     updateState() {
-        if (this.inConnector) {
-            const element = _.get(this.inConnector, 'el');
-            const pinNumber = _.get(this.inConnector, 'pin');
-            const signal = element.outPins.pins[pinNumber].value;
+        const element = _.get(this.inConnector, 'el');
+        const pinNumber = _.get(this.inConnector, 'pin');
+        const signal = _.get(element, `outPins.pins[${pinNumber}].value`, undefined);
 
-            this.inPins.pins[0].value = signal;
-            this.outPins.pins[0].value = signal;
-            this.model.stroke = this.getStateColor(signal);
-            try {
-                this.outPins.pins[0].valueUpdate.next(signal);
-            } catch (e) {
-                const overload = 'overload';
-                const signalSource = this.getCurrentSignalSource().el;
-                const sourcePinIdx = this.getCurrentSignalSource().pin;
-                const signalGoal = this.getCurrentSignalGoal().el;
-                const goalPinIdx = this.getCurrentSignalGoal().pin;
+        this.inPins.pins[0].value = signal;
+        this.outPins.pins[0].value = signal;
+        this.model.stroke = this.getStateColor(signal);
+        try {
+            this.outPins.pins[0].valueUpdate.next(signal);
+        } catch (e) {
+            const overload = 'overload';
+            const signalSource = this.getCurrentSignalSource().el;
+            const sourcePinIdx = this.getCurrentSignalSource().pin;
+            const signalGoal = this.getCurrentSignalGoal().el;
+            const goalPinIdx = this.getCurrentSignalGoal().pin;
 
-                signalSource.model.children[2].children[sourcePinIdx].stroke = this.getStateColor(overload);
-                signalGoal.model.children[1].children[goalPinIdx].stroke = this.getStateColor(overload);
-                signalGoal.inPins.pins[goalPinIdx].value = overload;
-                signalSource.outPins.pins[sourcePinIdx].value = overload;
-                for(let el = signalSource.outPins.pins[sourcePinIdx].wiredTo; el.name === 'Wire'; el = el.outConnector.el) {
-                    el.model.stroke = this.getStateColor(overload);
-                    el.outPins.pins[0].value = overload;
-                }
+            signalSource.model.children[2].children[sourcePinIdx].stroke = this.getStateColor(overload);
+            signalGoal.model.children[1].children[goalPinIdx].stroke = this.getStateColor(overload);
+            signalGoal.inPins.pins[goalPinIdx].value = overload;
+            signalSource.outPins.pins[sourcePinIdx].value = overload;
+            for(let el = signalSource.outPins.pins[sourcePinIdx].wiredTo; el.name === 'Wire'; el = el.outConnector.el) {
+                el.model.stroke = this.getStateColor(overload);
+                el.outPins.pins[0].value = overload;
             }
-        } else {
-            this.model.stroke = this.getStateColor(undefined);
         }
         this.renderFlag.next();
     }
@@ -61,11 +57,36 @@ class Wire extends Element {
         const inConnector = this.inConnector;
         const outConnector = this.outConnector;
         if(outConnector && this.outSub){
+            const element= outConnector.el;
+
+            this.outPins.pins[0].value = undefined;
+            element.updateState();
             this.outSub.unsubscribe();
+            element.enableInPinHelper(outConnector.pin);
+            if(element.name === 'Junction') {
+                element.removeWire(this);
+                if(element.getTotalWired() === 2) {
+                    element.destroy();
+                }
+            }
         }
         if(inConnector && this.inSub) {
+            const element = inConnector.el;
+
             this.inSub.unsubscribe();
+            element.enableOutPinHelper(inConnector.pin);
+            if(element.name === 'Junction') {
+                element.removeWire(this);
+                if(element.getTotalWired() === 2) {
+                    element.destroy();
+                }
+            }
         }
+    }
+
+    destroy() {
+        this.unsub();
+        this.subscriptions.unsubscribe();
     }
 
     getCoords() {

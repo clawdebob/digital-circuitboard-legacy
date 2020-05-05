@@ -5,6 +5,7 @@ import PubSub from "../../services/pubSub";
 import {EVENT} from "../../consts/events.consts";
 import STATE from "../board/board-states.consts";
 import {fromEvent} from "rxjs";
+import Renderer from "../../utils/render";
 
 const t = (str) => i18next.t(str);
 
@@ -122,6 +123,7 @@ class sideMenu extends React.Component {
         this.mouseUpSliderObservable = fromEvent(document, 'mouseup');
         this.sliderMoveSubscription = null;
         this.mouseUpSliderSubscription = null;
+        this.menuInitialWidth = null;
 
         this.state = {
             currentEl: null,
@@ -135,11 +137,24 @@ class sideMenu extends React.Component {
     mouseMove(e, slider) {
         e.preventDefault();
         const diffX = e.pageX - slider.pageX;
+        const menuWidth = diffX + slider.curColumnWidth;
 
         if (e.pageX > slider.width && slider.column.getBoundingClientRect().width > slider.width) {
-            slider.column.style.width = `${diffX + slider.curColumnWidth}px`;
+            slider.column.style.width = `${menuWidth}px`;
         } else {
             slider.column.style.width = `${slider.width}px`;
+        }
+
+        if(this.menuInitialWidth > menuWidth) {
+            const {width, height} = document.getElementsByClassName('board__container')[0].getBoundingClientRect();
+            const boardWidth = Renderer.getFieldData().width;
+            const boardHeight = Renderer.getFieldData().height;
+
+            PubSub.publish(EVENT.BOARD_RESIZE, {
+                width: boardWidth > width ? boardWidth : width,
+                height: boardHeight > height ? boardHeight : height
+            });
+            this.menuInitialWidth = menuWidth;
         }
     }
 
@@ -157,12 +172,32 @@ class sideMenu extends React.Component {
             curColumnWidth: e.target.parentElement.offsetWidth,
             pageX: e.pageX,
             width: e.target.offsetWidth + 2,
+            height: e.target.offsetHeight
         };
 
         this.sliderMoveSubscription = this.sliderMoveObservable
             .subscribe((e) => this.mouseMove(e, slider));
         this.mouseUpSliderSubscription = this.mouseUpSliderObservable
             .subscribe(this.mouseUp);
+    }
+
+    componentDidMount() {
+        const menu = document.getElementsByClassName('side-menu')[0];
+
+        this.menuInitialWidth = menu.getBoundingClientRect().width;
+        fromEvent(window, 'resize')
+            .subscribe((e) => {
+                const windowWidth = e.target.innerWidth;
+                const menuWidth = menu.getBoundingClientRect().width;
+                const menuHeight = menu.getBoundingClientRect().height;
+                const boardWidth = Renderer.getFieldData().width;
+                const boardHeight = Renderer.getFieldData().height;
+
+                PubSub.publish(EVENT.BOARD_RESIZE, {
+                    width: boardWidth + menuWidth > windowWidth ? boardWidth : windowWidth - menuWidth,
+                    height: boardHeight > menuHeight ? boardHeight : menuHeight
+                });
+            });
     }
 
     render() {

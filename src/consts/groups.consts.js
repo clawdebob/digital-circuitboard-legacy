@@ -26,15 +26,6 @@ export const GROUPS = [
         ],
     },
     {
-        name: 'Plexers',
-        elements: ['Multiplexor', 'Demultiplexor', 'Decoder', 'Coder'],
-    },
-    {
-        name: 'Arithmetic',
-        elements: ['Summator']
-    },
-    {name: 'Memory', elements: ['ROM', 'RAM']},
-    {
         name: 'groups.io',
         elements: [
             new ElementBase('Constant'),

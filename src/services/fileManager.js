@@ -4,12 +4,16 @@ import {Subject} from "rxjs";
 import elementBuilder from "./elementBuilder";
 import Wire from "../elements/Wire/Wire";
 import Element from "../elements/Element";
+import Renderer from '../utils/render';
+import html2canvas from 'html2canvas';
+import PubSub from "./pubSub";
+import {EVENT} from "../consts/events.consts";
+import STATE from "../components/board/board-states.consts";
 
 class fileManager {
-    static renderer = null;
-
     static makeFile(data) {
         const schemeName = data.schemeName;
+        const {width, height} = Renderer.getFieldData();
         const elements = _.map(data.elements, (element) => {
             let inPins = null;
             let outPins = null;
@@ -70,6 +74,8 @@ class fileManager {
 
         return JSON.stringify({
             schemeName,
+            width,
+            height,
             elements,
             wires
         }, null, '\t');
@@ -91,6 +97,44 @@ class fileManager {
         document.body.removeChild(element);
     }
 
+    static saveAsPNG(name) {
+        const scene = document.querySelectorAll('#board svg')[0];
+
+        PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: true});
+        PubSub.publish(EVENT.SET_BOARD_STATE, STATE.DISABLE_MODELING);
+        PubSub.subscribe(EVENT.MODELING_OFF, () => {
+            html2canvas(scene, {logging: false}).then((canvas) => {
+                const element = document.createElement('a');
+
+                element.download = `${name}.png`;
+                element.href = canvas.toDataURL();
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+                PubSub.publish(EVENT.SET_BOARD_STATE, STATE.EDIT);
+                PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: false});
+                PubSub.unsubscribe(EVENT.MODELING_OFF);
+            });
+        });
+    }
+
+    static saveAsSVG(name) {
+        const scene = document.getElementById('board');
+        const style = '<style>.junction-circle {fill: #000000} .ghost {display: none} text {fill: #000000}</style>';
+        const svg = scene.innerHTML
+            .replace(/stroke=".+?"/gmi, 'stroke="#000000"')
+            .replace(/(<svg.*?>)/gmi, `$1${style}`);
+        const element = document.createElement('a');
+
+        element.setAttribute('href', 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+        element.setAttribute('download', name + '.svg');
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+
     static openFile() {
         const fileInput = document.getElementById('file-input');
 
@@ -100,19 +144,22 @@ class fileManager {
     static async loadData(data, fileName) {
         const schemeName = /(.+)\.dcb/.exec(fileName)[1];
         const elements = [];
+        const width = data.width || 2000;
+        const height = data.height || 2000;
 
-        this.renderer.clearScene();
+        Renderer.clearScene();
+        Renderer.setFieldSize(width, height);
 
         _.forEach(data.elements, (elementTemp) => {
             const create = elementBuilder.getCreateFuncByName(elementTemp.name);
             const element = create(elementTemp);
 
             if(elementTemp.name === 'Junction') {
-                this.renderer.renderJunction(element, elementTemp.x, elementTemp.y);
+                Renderer.renderJunction(element, elementTemp.x, elementTemp.y);
             } else {
                 elementTemp.y -= (element.height/2 - element.originY);
                 elementTemp.x -= element.width/2;
-                this.renderer.renderElement(element, elementTemp.x, elementTemp.y);
+                Renderer.renderElement(element, elementTemp.x, elementTemp.y);
             }
             elements.push(element);
             element.setId();
@@ -148,7 +195,7 @@ class fileManager {
             }
             wire.className = wire.name;
 
-            this.renderer.renderWire(wire, coords.x1, coords.y1, coords.x2, coords.y2, false);
+            Renderer.renderWire(wire, coords.x1, coords.y1, coords.x2, coords.y2, false);
 
             return {
                 schemeName,
@@ -200,7 +247,7 @@ class fileManager {
         const fileInput = document.getElementById('file-input');
 
         fileInput.value = '';
-        this.renderer.clearScene();
+        Renderer.clearScene();
     }
 }
 
