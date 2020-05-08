@@ -10,6 +10,7 @@ import Junction from "../elements/Junction/Junction";
 import Invertor from "../elements/Invertor/Invertor";
 import Buffer from "../elements/Buffer/Buffer";
 import OutContact from '../elements/Out Contact/OutContact';
+import Label from '../elements/Label/Label';
 
 class elementBuilder {
     static elementMap = new Map([
@@ -24,7 +25,8 @@ class elementBuilder {
         ['Junction', {create: (props) => new Junction(props), icon: null}],
         ['Invertor', {create: (props) => new Invertor(props), icon: require('../assets/invertor.svg')}],
         ['Buffer', {create: (props) => new Buffer(props), icon: require('../assets/buffer.svg')}],
-        ['OutContact', {create: (props) => new OutContact(props), icon: require('../assets/out-contact.svg')}]
+        ['OutContact', {create: (props) => new OutContact(props), icon: require('../assets/out-contact.svg')}],
+        ['Label', {create: (props) => new Label(props), icon: require('../assets/label.svg')}]
     ]);
 
     static getCreateFuncByName(name){

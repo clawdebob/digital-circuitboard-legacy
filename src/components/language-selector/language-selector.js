@@ -16,7 +16,6 @@ class LanguageSelector extends React.Component {
             visible: false,
             language: ''
         };
-        this.clickObserver = fromEvent(document, 'click');
         this.clickSubscription = null;
     }
 
@@ -24,6 +23,7 @@ class LanguageSelector extends React.Component {
         i18n.changeLanguage(language);
         Cookies.set('lang', language, {path: '/', expires: 7});
         PubSub.publish(EVENT.SET_BOARD_STATE, STATE.EDIT);
+        PubSub.publish(EVENT.SET_CURRENT_ELEMENT, null);
         this.setState({language});
         if(this.state.visible) {
             this.toggleSelector();
@@ -31,16 +31,17 @@ class LanguageSelector extends React.Component {
     }
 
     toggleSelector() {
-        this.setState({
-           visible: !this.state.visible,
-        });
-    }
+        const visible = !this.state.visible;
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if(this.state.visible) {
-            this.clickSubscription = this.clickObserver.subscribe(() => {
-                this.toggleSelector();
-            });
+        this.setState({
+           visible
+        });
+
+        if(visible) {
+            this.clickSubscription = fromEvent(document, 'click')
+                .subscribe(() => {
+                    this.toggleSelector();
+                });
         } else if(this.clickSubscription) {
             this.clickSubscription.unsubscribe();
             this.clickSubscription = null;

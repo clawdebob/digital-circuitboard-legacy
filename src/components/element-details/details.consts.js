@@ -27,6 +27,14 @@ const DETAILS = {
         name: 'invert',
         inputType: 'select',
         valueType: 'answer'
+    },
+    fontSize: {
+        name: 'font-size',
+        inputType: 'select',
+        valueType: 'font-size'
+    },
+    name: {
+        name: 'name'
     }
 };
 

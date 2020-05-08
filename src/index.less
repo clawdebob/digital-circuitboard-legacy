@@ -53,11 +53,7 @@ html, body, #root {
     top: 10px;
     font-size: 26px;
     cursor: pointer;
-
-    &::selection {
-        color: none;
-        background: none;
-    }
+    user-select: none;
 
     &:hover {
         color: @menu-hover;

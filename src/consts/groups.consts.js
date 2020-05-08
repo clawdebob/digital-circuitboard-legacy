@@ -33,4 +33,10 @@ export const GROUPS = [
             new ElementBase('OutContact')
         ]
     },
+    {
+        name: 'groups.other',
+        elements: [
+            new ElementBase('Label')
+        ]
+    }
 ];

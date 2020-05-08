@@ -7,7 +7,7 @@ import fileManager from "./fileManager";
 
 const post = (location, body, timeout = 10000) => {
     return ajax({
-        url: 'http://localhost:3030/' + location,
+        url: 'https://digital-circuitboard.ru/' + location,
         method: 'POST',
         timeout,
         body,

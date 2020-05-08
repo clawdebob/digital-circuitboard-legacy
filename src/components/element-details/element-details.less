@@ -35,10 +35,19 @@
                 box-sizing: border-box;
             }
 
+            input[type=text] {
+                box-sizing: border-box;
+                padding: 2px 3px 1px;
+                text-align: right;
+
+                &:focus {
+                    text-align: left;
+                }
+            }
+
             .prop-input {
                 border: none;
                 width: 100%;
-                text-align: right;
                 padding: 2px 0 1px;
                 background-color: white;
 
