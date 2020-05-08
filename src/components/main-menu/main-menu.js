@@ -2,6 +2,7 @@ import React from 'react';
 import i18next from 'i18next';
 import { ReactComponent as Logo } from '../../assets/dcb-logo.svg';
 import LanguageSelector from '../language-selector/language-selector';
+import {fromEvent} from "rxjs";
 
 const t = (str) => i18next.t(str);
 
@@ -22,14 +23,63 @@ function SubList(props) {
     );
 }
 
+class OptionList extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            visible: false
+        };
+        this.clickSubscription = null;
+    }
+
+    toggleMenu() {
+        const visible = !this.state.visible;
+
+        this.setState({
+            visible
+        });
+
+        if(visible) {
+            this.clickSubscription = fromEvent(document, 'click')
+                .subscribe(() => {
+                    this.toggleMenu();
+                });
+        } else if (this.clickSubscription) {
+            this.clickSubscription.unsubscribe();
+            this.clickSubscription = null;
+        }
+    }
+
+    render() {
+        const {name, suboptions} = this.props;
+        const isVisible = this.state.visible;
+        const classState = isVisible ? 'opened' : 'closed';
+
+        return (
+            <li
+                className={`main-menu__option-list main-menu__option-list--${classState}`}
+            >
+                <div
+                    className="main-menu__option"
+                    onClick={() => this.toggleMenu()}
+                >
+                    {t(name)}
+                </div>
+                {isVisible ? <SubList list={suboptions}/> : null}
+            </li>
+        );
+    }
+}
+
 class Options extends React.Component {
     render() {
         const component = this.props.options.map((option, idx) => {
             return (
-                <li className="main-menu__option-list" key={idx}>
-                    <div className="main-menu__option">{t(option.name)}</div>
-                    <SubList list={option.suboptions}/>
-                </li>
+                <OptionList
+                    name={option.name}
+                    suboptions={option.suboptions}
+                    key={idx}
+                />
             );
         });
 

@@ -18,6 +18,7 @@ class ElementDetails extends React.Component{
         this.resetElementState = this.resetElementState.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.blurSubscription = null;
+        this.enterSubscription = null;
     }
 
     resetElementState() {
@@ -41,6 +42,9 @@ class ElementDetails extends React.Component{
         if(this.blurSubscription) {
             this.blurSubscription.unsubscribe();
         }
+        if(this.enterSubscription) {
+            this.enterSubscription.unsubscribe();
+        }
     }
 
     handleFocus(e, prop) {
@@ -49,6 +53,12 @@ class ElementDetails extends React.Component{
 
         this.blurSubscription = fromEvent(input, 'blur')
             .subscribe(this.resetElementState);
+        this.enterSubscription = fromEvent(input, 'keyup')
+            .subscribe((e) => {
+                if(e.keyCode === 13) {
+                    input.blur();
+                }
+            });
     }
 
     handleChange(e, prop) {
@@ -73,6 +83,12 @@ class ElementDetails extends React.Component{
                     }
                     optionsList = getOptionArray(optionsArray);
                 }
+                break;
+            case 'font-size':
+                for(let c = 12; c <= 24; c += 2) {
+                    optionsArray.push(c);
+                }
+                optionsList = getOptionArray(optionsArray);
                 break;
             case 'answer':
                 optionsList = _.map(

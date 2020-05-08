@@ -122,10 +122,25 @@ class Renderer {
         const originX = x + element.width/2;
         let model = null;
 
-        if (element.name === 'OutContact') {
-            model = this.svg.makeCircle(originX, originY, element.width/2);
-        } else {
-            model = this.svg.makeRectangle(originX, originY, element.width, element.height);
+        switch (element.name) {
+            case 'OutContact':
+                model = this.svg.makeCircle(originX, originY, element.width/2);
+                break;
+            case 'Label':
+                model = this.renderText(element.signature, originX, originY);
+                model.size = element.signatureSize;
+                if(className !== 'ghost') {
+                    this.render();
+
+                    const {width, height} = model._renderer.elem.getBoundingClientRect();
+
+                    element.width = width;
+                    element.height = height;
+                }
+                break;
+            default:
+                model = this.svg.makeRectangle(originX, originY, element.width, element.height);
+                break;
         }
 
         model.fill = props.fill;
@@ -198,7 +213,11 @@ class Renderer {
     }
 
     static renderText(text, x, y, styles) {
-        return this.svg.makeText(text, x, y, styles);
+        const model = this.svg.makeText(text, x, y, styles);
+
+        model.family = 'roboto';
+
+        return model;
     }
 
     static renderActiveWireZone(wire) {
@@ -277,7 +296,7 @@ class Renderer {
                 outHelpers.push(this.renderHelpCircle(x2, y2));
             });
         }
-        if(element.signature) {
+        if(element.signature && element.name !== 'Label') {
             const text = this.renderText(element.signature, x + element.width/2, y + 15);
 
             text.size = element.signatureSize;

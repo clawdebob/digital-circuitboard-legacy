@@ -34,7 +34,8 @@
     "nxor": "NXOR",
     "or": "OR",
     "outcontact": "Out contact",
-    "xor": "XOR"
+    "xor": "XOR",
+    "label": "Label"
   },
   "error": "Error",
   "gdrive": {
@@ -67,7 +68,8 @@
   "groups": {
     "base": "Base",
     "gates": "Gates",
-    "io": "Input/Output"
+    "io": "Input/Output",
+    "other": "Other"
   },
   "loading": "Loading",
   "loading-file": "Loading {{file}}",
@@ -77,7 +79,9 @@
     "current-value": "Current value",
     "in": "Number of In contacts",
     "initial-value": "Initial value",
-    "invert": "Invert"
+    "invert": "Invert",
+    "name": "Name",
+    "font-size": "Font size"
   },
   "select-language": "Select language",
   "warning": "Warning!"

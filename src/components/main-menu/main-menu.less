@@ -9,6 +9,7 @@
 
     &--visible {
         display: block;
+        user-select: none;
     }
 
     &--hidden {
@@ -71,13 +72,19 @@
     &__option-list {
         text-decoration-style: unset;
         display: inline-block;
+        cursor: pointer;
+        user-select: none;
 
         &:hover {
             background-color: @menu-hover;
+        }
 
-            .suboptions {
-                display: block;
-            }
+        &--opened {
+            background-color: @menu-hover;
+        }
+
+        &--closed {
+            background-color: @menu-color;
         }
     }
 
@@ -88,7 +95,7 @@
 }
 
 .suboptions {
-    display: none;
+    display: block;
     position: absolute;
     background-color: @menu-color;
     border: 1px solid;
