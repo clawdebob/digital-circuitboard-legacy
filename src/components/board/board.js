@@ -87,10 +87,10 @@ class Board extends React.Component {
         this.calcWireCoords(coords, true);
     }
 
-    deleteWire(wire) {
+    deleteWire(wire, ignoreJunction = false) {
         const idx = _.findIndex(this.wires, wire);
 
-        wire.destroy();
+        wire.destroy(ignoreJunction);
         Renderer.removeElementById(wire.id);
         this.wires.splice(idx,1);
     }
@@ -135,7 +135,7 @@ class Board extends React.Component {
                 } else {
                     wire.inConnector = el.inConnector;
                 }
-                this.deleteWire(el);
+                this.deleteWire(el, true);
             }
         };
         if(inEl){

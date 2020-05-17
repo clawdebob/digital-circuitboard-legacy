@@ -53,7 +53,7 @@ class Wire extends Element {
         this.renderFlag.next();
     }
 
-    unsub() {
+    unsub(ignoreJunction = false) {
         const inConnector = this.inConnector;
         const outConnector = this.outConnector;
         if(outConnector && this.outSub){
@@ -63,7 +63,7 @@ class Wire extends Element {
             element.updateState();
             this.outSub.unsubscribe();
             element.enableInPinHelper(outConnector.pin);
-            if(element.name === 'Junction') {
+            if(!ignoreJunction && element.name === 'Junction') {
                 element.removeWire(this);
                 if(element.getTotalWired() === 2) {
                     element.destroy();
@@ -75,7 +75,7 @@ class Wire extends Element {
 
             this.inSub.unsubscribe();
             element.enableOutPinHelper(inConnector.pin);
-            if(element.name === 'Junction') {
+            if(!ignoreJunction && element.name === 'Junction') {
                 element.removeWire(this);
                 if(element.getTotalWired() === 2) {
                     element.destroy();
@@ -84,8 +84,8 @@ class Wire extends Element {
         }
     }
 
-    destroy() {
-        this.unsub();
+    destroy(ignoreJunction = false) {
+        this.unsub(ignoreJunction);
         this.subscriptions.unsubscribe();
     }
 

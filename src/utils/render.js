@@ -3,6 +3,7 @@ import _ from 'lodash';
 import PubSub from '../services/pubSub';
 import {EVENT} from "../consts/events.consts";
 import {DIRECTION, ORIENTATION} from "../elements/Orientation.const";
+import {ELEMENT} from "../consts/Elements.consts";
 
 class Renderer {
     static init(element) {
@@ -58,7 +59,7 @@ class Renderer {
                 }
             });
         }
-        if(wire.className === 'Wire') {
+        if(wire.className === ELEMENT.WIRE) {
             const [inX, inY] = wire.inConnector ? [x1, y1] : [x2, y2];
             const [outX, outY] = wire.inConnector ? [x2, y2] : [x1, y1];
             const inHelper = this.renderHelpCircle(inX, inY);
@@ -123,10 +124,10 @@ class Renderer {
         let model = null;
 
         switch (element.name) {
-            case 'OutContact':
+            case ELEMENT.OUT_CONTACT:
                 model = this.svg.makeCircle(originX, originY, element.width/2);
                 break;
-            case 'Label':
+            case ELEMENT.LABEL:
                 model = this.renderText(element.signature, originX, originY);
                 model.size = element.signatureSize;
                 if(className !== 'ghost') {
@@ -296,7 +297,7 @@ class Renderer {
                 outHelpers.push(this.renderHelpCircle(x2, y2));
             });
         }
-        if(element.signature && element.name !== 'Label') {
+        if(element.signature && element.name !== ELEMENT.LABEL) {
             const text = this.renderText(element.signature, x + element.width/2, y + 15);
 
             text.size = element.signatureSize;

@@ -11,22 +11,23 @@ import Invertor from "../elements/Invertor/Invertor";
 import Buffer from "../elements/Buffer/Buffer";
 import OutContact from '../elements/Out Contact/OutContact';
 import Label from '../elements/Label/Label';
+import {ELEMENT} from "../consts/Elements.consts";
 
 class elementBuilder {
     static elementMap = new Map([
-        ['Or', {create: (props) => new Or(props), icon: require('../assets/or.svg')}],
-        ['And', {create: (props) => new And(props), icon: require('../assets/and.svg')}],
-        ['Nor', {create: (props) => new Nor(props), icon: require('../assets/nor.svg')}],
-        ['Nand', {create: (props) => new Nand(props), icon: require('../assets/nand.svg')}],
-        ['Xor', {create: (props) => new Xor(props), icon: require('../assets/xor.svg')}],
-        ['Nxor', {create: (props) => new Nxor(props), icon: require('../assets/nxor.svg')}],
-        ['Constant', {create: (props) => new Constant(props), icon: require('../assets/const.svg')}],
-        ['Button', {create: (props) => new Button(props), icon: require('../assets/button.svg')}],
-        ['Junction', {create: (props) => new Junction(props), icon: null}],
-        ['Invertor', {create: (props) => new Invertor(props), icon: require('../assets/invertor.svg')}],
-        ['Buffer', {create: (props) => new Buffer(props), icon: require('../assets/buffer.svg')}],
-        ['OutContact', {create: (props) => new OutContact(props), icon: require('../assets/out-contact.svg')}],
-        ['Label', {create: (props) => new Label(props), icon: require('../assets/label.svg')}]
+        [ELEMENT.OR, {create: (props) => new Or(props), icon: require('../assets/or.svg')}],
+        [ELEMENT.AND, {create: (props) => new And(props), icon: require('../assets/and.svg')}],
+        [ELEMENT.NOR, {create: (props) => new Nor(props), icon: require('../assets/nor.svg')}],
+        [ELEMENT.NAND, {create: (props) => new Nand(props), icon: require('../assets/nand.svg')}],
+        [ELEMENT.XOR, {create: (props) => new Xor(props), icon: require('../assets/xor.svg')}],
+        [ELEMENT.NXOR, {create: (props) => new Nxor(props), icon: require('../assets/nxor.svg')}],
+        [ELEMENT.CONSTANT, {create: (props) => new Constant(props), icon: require('../assets/const.svg')}],
+        [ELEMENT.BUTTON, {create: (props) => new Button(props), icon: require('../assets/button.svg')}],
+        [ELEMENT.JUNCTION, {create: (props) => new Junction(props), icon: null}],
+        [ELEMENT.INVERTOR, {create: (props) => new Invertor(props), icon: require('../assets/invertor.svg')}],
+        [ELEMENT.BUFFER, {create: (props) => new Buffer(props), icon: require('../assets/buffer.svg')}],
+        [ELEMENT.OUT_CONTACT, {create: (props) => new OutContact(props), icon: require('../assets/out-contact.svg')}],
+        [ELEMENT.LABEL, {create: (props) => new Label(props), icon: require('../assets/label.svg')}],
     ]);
 
     static getCreateFuncByName(name){
