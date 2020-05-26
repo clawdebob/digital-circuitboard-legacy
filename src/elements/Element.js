@@ -134,7 +134,7 @@ class Element {
 
     enableInPinHelper(idx) {
         this.inPins.enablePinHelper(idx);
-        this.pinToggleObservable.next(this.outPins.pins[idx]);
+        this.pinToggleObservable.next(this.inPins.pins[idx]);
         this.renderFlag.next();
     }
 

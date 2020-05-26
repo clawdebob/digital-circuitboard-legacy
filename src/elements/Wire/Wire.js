@@ -56,6 +56,7 @@ class Wire extends Element {
     unsub(ignoreJunction = false) {
         const inConnector = this.inConnector;
         const outConnector = this.outConnector;
+        
         if(outConnector && this.outSub){
             const element= outConnector.el;
 
@@ -63,9 +64,9 @@ class Wire extends Element {
             element.updateState();
             this.outSub.unsubscribe();
             element.enableInPinHelper(outConnector.pin);
-            if(!ignoreJunction && element.name === 'Junction') {
+            if(element.name === 'Junction') {
                 element.removeWire(this);
-                if(element.getTotalWired() === 2) {
+                if(!ignoreJunction && element.getTotalWired() === 2) {
                     element.destroy();
                 }
             }
@@ -75,9 +76,9 @@ class Wire extends Element {
 
             this.inSub.unsubscribe();
             element.enableOutPinHelper(inConnector.pin);
-            if(!ignoreJunction && element.name === 'Junction') {
+            if(element.name === 'Junction') {
                 element.removeWire(this);
-                if(element.getTotalWired() === 2) {
+                if(!ignoreJunction && element.getTotalWired() === 2) {
                     element.destroy();
                 }
             }
