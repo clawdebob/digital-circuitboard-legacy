@@ -113,20 +113,20 @@ class FileBrowser extends React.Component {
             } else if (status === 'auth') {
                 PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: false});
                 PubSub.publish(EVENT.SHOW_NOTICE,{
-                    description: 'Please sign in to Google Drive',
+                    description: 'gdrive.fs.warning',
                     type: 'warning'
                 });
             } else {
                 PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: false});
                 PubSub.publish(EVENT.SHOW_NOTICE,{
-                    description: 'Error loading file',
+                    description: 'gdrive.error.file-loading',
                     type: 'error'
                 });
             }
         }, () => {
             PubSub.publish(EVENT.TOGGLE_LOADING, {toggle: false});
             PubSub.publish(EVENT.SHOW_NOTICE,{
-                description: 'Error loading file',
+                description: 'gdrive.error.file-loading',
                 type: 'error'
             });
         });
@@ -143,23 +143,23 @@ class FileBrowser extends React.Component {
 
                 if(status === 'success') {
                     PubSub.publish(EVENT.SHOW_NOTICE, {
-                        description: 'File saved to Google Drive',
+                        description: 'fs.success-save',
                         type: 'success'
                     });
                 } else if (status === 'auth') {
                     PubSub.publish(EVENT.SHOW_NOTICE,{
-                        description: 'Please sign in to Google Drive',
+                        description: 'gdrive.fs.warning',
                         type: 'warning'
                     });
                 } else {
                     PubSub.publish(EVENT.SHOW_NOTICE,{
-                        description: 'Error saving file to Google Drive',
+                        description: 'gdrive.error.file-loading',
                         type: 'error'
                     });
                 }
             }, () => {
                 PubSub.publish(EVENT.SHOW_NOTICE,{
-                    description: 'Error saving file to Google Drive',
+                    description: 'gdrive.error.file-loading',
                     type: 'error'
                 });
             });
