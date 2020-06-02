@@ -143,7 +143,7 @@ class FileBrowser extends React.Component {
 
                 if(status === 'success') {
                     PubSub.publish(EVENT.SHOW_NOTICE, {
-                        description: 'fs.success-save',
+                        description: 'gdrive.fs.success-save',
                         type: 'success'
                     });
                 } else if (status === 'auth') {
