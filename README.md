@@ -6,7 +6,7 @@
 
 Демонстрация работы:
 
-https://user-images.githubusercontent.com/17690239/118359554-aef0d600-b58c-11eb-8c54-9db4900091a2.mp4
+https://user-images.githubusercontent.com/17690239/118359611-f8412580-b58c-11eb-801b-bfa2472d34e9.mp4
 
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
