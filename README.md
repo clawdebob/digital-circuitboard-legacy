@@ -1,3 +1,14 @@
+## Приложение для построения логических электросхем
+
+Позволяет строить комбинационные схемы и цифровые автоматы при помощи базовых логических элементов.
+
+Схемы можно сохранять как на свое устройство, так и на персональное хранилище в облаке Google. Так же есть возможность сохранить схему в формате PNG, SVG.
+
+Демонстрация работы:
+https://user-images.githubusercontent.com/17690239/118359433-15c1bf80-b58c-11eb-99db-e3ca99fcd9a9.mp4
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
